@@ -16,6 +16,5 @@
             { "time": "09:30", "class": "Music", "building": "B3" },
             { "time": "11:00", "class": "Science", "building": "C2" }
         ],
-        // Continue adding for day4, day5, and day6
     }
 }
