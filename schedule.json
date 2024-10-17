@@ -1,20 +1,89 @@
 {
-    "startDate": "2024-09-25",
+    "startDate": "2024-09-24",
     "schedule": {
         "day1": [
-            { "time": "08:00", "class": "Math", "building": "A1" },
-            { "time": "09:30", "class": "Science", "building": "B2" },
-            { "time": "11:00", "class": "History", "building": "C3" }
+            {"time": "07:45", "class": "Chromebook Pick-up and Attendance", "building": "N1"},
+            {"time": "08:00", "class": "Structured Individualized Learning", "building": "N1"},
+            {"time": "09:00", "class": "Break 1", "building": "no specific building"},
+            {"time": "09:05", "class": "Digital Art", "building": "Digital Arts Studio or D5"},
+            {"time": "10:20", "class": "Break 2", "building": "no specific building"},
+            {"time": "10:20", "class": "Fine Art", "building": "Fine Art Studio"},
+            {"time": "11:20", "class": "Break 3", "building": "no specific building"},
+            {"time": "11:30", "class": "Belizean Studies", "building": "D1"},
+            {"time": "12:30", "class": "Lunch", "building": "no specific building"},
+            {"time": "13:00", "class": "Quantitative Reasoning", "building": "N5"},
+            {"time": "14:05", "class": "Maker", "building": "Maker Studio"},
+            {"time": "15:05", "class": "Classroom Cleanup & Duties", "building": "N1"}
         ],
         "day2": [
-            { "time": "08:00", "class": "English", "building": "A2" },
-            { "time": "09:30", "class": "PE", "building": "Gym" },
-            { "time": "11:00", "class": "Art", "building": "D1" }
+            {"time": "07:45", "class": "Chromebook Pick-up and Attendance", "building": "N1"},
+            {"time": "08:00", "class": "Structured Individualized Learning", "building": "N1"},
+            {"time": "09:00", "class": "Break 1", "building": "no specific building"},
+            {"time": "09:05", "class": "Science & Tech", "building": "Science Lab or D6"},
+            {"time": "10:20", "class": "Break 2", "building": "no specific building"},
+            {"time": "10:20", "class": "Science & Tech", "building": "Science Lab or D6"},
+            {"time": "11:20", "class": "Break 3", "building": "no specific building"},
+            {"time": "11:30", "class": "Language Arts", "building": "N1"},
+            {"time": "12:30", "class": "Lunch", "building": "no specific building"},
+            {"time": "13:00", "class": "Seminar", "building": "your Seminar's building"},
+            {"time": "14:05", "class": "Seminar", "building": "your Seminar's building"},
+            {"time": "15:05", "class": "Classroom Cleanup & Duties", "building": "N1"}
         ],
         "day3": [
-            { "time": "08:00", "class": "Math", "building": "A1" },
-            { "time": "09:30", "class": "Music", "building": "B3" },
-            { "time": "11:00", "class": "Science", "building": "C2" }
+            {"time": "07:45", "class": "Chromebook Pick-up and Attendance", "building": "N1"},
+            {"time": "08:00", "class": "Independent Study & Research", "building": "N1"},
+            {"time": "09:00", "class": "Break 1", "building": "no specific building"},
+            {"time": "09:05", "class": "Maker", "building": "Maker Studio"},
+            {"time": "10:20", "class": "Break 2", "building": "no specific building"},
+            {"time": "10:20", "class": "Quantitative Reasoning", "building": "N5"},
+            {"time": "11:20", "class": "Break 3", "building": "no specific building"},
+            {"time": "11:30", "class": "Sustainable Development Projects", "building": "D5"},
+            {"time": "12:30", "class": "Lunch", "building": "no specific building"},
+            {"time": "13:00", "class": "Super Teams & Intramurals", "building": "no specific building"},
+            {"time": "14:05", "class": "Super Teams & Intramurals", "building": "no specific building"},
+            {"time": "15:05", "class": "Classroom Cleanup & Duties", "building": "N1"}
+        ],
+        "day4": [
+            {"time": "07:45", "class": "Chromebook Pick-up and Attendance", "building": "N1"},
+            {"time": "08:00", "class": "Structured Individualized Learning", "building": "N1"},
+            {"time": "09:00", "class": "Break 1", "building": "no specific building"},
+            {"time": "09:05", "class": "Advisory / Life Skills", "building": "N4 or Counselor's Office"},
+            {"time": "10:20", "class": "Break 2", "building": "no specific building"},
+            {"time": "10:20", "class": "Digital Art", "building": "Digital Arts Studio or D5"},
+            {"time": "11:20", "class": "Break 3", "building": "no specific building"},
+            {"time": "11:30", "class": "Language Arts", "building": "N1"},
+            {"time": "12:30", "class": "Lunch", "building": "no specific building"},
+            {"time": "13:00", "class": "PE", "building": "Auditorium or Yellow Stairs"},
+            {"time": "14:05", "class": "Quantitative Reasoning", "building": "N5"},
+            {"time": "15:05", "class": "Classroom Cleanup & Duties", "building": "N1"}
+        ],
+        "day5": [
+            {"time": "07:45", "class": "Chromebook Pick-up and Attendance", "building": "N1"},
+            {"time": "08:00", "class": "Independent Study & Research", "building": "N1"},
+            {"time": "09:00", "class": "Break 1", "building": "no specific building"},
+            {"time": "09:05", "class": "Language Arts", "building": "N1"},
+            {"time": "10:20", "class": "Break 2", "building": "no specific building"},
+            {"time": "10:20", "class": "Fine Art", "building": "Fine Art Studio"},
+            {"time": "11:20", "class": "Break 3", "building": "no specific building"},
+            {"time": "11:30", "class": "Sustainable Development Projects", "building": "D5"},
+            {"time": "12:30", "class": "Lunch", "building": "no specific building"},
+            {"time": "13:00", "class": "Science & Tech", "building": "Science Lab or D6"},
+            {"time": "14:05", "class": "Quantitative Reasoning", "building": "N5"},
+            {"time": "15:05", "class": "Classroom Cleanup & Duties", "building": "N1"}
+        ],
+        "day6": [
+            {"time": "07:45", "class": "Chromebook Pick-up and Attendance", "building": "N1"},
+            {"time": "08:00", "class": "Science & Tech", "building": "Science Lab or D6"},
+            {"time": "09:00", "class": "Break 1", "building": "no specific building"},
+            {"time": "09:05", "class": "Sustainable Development Projects", "building": "D5"},
+            {"time": "10:20", "class": "Break 2", "building": "no specific building"},
+            {"time": "10:20", "class": "Language Arts", "building": "N1"},
+            {"time": "11:20", "class": "Break 3", "building": "no specific building"},
+            {"time": "11:30", "class": "PE", "building": "Auditorium or Yellow Stairs"},
+            {"time": "12:30", "class": "Lunch", "building": "no specific building"},
+            {"time": "13:00", "class": "Belizean Studies", "building": "D1"},
+            {"time": "14:05", "class": "Assembly", "building": "Yellow Stairs or Maker– no specific building"},
+            {"time": "15:05", "class": "Classroom Cleanup & Duties", "building": "N1"}
         ]
     }
 }
