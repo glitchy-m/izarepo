@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Current Day of 6-Day Schedule</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="https://raw.githubusercontent.com/glitchy-m/izarepo/refs/heads/main/icon.png">
+    <script>
+       const jsonUrl = "https://raw.githubusercontent.com/glitchy-m/izarepo/main/schedule.json";
+
+async function getScheduleDay() {
+    try {
+        const response = await fetch(jsonUrl);
+        if (!response.ok) throw new Error('Network response was not ok');
+        
+        const jsonData = await response.json();
+        const startDate = new Date(jsonData.startDate);
+        
+        // Calculate the schedule day logic here
+        const today = new Date();
+        const daysBetween = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
+        const scheduleDay = (daysBetween % 6) + 1;
+        
+        document.getElementById("dayOutput").innerHTML = "Today is Day " + scheduleDay + " of the schedule.";
+    } catch (error) {
+        console.error("Error:", error);
+        document.getElementById("dayOutput").innerHTML = "Error fetching schedule start date: " + error.message;
+    }
+}
+
+    </script>
+</head>
+    <header>
+        <nav>
+            <a href="home.html">Home</a>
+            <a href="full-schedule.html">Schedule for Today</a>
+            <a href="nearest-class.html">Nearest Class</a>
+            <a href="site.html" style="opacity:0.5;">Current Day</a>
+        </nav>
+    </header>
+<body onload="getScheduleDay()">
+  <br><a style="font-size: 250%; font-weight: 600;">Full Class Schedule</a>
+    <p id="dayOutput"></p>
+    <p id="footer">Site made by <a href="https://glitchy-m.carrd.co">Alejandro</a> • <a href="https://isafixes.carrd.co">Issues?</a></p>
+</body>
+</html>

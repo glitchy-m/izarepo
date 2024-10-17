@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find Nearest Class</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="https://raw.githubusercontent.com/glitchy-m/izarepo/refs/heads/main/icon.png">
+    <script>
+        async function findNearestClass() {
+            // Show the loader initially
+            document.getElementById("loader").style.display = "block";
+            document.getElementById("classOutput").innerHTML = "";
+
+            try {
+                const jsonUrl = "https://raw.githubusercontent.com/glitchy-m/izarepo/refs/heads/main/schedule.json"; // Your GitHub JSON file URL
+                const response = await fetch(jsonUrl);
+                if (!response.ok) throw new Error('Network response was not ok');
+
+                const jsonData = await response.json();
+                const startDate = new Date(jsonData.startDate);
+                const today = new Date();
+                const daysBetween = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
+                const currentDay = (daysBetween % 6) + 1;
+
+                // Get the current time
+                const currentTime = today.toTimeString().slice(0, 5); // Get current time in HH:MM format
+
+                // Get the schedule for the current day
+                const scheduleKey = `day${currentDay}`;
+                const schedule = jsonData.schedule[scheduleKey];
+
+                if (!schedule) {
+                    document.getElementById("classOutput").innerHTML = "No schedule available for today.";
+                    return;
+                }
+
+                // Find the nearest upcoming class
+                let nearestClass = null;
+                for (let i = 0; i < schedule.length; i++) {
+                    const classTime = schedule[i].time;
+                    if (classTime > currentTime) {
+                        nearestClass = schedule[i];
+                        break;
+                    }
+                }
+
+                if (nearestClass) {
+                    document.getElementById("classOutput").innerHTML = 
+                        `The next class is ${nearestClass.class} at ${nearestClass.time} at ${nearestClass.building}.`;
+                } else {
+                    document.getElementById("classOutput").innerHTML = "No more classes.<br>Enjoy the rest of your day!";
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                document.getElementById("classOutput").innerHTML = "Error fetching schedule: " + error.message;
+            } finally {
+                // Hide the loader after data is fetched or an error occurs
+                document.getElementById("loader").style.display = "none";
+            }
+        }
+    </script>
+</head>
+<body onload="findNearestClass()">
+    <header>
+        <nav>
+            <a href="home.html">Home</a>
+            <a href="full-schedule.html">Schedule</a>
+            <a href="nearest-class.html" style="opacity:0.5;">Nearest Class</a>
+            <a href="site.html">Current Day</a>
+        </nav>
+    </header>
+    <br><a style="font-size: 250%; font-weight: 600;">Nearest Class</a>
+
+    <!-- Loader will be visible while fetching -->
+    <div id="loader" class="pulse-loader"></div>
+
+    <!-- Output for the nearest class -->
+    <p id="classOutput"></p>
+    <p id="footer">Site made by <a href="https://glitchy-m.carrd.co">Alejandro</a> • <a href="https://isafixes.carrd.co">Issues?</a></p>
+</body>
+</html>

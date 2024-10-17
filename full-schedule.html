@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Class Schedule</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="home.html">Home</a>
+            <a href="full-schedule.html" style="opacity:0.5;">Schedule for Today</a>
+            <a href="nearest-class.html">Nearest Class</a>
+            <a href="site.html">Current Day</a>
+        </nav>
+    </header>
+    <br>
+    <div id="dayOutput" style="font-size: 250%; font-weight: 600;"></div>
+    <div id="classOutput"></div>
+
+    <div id="footer"><p>Site made by <a href="https://glitchy-m.carrd.co">Alejandro</a> • <a href="https://isafixes.carrd.co">Issues?</a></p></div>
+
+    <script>
+document.addEventListener('DOMContentLoaded', () => {
+    const scheduleUrl = "https://raw.githubusercontent.com/glitchy-m/izarepo/refs/heads/main/schedule.json";
+
+    function getNearestClass(schedule, today) {
+        const currentTime = today.toTimeString().slice(0, 5);
+        for (let classInfo of schedule) {
+            if (classInfo.time > currentTime) {
+                return classInfo;
+            }
+        }
+        return null;
+    }
+
+    function displaySchedule(jsonData, currentDay) {
+        let output = "";
+        let nearestClass = getNearestClass(jsonData.schedule[currentDay], new Date());
+
+        jsonData.schedule[currentDay].forEach(classInfo => {
+            let classLine = `<p><b>${classInfo.time}</b> - ${classInfo.class} in <a style="font-weight: 600;">${classInfo.building}</a></p>`;
+            if (nearestClass && nearestClass.time === classInfo.time) {
+                output += `<div class="class-box"><strong>${classLine}</strong></div>`;
+            } else {
+                output += `<div class="class-box">${classLine}</div>`;
+            }
+        });
+
+        document.getElementById("classOutput").innerHTML = output;
+    }
+
+    async function fetchSchedule() {
+        document.getElementById("classOutput").innerHTML = '<div class="pulse-loader"></div>';
+        
+        try {
+            const response = await fetch(scheduleUrl);
+            if (!response.ok) throw new Error('Network response was not ok');
+            
+            const jsonData = await response.json();
+            const today = new Date();
+            const startDate = new Date(jsonData.startDate);
+            const daysBetween = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
+            const currentDay = (daysBetween % 6) + 1; // Cycles through 6 days
+
+            document.getElementById("dayOutput").innerHTML = `Full Class Schedule for Day ${currentDay}`;
+            displaySchedule(jsonData, `day${currentDay}`);
+        } catch (error) {
+            console.error("Error:", error);
+            document.getElementById("classOutput").innerHTML = "Error fetching schedule.";
+        }
+    }
+
+    fetchSchedule();
+});
+
+    </script>
+</body>
+</html>
