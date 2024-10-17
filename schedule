@@ -1,0 +1,21 @@
+{
+    "startDate": "2024-09-25",
+    "schedule": {
+        "day1": [
+            { "time": "08:00", "class": "Math", "building": "A1" },
+            { "time": "09:30", "class": "Science", "building": "B2" },
+            { "time": "11:00", "class": "History", "building": "C3" }
+        ],
+        "day2": [
+            { "time": "08:00", "class": "English", "building": "A2" },
+            { "time": "09:30", "class": "PE", "building": "Gym" },
+            { "time": "11:00", "class": "Art", "building": "D1" }
+        ],
+        "day3": [
+            { "time": "08:00", "class": "Math", "building": "A1" },
+            { "time": "09:30", "class": "Music", "building": "B3" },
+            { "time": "11:00", "class": "Science", "building": "C2" }
+        ],
+        // Continue adding for day4, day5, and day6
+    }
+}
