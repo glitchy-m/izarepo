@@ -15,6 +15,6 @@
             { "time": "08:00", "class": "Math", "building": "A1" },
             { "time": "09:30", "class": "Music", "building": "B3" },
             { "time": "11:00", "class": "Science", "building": "C2" }
-        ],
+        ]
     }
 }
