@@ -35,25 +35,42 @@ async function findNearestClass() {
             return;
         }
 
-        // Find the nearest upcoming class
-        let nearestClass = null;
+        // Initialize variables to track classes
+        let previousClass = null;
+        let nextClass = null;
+
         for (let i = 0; i < schedule.length; i++) {
             const classTime = schedule[i].time;
-            if (classTime > currentTime) {
-                nearestClass = schedule[i];
-                break;
+
+            // Find the next class
+            if (classTime > currentTime && !nextClass) {
+                nextClass = schedule[i];
+            }
+
+            // Find the closest previous class
+            if (classTime < currentTime) {
+                previousClass = schedule[i];
             }
         }
 
-        // Check if there's a class happening right now
-        const currentClass = schedule.find(classItem => classItem.time === currentTime);
+        // Check if the current time is between the previous and next classes
+        let currentClass = null;
+        if (previousClass && nextClass) {
+            const previousTime = previousClass.time;
+            const nextTime = nextClass.time;
+
+            // If current time is between previous class and next class
+            if (previousTime < currentTime && nextTime > currentTime) {
+                currentClass = previousClass; // Current class is the one that just finished
+            }
+        }
 
         if (currentClass) {
             document.getElementById("classOutput").innerHTML = 
                 `You are currently in class: <span class="current-class">${currentClass.class} at ${currentClass.time} at ${currentClass.building}</span>.`;
-        } else if (nearestClass) {
+        } else if (nextClass) {
             document.getElementById("classOutput").innerHTML = 
-                `The next class is ${nearestClass.class} at ${nearestClass.time} at ${nearestClass.building}.`;
+                `The next class is ${nextClass.class} at ${nextClass.time} at ${nextClass.building}.`;
         } else {
             document.getElementById("classOutput").innerHTML = "No more classes.<br>Enjoy the rest of your day!";
         }
