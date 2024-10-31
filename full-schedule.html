@@ -36,29 +36,21 @@ document.addEventListener('DOMContentLoaded', () => {
         return null;
     }
 
-function displaySchedule(jsonData, currentDay) {
-    let output = "";
-    let nearestClass = getNearestClass(jsonData.schedule[currentDay], new Date());
-    const currentTime = new Date().toTimeString().slice(0, 5); // Get current time in HH:MM format
+    function displaySchedule(jsonData, currentDay) {
+        let output = "";
+        let nearestClass = getNearestClass(jsonData.schedule[currentDay], new Date());
 
-    jsonData.schedule[currentDay].forEach(classInfo => {
-        let classLine = `<p><b>${classInfo.time}</b> - ${classInfo.class} in <a style="font-weight: 600;">${classInfo.building}</a></p>`;
-        let classBoxStyle = "";
+        jsonData.schedule[currentDay].forEach(classInfo => {
+            let classLine = <p><b>${classInfo.time}</b> - ${classInfo.class} in <a style="font-weight: 600;">${classInfo.building}</a></p>;
+            if (nearestClass && nearestClass.time === classInfo.time) {
+                output += <div class="class-box"><strong>${classLine}</strong></div>;
+            } else {
+                output += <div class="class-box">${classLine}</div>;
+            }
+        });
 
-        // Check if this class is the nearest class or the current class
-        if (nearestClass && nearestClass.time === classInfo.time) {
-            classBoxStyle = "nearest-class"; // Style for nearest class
-        }
-        if (classInfo.time === currentTime) {
-            classBoxStyle = "current-class"; // Style for current class
-        }
-
-        output += `<div class="class-box ${classBoxStyle}">${classLine}</div>`;
-    });
-
-    document.getElementById("classOutput").innerHTML = output;
-}
-
+        document.getElementById("classOutput").innerHTML = output;
+    }
 
     async function fetchSchedule() {
         document.getElementById("classOutput").innerHTML = '<div class="pulse-loader"></div>';
@@ -73,8 +65,8 @@ function displaySchedule(jsonData, currentDay) {
             const daysBetween = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
             const currentDay = (daysBetween % 6) + 1; // Cycles through 6 days
 
-            document.getElementById("dayOutput").innerHTML = `Full Class Schedule for Day ${currentDay}`;
-            displaySchedule(jsonData, `day${currentDay}`);
+            document.getElementById("dayOutput").innerHTML = Full Class Schedule for Day ${currentDay};
+            displaySchedule(jsonData, day${currentDay});
         } catch (error) {
             console.error("Error:", error);
             document.getElementById("classOutput").innerHTML = "Error fetching schedule.";
