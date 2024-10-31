@@ -113,6 +113,10 @@ h1 {
 }
 
 .current-class {
-    color: green;
-    font-weight: bold;
+    background-color: lightgreen; /* Highlight current class */
 }
+
+.nearest-class {
+    border: 2px solid orange; /* Highlight nearest class differently */
+}
+
