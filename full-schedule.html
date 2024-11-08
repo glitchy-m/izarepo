@@ -52,26 +52,29 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById("classOutput").innerHTML = output;
     }
 
-    async function fetchSchedule() {
-        document.getElementById("classOutput").innerHTML = '<div class="pulse-loader"></div>';
-        
-        try {
-            const response = await fetch(scheduleUrl);
-            if (!response.ok) throw new Error('Network response was not ok');
-            
-            const jsonData = await response.json();
-            const today = new Date();
-            const startDate = new Date(jsonData.startDate);
-            const daysBetween = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
-            const currentDay = (daysBetween % 6) + 1; // Cycles through 6 days
+async function fetchSchedule() {
+    document.getElementById("classOutput").innerHTML = '<div class="pulse-loader"></div>';
 
-            document.getElementById("dayOutput").innerHTML = `Full Class Schedule for Day ${currentDay}`;
-            displaySchedule(jsonData, `day${currentDay}`);
-        } catch (error) {
-            console.error("Error:", error);
-            document.getElementById("classOutput").innerHTML = "Error fetching schedule.";
-        }
+    try {
+        const response = await fetch(scheduleUrl);
+        if (!response.ok) throw new Error('Network response was not ok');
+
+        const jsonData = await response.json();
+        const now = new Date();
+        const startDate = new Date(jsonData.startDate);
+
+        let dayOffset = now.getHours() >= 18 ? -1 : 0;
+        const daysBetween = Math.floor((now - startDate) / (1000 * 60 * 60 * 24)) + dayOffset;
+        const currentDay = ((daysBetween % 6) + 6) % 6 + 1; // Cycles through 6 days
+
+        document.getElementById("dayOutput").innerHTML = `Full Class Schedule for Day ${currentDay}`;
+        displaySchedule(jsonData, `day${currentDay}`);
+    } catch (error) {
+        console.error("Error:", error);
+        document.getElementById("classOutput").innerHTML = "Error fetching schedule.";
     }
+}
+
 
     fetchSchedule();
 });
