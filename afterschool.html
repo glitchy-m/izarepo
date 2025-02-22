@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Schedule Assistant V2 – After School</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="https://raw.githubusercontent.com/glitchy-m/izarepo/refs/heads/main/icon.png">
+</head>
+<body>
+  <header>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="afterschool.html" style="opacity:0.8;">After School</a>
+    </nav>
+  </header>
+  
+  <div id="afterschoolContainer">
+    <!-- Big white box with "The day is over!" -->
+    <div id="bigBox" class="box">
+      <h1>The day is <b>over!</b></h1>
+      <div id="nextDayInfo"></div>
+    </div>
+    <!-- Row of small rectangles showing tomorrow's (next day) classes -->
+    <div id="tomorrowClasses" class="classes-row">
+      <!-- Filled by JS -->
+    </div>
+    <!-- Message with tomorrow's weekday -->
+    <div id="weekdayMessage" class="weekday-msg"></div>
+  </div>
+  
+  <footer>
+    <p>Schedule Assistant <b>V2.</b> Made by <i>Alejandro Moralez.</i></p>
+  </footer>
+  
+  <script>
+document.addEventListener('DOMContentLoaded', () => {
+  const scheduleUrl = "https://raw.githubusercontent.com/glitchy-m/izarepo/refs/heads/main/schedule.json";
+  
+  fetch(scheduleUrl)
+    .then(response => response.json())
+    .then(jsonData => {
+      const now = new Date();
+      const startDate = new Date(jsonData.startDate);
+      let holidayCount = 0;
+      if (jsonData["holiday-dates"]) {
+        jsonData["holiday-dates"].forEach(dateStr => {
+          let holiday = new Date(dateStr);
+          if (holiday >= startDate && holiday < now) {
+            holidayCount++;
+          }
+        });
+      }
+      let dayOffset = now.getHours() >= 18 ? -1 : 0;
+      let daysBetween = Math.floor((now - startDate) / (1000 * 60 * 60 * 24)) + dayOffset;
+      let effectiveDays = daysBetween - holidayCount;
+      let currentDay = ((effectiveDays % 6) + 6) % 6 + 1; // today's day
+      let nextDay = currentDay === 6 ? 1 : currentDay + 1;
+      
+      // Show next day info
+      document.getElementById("nextDayInfo").innerHTML = `<h2>Next Day: <b>Day ${nextDay}</b></h2>`;
+      
+      // Get tomorrow's schedule
+      const tomorrowSchedule = jsonData.schedule["day" + nextDay];
+      // Define abbreviations (customize as needed)
+      const abbreviations = {
+        "Chromebook Pick-up and Attendance": "CPA",
+        "Structured Individualized Learning": "SIL",
+        "Break 1": "Break",
+        "Digital Art": "DA",
+        "Break 2": "Break",
+        "Fine Art": "FA",
+        "Belizean Studies": "BS",
+        "Lunch": "Lunch",
+        "Quantitative Reasoning": "QR",
+        "Maker": "Maker",
+        "Classroom Cleanup & Duties": "Cleanup",
+        "Independent Study & Research": "ISR",
+        "Science & Tech": "SciTech",
+        "Seminar": "Seminar",
+        "Advisory / Life Skills": "Advisory",
+        "Language Arts": "LangArts",
+        "PE": "PE",
+        "Sustainable Development Projects": "SDP",
+        "Assembly": "Assembly"
+      };
+      
+      let classesHTML = "";
+      tomorrowSchedule.forEach(classInfo => {
+        let abbr = abbreviations[classInfo.class] || classInfo.class;
+        // For PE, add a blue gradient background so users know to bring PE clothes
+        let style = "";
+        if (classInfo.class === "PE") {
+          style = 'style="background: linear-gradient(to bottom, #add8e6, #0000ff);"';
+        }
+        classesHTML += `<div class="class-abbr" ${style}>
+          <span>${abbr}</span>
+          <span class="class-time">${(function(){
+            let [h, m] = classInfo.time.split(":");
+            h = Number(h);
+            const ampm = h >= 12 ? "PM" : "AM";
+            h = h % 12;
+            if (h === 0) h = 12;
+            return h + ":" + (m.length < 2 ? "0" + m : m) + " " + ampm;
+          })()}</span>
+        </div>`;
+      });
+      document.getElementById("tomorrowClasses").innerHTML = classesHTML;
+      
+      // Display a message wishing a great weekday for tomorrow
+      let tomorrowDate = new Date(now);
+      tomorrowDate.setDate(now.getDate() + 1);
+      const weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+      document.getElementById("weekdayMessage").innerHTML = `<p>Have a great <b>${weekdays[tomorrowDate.getDay()]}</b>!</p>`;
+    })
+    .catch(err => {
+      console.error("Error fetching schedule:", err);
+      document.getElementById("bigBox").innerText = "Error fetching schedule.";
+    });
+});
+  </script>
+</body>
+</html>
