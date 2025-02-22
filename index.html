@@ -1,169 +1,164 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Schedule Assistant V2 – Main</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css" />
   <link rel="icon" href="https://raw.githubusercontent.com/glitchy-m/izarepo/refs/heads/main/icon.png">
 </head>
 <body>
-  <header>
-    <nav>
-      <a href="index.html" style="opacity:0.8;">Home</a>
-      <a href="afterschool.html">After School</a>
-    </nav>
-  </header>
-  
-  <div id="mainContainer">
-    <!-- Primary white box: shows next class & break countdown -->
-    <div id="primaryBox" class="box">
-      <div id="nextClassInfo" class="class-info">
-        <!-- Filled by JS -->
-      </div>
-      <div id="breakInfo" class="break-info">
-        <!-- Filled by JS -->
-      </div>
+  <div id="mainContent">
+    <div id="topStatus">Loading schedule...</div>
+
+    <div id="mainBubble" class="white-bubble" style="display:none;">
+      <div class="main-line" id="nextClassTitle"></div>
+      <div class="sub-line" id="nextClassSub"></div>
     </div>
-    <!-- Secondary small box: shows the next NEXT class -->
-    <div id="secondaryBox" class="small-box">
-      <!-- Filled by JS -->
+
+    <div id="nextNextBubble" class="reflected-bubble" style="display:none;">
+      <div class="main-line" id="nextNextClassTitle"></div>
+      <div class="sub-line" id="nextNextClassSub"></div>
     </div>
   </div>
-  
-  <footer>
-    <p>Schedule Assistant <b>V2.</b> Made by <i>Alejandro Moralez.</i></p>
-  </footer>
-  
-  <script>
-document.addEventListener('DOMContentLoaded', () => {
-  const now = new Date();
-  const currentMinutes = now.getHours() * 60 + now.getMinutes();
-  const afterSchoolStart = 15 * 60 + 15; // 3:15 PM in minutes
-  const morningEnd = 7 * 60; // 7:00 AM in minutes
 
-  // Redirect to afterschool.html if current time is after 3:15 PM or before 7:00 AM
-  //if (currentMinutes >= afterSchoolStart || currentMinutes < morningEnd) {
-      //window.location.href = "afterschool.html";
-     // return;
-//  }
-  
-  const scheduleUrl = "https://raw.githubusercontent.com/glitchy-m/izarepo/refs/heads/main/schedule.json";
-  // Fixed break times (24-hr format): 09:00, 10:05, and 14:00
-  const breakTimes = ["09:00", "10:05", "14:00"];
-  
-  function fetchSchedule() {
+  <footer>
+    Schedule Assistant <b>V2.</b> Made by <i>Alejandro Moralez.</i>
+  </footer>
+
+  <script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const scheduleUrl = "https://raw.githubusercontent.com/glitchy-m/izarepo/refs/heads/main/schedule.json";
+    // Predefined break times in 24-hour format
+    const breakTimes = ["09:00", "10:05", "14:00"];
+
+    // Convert "HH:MM" to minutes from midnight
+    function timeToMinutes(timeStr) {
+      const [H, M] = timeStr.split(":").map(Number);
+      return H * 60 + M;
+    }
+
+    // Format time in 12-hour am/pm
+    function format12Hr(timeStr) {
+      let [hour, minute] = timeStr.split(":").map(Number);
+      const ampm = hour >= 12 ? "PM" : "AM";
+      hour = hour % 12;
+      if (hour === 0) hour = 12;
+      const minStr = minute < 10 ? "0" + minute : minute;
+      return hour + ":" + minStr + " " + ampm;
+    }
+
+    // Determine current day from startDate + holiday skipping
+    function getCurrentDay(jsonData) {
+      const now = new Date();
+      const startDate = new Date(jsonData.startDate);
+
+      // Count holiday dates between startDate and now
+      let holidayCount = 0;
+      if (jsonData["holiday-dates"]) {
+        jsonData["holiday-dates"].forEach(dateStr => {
+          let holiday = new Date(dateStr);
+          if (holiday >= startDate && holiday < now) {
+            holidayCount++;
+          }
+        });
+      }
+
+      // If the current time is 18:00 or later, treat the day as advanced
+      let dayOffset = now.getHours() >= 18 ? -1 : 0;
+      let daysBetween = Math.floor((now - startDate) / (1000 * 60 * 60 * 24)) + dayOffset;
+      let effectiveDays = daysBetween - holidayCount;
+      let currentDay = ((effectiveDays % 6) + 6) % 6 + 1; // cycles 1..6
+      return currentDay;
+    }
+
     fetch(scheduleUrl)
-      .then(response => response.json())
+      .then(r => r.json())
       .then(jsonData => {
         const now = new Date();
-        const startDate = new Date(jsonData.startDate);
-        // Count holiday dates between startDate and now to “skip” them
-        let holidayCount = 0;
-        if (jsonData["holiday-dates"]) {
-          jsonData["holiday-dates"].forEach(dateStr => {
-            let holiday = new Date(dateStr);
-            if (holiday >= startDate && holiday < now) {
-              holidayCount++;
-            }
-          });
-        }
-        // If the current time is 18:00 or later, we treat the day as having advanced
-        let dayOffset = now.getHours() >= 18 ? -1 : 0;
-        let daysBetween = Math.floor((now - startDate) / (1000 * 60 * 60 * 24)) + dayOffset;
-        let effectiveDays = daysBetween - holidayCount;
-        let currentDay = ((effectiveDays % 6) + 6) % 6 + 1; // cycles 1 to 6
-        const dayKey = "day" + currentDay;
-        const todaysSchedule = jsonData.schedule[dayKey];
-        
-        // Determine if school is over (this check is now secondary to our new after-school hours)
-        const lastClassTime = todaysSchedule[todaysSchedule.length - 1].time;
-        let [lastHour, lastMinute] = lastClassTime.split(":").map(Number);
-        let lastClassDate = new Date(now);
-        lastClassDate.setHours(lastHour, lastMinute, 0, 0);
-        if (now > new Date(lastClassDate.getTime() + 30 * 60 * 1000)) {
+        const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+        // After-school condition (3:15 PM - 7:00 AM)
+        const afterSchoolStart = 15*60 + 15; // 3:15 PM
+        const morningEnd = 6*60;            // 7:00 AM
+        if (currentMinutes >= afterSchoolStart || currentMinutes < morningEnd) {
           window.location.href = "afterschool.html";
           return;
         }
-        
-        // Helper: convert a "HH:MM" string to a Date on today’s date.
-        function timeStringToDate(timeStr) {
-          let [hour, minute] = timeStr.split(":").map(Number);
-          let d = new Date(now);
-          d.setHours(hour, minute, 0, 0);
-          return d;
+
+        const dayKey = "day" + getCurrentDay(jsonData);
+        const todaysSchedule = jsonData.schedule[dayKey];
+
+        // 1) Identify the current class (the one that started but not surpassed by next)
+        let currentClass = null;
+        for (let i = 0; i < todaysSchedule.length; i++) {
+          const classStart = timeToMinutes(todaysSchedule[i].time);
+          const nextClassStart = (todaysSchedule[i+1]) 
+              ? timeToMinutes(todaysSchedule[i+1].time) 
+              : 24*60; // midnight fallback
+          if (classStart <= currentMinutes && currentMinutes < nextClassStart) {
+            currentClass = todaysSchedule[i];
+            break;
+          }
         }
-        
-        // Get upcoming classes (whose start time is still in the future)
-        let upcomingClasses = todaysSchedule.filter(c => timeStringToDate(c.time) >= now);
-        let nextClass = upcomingClasses[0] || null;
-        let nextNextClass = upcomingClasses[1] || null;
-        
-        // Compute next break countdown
-        let nextBreakTime = null;
+
+        // 2) Find upcoming classes
+        let upcomingClasses = todaysSchedule.filter(c => timeToMinutes(c.time) > currentMinutes);
+        const nextClass = upcomingClasses[0] || null;
+        const nextNextClass = upcomingClasses[1] || null;
+
+        // 3) Break countdown
+        let nextBreakMins = null;
         for (let bt of breakTimes) {
-          let bTime = timeStringToDate(bt);
-          if (bTime >= now) {
-            nextBreakTime = bTime;
+          let bMins = timeToMinutes(bt);
+          if (bMins > currentMinutes) {
+            nextBreakMins = bMins - currentMinutes;
             break;
           }
         }
         let breakText = "";
-        if (nextBreakTime) {
-          let diffMs = nextBreakTime - now;
-          let diffMins = Math.round(diffMs / (1000 * 60));
-          // If within 5 mins of break time, consider it break time.
-          if (diffMins <= 0 || diffMins < 5) {
-            breakText = "It's break time!";
-          } else if (diffMins >= 55 && diffMins <= 65) {
-            breakText = "Break in an hour";
+        if (nextBreakMins !== null) {
+          if (nextBreakMins <= 5) {
+            breakText = "It’s break time!";
+          } else if (nextBreakMins >= 55 && nextBreakMins <= 65) {
+            breakText = "Break is in an hour";
           } else {
-            breakText = "Break in " + diffMins + " mins";
+            breakText = `Break is in ${nextBreakMins} minutes.`;
           }
+        } else {
+          breakText = "No more breaks today.";
         }
-        
-        // Helper: format time in 12-hour AM/PM style.
-        function format12Hr(timeStr) {
-          let [hour, minute] = timeStr.split(":").map(Number);
-          const ampm = hour >= 12 ? "PM" : "AM";
-          hour = hour % 12;
-          if (hour === 0) hour = 12;
-          return hour + ":" + (minute < 10 ? "0" + minute : minute) + " " + ampm;
+
+        // 4) Top status line
+        let topStatus = document.getElementById("topStatus");
+        if (currentClass) {
+          topStatus.innerHTML = `You’re having <strong>${currentClass.class}</strong>. ${breakText}`;
+        } else {
+          // Possibly it's lunch or break or no class
+          topStatus.innerHTML = `No current class (Break/Lunch). ${breakText}`;
         }
-        
-        // Update primary box with next class info
+
+        // 5) Main bubble: next class
         if (nextClass) {
-          document.getElementById("nextClassInfo").innerHTML = `
-            <div class="next-class">
-              <span class="class-name">${nextClass.class} is next!</span>
-              <span class="be-there">Be there at: ${format12Hr(nextClass.time)} in ${nextClass.building}</span>
-            </div>
-          `;
-        } else {
-          document.getElementById("nextClassInfo").innerHTML = `<div class="next-class">No more classes today.</div>`;
+          document.getElementById("nextClassTitle").textContent = `${nextClass.class} is next!`;
+          document.getElementById("nextClassSub").textContent = 
+            `Be there at: ${format12Hr(nextClass.time)}, ${nextClass.building}`;
+          document.getElementById("mainBubble").style.display = "block";
         }
-        document.getElementById("breakInfo").innerText = breakText;
-        
-        // Update secondary box with the following (next NEXT) class info
+
+        // 6) Reflected bubble: next-next class
         if (nextNextClass) {
-          document.getElementById("secondaryBox").innerHTML = `
-            <div class="next-next-class">
-              <span class="class-name">${nextNextClass.class}</span>
-              <span class="be-there">Be there at: ${format12Hr(nextNextClass.time)}</span>
-            </div>
-          `;
-        } else {
-          document.getElementById("secondaryBox").innerHTML = "";
+          document.getElementById("nextNextClassTitle").textContent = `${nextNextClass.class}`;
+          document.getElementById("nextNextClassSub").textContent = 
+            `Be there at: ${format12Hr(nextNextClass.time)}, ${nextNextClass.building}`;
+          document.getElementById("nextNextBubble").style.display = "block";
         }
       })
       .catch(err => {
         console.error("Error fetching schedule:", err);
-        document.getElementById("primaryBox").innerText = "Error fetching schedule.";
+        document.getElementById("topStatus").innerHTML = "Error fetching schedule.";
       });
-  }
-  
-  fetchSchedule();
-});
+  });
   </script>
 </body>
 </html>
