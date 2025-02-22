@@ -1,0 +1,117 @@
+body {
+  font-family: Arial, sans-serif;
+  background: #f5f5f5;
+  margin: 0;
+  padding: 20px;
+  color: #333;
+}
+
+header nav a {
+  margin: 0 10px;
+  text-decoration: none;
+  color: #333;
+  transition: color 0.3s ease;
+}
+header nav a:hover {
+  color: #007BFF;
+}
+
+.box, .small-box, .class-abbr {
+  background: #fff;
+  padding: 20px;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeInUp 0.5s ease forwards;
+}
+
+.small-box {
+  background: #eee;
+  padding: 10px;
+  margin-bottom: 20px;
+  border-radius: 6px;
+  font-size: 0.9em;
+}
+
+.next-class {
+  display: flex;
+  flex-direction: column;
+}
+
+.next-class .class-name {
+  font-size: 1.5em;
+  font-weight: bold;
+}
+
+.next-class .be-there {
+  font-size: 1em;
+  color: #555;
+}
+
+.break-info {
+  margin-top: 10px;
+  font-size: 1em;
+  color: #d9534f;
+}
+
+.small-box .next-next-class {
+  display: flex;
+  flex-direction: column;
+}
+
+.small-box .class-name {
+  font-size: 1.2em;
+  font-weight: bold;
+}
+
+.small-box .be-there {
+  font-size: 0.9em;
+  color: #555;
+}
+
+#tomorrowClasses {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.class-abbr {
+  background: #ddd;
+  padding: 10px;
+  border-radius: 4px;
+  text-align: center;
+  min-width: 60px;
+}
+
+.class-abbr .class-time {
+  display: block;
+  font-size: 0.8em;
+  color: #333;
+}
+
+.weekday-msg {
+  opacity: 0.7;
+  font-size: 1em;
+  margin-top: 10px;
+}
+
+footer {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 0.9em;
+  opacity: 0.8;
+}
+
+/* Fade-in animation */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
