@@ -28,6 +28,13 @@
 
   <script>
   document.addEventListener('DOMContentLoaded', () => {
+    // Check if today is a weekend (Saturday:6 or Sunday:0). If so, redirect.
+    const todayWeekday = new Date().getDay();
+    if (todayWeekday === 6 || todayWeekday === 0) {
+      window.location.href = "weekend.html";
+      return;
+    }
+  
     const scheduleUrl = "https://raw.githubusercontent.com/glitchy-m/izarepo/refs/heads/main/schedule.json";
     // Predefined break times in 24-hour format
     const breakTimes = ["09:00", "10:05", "14:00"];
@@ -79,8 +86,8 @@
         const currentMinutes = now.getHours() * 60 + now.getMinutes();
 
         // After-school condition (3:15 PM - 7:00 AM)
-        const afterSchoolStart = 15*60 + 15; // 3:15 PM
-        const morningEnd = 6*60;            // 7:00 AM
+        const afterSchoolStart = 15 * 60 + 15; // 3:15 PM
+        const morningEnd = 7 * 60;            // 7:00 AM
         if (currentMinutes >= afterSchoolStart || currentMinutes < morningEnd) {
           window.location.href = "afterschool.html";
           return;
@@ -89,13 +96,13 @@
         const dayKey = "day" + getCurrentDay(jsonData);
         const todaysSchedule = jsonData.schedule[dayKey];
 
-        // 1) Identify the current class (the one that started but not surpassed by next)
+        // 1) Identify the current class (the one that started but not yet finished)
         let currentClass = null;
         for (let i = 0; i < todaysSchedule.length; i++) {
           const classStart = timeToMinutes(todaysSchedule[i].time);
           const nextClassStart = (todaysSchedule[i+1]) 
               ? timeToMinutes(todaysSchedule[i+1].time) 
-              : 24*60; // midnight fallback
+              : 24 * 60; // fallback to midnight
           if (classStart <= currentMinutes && currentMinutes < nextClassStart) {
             currentClass = todaysSchedule[i];
             break;
@@ -107,7 +114,7 @@
         const nextClass = upcomingClasses[0] || null;
         const nextNextClass = upcomingClasses[1] || null;
 
-        // 3) Break countdown
+        // 3) Compute break countdown
         let nextBreakMins = null;
         for (let bt of breakTimes) {
           let bMins = timeToMinutes(bt);
@@ -129,16 +136,15 @@
           breakText = "No more breaks today.";
         }
 
-        // 4) Top status line
+        // 4) Update the top status line
         let topStatus = document.getElementById("topStatus");
         if (currentClass) {
           topStatus.innerHTML = `You’re having <strong>${currentClass.class}</strong>. ${breakText}`;
         } else {
-          // Possibly it's lunch or break or no class
           topStatus.innerHTML = `No current class (Break/Lunch). ${breakText}`;
         }
 
-        // 5) Main bubble: next class
+        // 5) Update the main bubble with the next class info
         if (nextClass) {
           document.getElementById("nextClassTitle").textContent = `${nextClass.class} is next!`;
           document.getElementById("nextClassSub").textContent = 
@@ -146,7 +152,7 @@
           document.getElementById("mainBubble").style.display = "block";
         }
 
-        // 6) Reflected bubble: next-next class
+        // 6) Update the reflected bubble with the next-next class info
         if (nextNextClass) {
           document.getElementById("nextNextClassTitle").textContent = `${nextNextClass.class}`;
           document.getElementById("nextNextClassSub").textContent = 
