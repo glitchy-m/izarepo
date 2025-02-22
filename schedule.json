@@ -1,6 +1,6 @@
 {
-  "startDate": "2025-02-07",
-  "holiday-dates": ["", ""],
+  "startDate": "2025-02-17",
+  "holiday-dates": [""],
   "schedule": {
     "day1": [
       {"time": "07:45", "class": "Chromebook Pick-up and Attendance", "building": "N1"},
