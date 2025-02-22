@@ -43,10 +43,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const morningEnd = 7 * 60; // 7:00 AM in minutes
 
   // Redirect to afterschool.html if current time is after 3:15 PM or before 7:00 AM
-  if (currentMinutes >= afterSchoolStart || currentMinutes < morningEnd) {
-      window.location.href = "afterschool.html";
-      return;
-  }
+  //if (currentMinutes >= afterSchoolStart || currentMinutes < morningEnd) {
+      //window.location.href = "afterschool.html";
+     // return;
+//  }
   
   const scheduleUrl = "https://raw.githubusercontent.com/glitchy-m/izarepo/refs/heads/main/schedule.json";
   // Fixed break times (24-hr format): 09:00, 10:05, and 14:00
