@@ -1,48 +1,169 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Schedule Assistant - Home</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="icon" href="https://raw.githubusercontent.com/glitchy-m/izarepo/refs/heads/main/icon.png">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Schedule Assistant V2 – Main</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="https://raw.githubusercontent.com/glitchy-m/izarepo/refs/heads/main/icon.png">
 </head>
 <body>
-    <header>
-        <nav>
-            <a href="index.html" style="opacity:50%;">Home</a>
-            <a href="full-schedule.html">Schedule for Today</a>
-            <a href="nearest-class.html">Find Nearest Class</a>
-            <a href="site.html">Current Day</a>
-        </nav>
-    </header>
+  <header>
+    <nav>
+      <a href="index.html" style="opacity:0.8;">Home</a>
+      <a href="afterschool.html">After School</a>
+    </nav>
+  </header>
+  
+  <div id="mainContainer">
+    <!-- Primary white box: shows next class & break countdown -->
+    <div id="primaryBox" class="box">
+      <div id="nextClassInfo" class="class-info">
+        <!-- Filled by JS -->
+      </div>
+      <div id="breakInfo" class="break-info">
+        <!-- Filled by JS -->
+      </div>
+    </div>
+    <!-- Secondary small box: shows the next NEXT class -->
+    <div id="secondaryBox" class="small-box">
+      <!-- Filled by JS -->
+    </div>
+  </div>
+  
+  <footer>
+    <p>Schedule Assistant <b>V2.</b> Made by <i>Alejandro Moralez.</i></p>
+  </footer>
+  
+  <script>
+document.addEventListener('DOMContentLoaded', () => {
+  const now = new Date();
+  const currentMinutes = now.getHours() * 60 + now.getMinutes();
+  const afterSchoolStart = 15 * 60 + 15; // 3:15 PM in minutes
+  const morningEnd = 7 * 60; // 7:00 AM in minutes
 
-    <main>
-        <h1>Welcome to Schedule Assistant</h1>
-        <p>Your personal assistant to help you navigate your school schedule.<br><i style="font-size: 125%;">(Classes for 1C only)</i></p>
-
-        <section class="features">
-            <div class="feature-box">
-                <h2>View Full Schedule</h2>
-                <p>See the complete schedule for the current 6-day cycle and find out what classes are lined up for the day.</p><br>
-                <a href="full-schedule.html" class="button">View Schedule</a><br><br>
+  // Redirect to afterschool.html if current time is after 3:15 PM or before 7:00 AM
+  if (currentMinutes >= afterSchoolStart || currentMinutes < morningEnd) {
+      window.location.href = "afterschool.html";
+      return;
+  }
+  
+  const scheduleUrl = "https://raw.githubusercontent.com/glitchy-m/izarepo/refs/heads/main/schedule.json";
+  // Fixed break times (24-hr format): 09:00, 10:05, and 14:00
+  const breakTimes = ["09:00", "10:05", "14:00"];
+  
+  function fetchSchedule() {
+    fetch(scheduleUrl)
+      .then(response => response.json())
+      .then(jsonData => {
+        const now = new Date();
+        const startDate = new Date(jsonData.startDate);
+        // Count holiday dates between startDate and now to “skip” them
+        let holidayCount = 0;
+        if (jsonData["holiday-dates"]) {
+          jsonData["holiday-dates"].forEach(dateStr => {
+            let holiday = new Date(dateStr);
+            if (holiday >= startDate && holiday < now) {
+              holidayCount++;
+            }
+          });
+        }
+        // If the current time is 18:00 or later, we treat the day as having advanced
+        let dayOffset = now.getHours() >= 18 ? -1 : 0;
+        let daysBetween = Math.floor((now - startDate) / (1000 * 60 * 60 * 24)) + dayOffset;
+        let effectiveDays = daysBetween - holidayCount;
+        let currentDay = ((effectiveDays % 6) + 6) % 6 + 1; // cycles 1 to 6
+        const dayKey = "day" + currentDay;
+        const todaysSchedule = jsonData.schedule[dayKey];
+        
+        // Determine if school is over (this check is now secondary to our new after-school hours)
+        const lastClassTime = todaysSchedule[todaysSchedule.length - 1].time;
+        let [lastHour, lastMinute] = lastClassTime.split(":").map(Number);
+        let lastClassDate = new Date(now);
+        lastClassDate.setHours(lastHour, lastMinute, 0, 0);
+        if (now > new Date(lastClassDate.getTime() + 30 * 60 * 1000)) {
+          window.location.href = "afterschool.html";
+          return;
+        }
+        
+        // Helper: convert a "HH:MM" string to a Date on today’s date.
+        function timeStringToDate(timeStr) {
+          let [hour, minute] = timeStr.split(":").map(Number);
+          let d = new Date(now);
+          d.setHours(hour, minute, 0, 0);
+          return d;
+        }
+        
+        // Get upcoming classes (whose start time is still in the future)
+        let upcomingClasses = todaysSchedule.filter(c => timeStringToDate(c.time) >= now);
+        let nextClass = upcomingClasses[0] || null;
+        let nextNextClass = upcomingClasses[1] || null;
+        
+        // Compute next break countdown
+        let nextBreakTime = null;
+        for (let bt of breakTimes) {
+          let bTime = timeStringToDate(bt);
+          if (bTime >= now) {
+            nextBreakTime = bTime;
+            break;
+          }
+        }
+        let breakText = "";
+        if (nextBreakTime) {
+          let diffMs = nextBreakTime - now;
+          let diffMins = Math.round(diffMs / (1000 * 60));
+          // If within 5 mins of break time, consider it break time.
+          if (diffMins <= 0 || diffMins < 5) {
+            breakText = "It's break time!";
+          } else if (diffMins >= 55 && diffMins <= 65) {
+            breakText = "Break in an hour";
+          } else {
+            breakText = "Break in " + diffMins + " mins";
+          }
+        }
+        
+        // Helper: format time in 12-hour AM/PM style.
+        function format12Hr(timeStr) {
+          let [hour, minute] = timeStr.split(":").map(Number);
+          const ampm = hour >= 12 ? "PM" : "AM";
+          hour = hour % 12;
+          if (hour === 0) hour = 12;
+          return hour + ":" + (minute < 10 ? "0" + minute : minute) + " " + ampm;
+        }
+        
+        // Update primary box with next class info
+        if (nextClass) {
+          document.getElementById("nextClassInfo").innerHTML = `
+            <div class="next-class">
+              <span class="class-name">${nextClass.class} is next!</span>
+              <span class="be-there">Be there at: ${format12Hr(nextClass.time)} in ${nextClass.building}</span>
             </div>
-            <div class="feature-box">
-                <h2>Find Nearest Class</h2>
-                <p>Discover your next class based on the current time. Stay on track and never be late to class!</p><br>
-                <a href="nearest-class.html" class="button">Find Nearest Class</a>
+          `;
+        } else {
+          document.getElementById("nextClassInfo").innerHTML = `<div class="next-class">No more classes today.</div>`;
+        }
+        document.getElementById("breakInfo").innerText = breakText;
+        
+        // Update secondary box with the following (next NEXT) class info
+        if (nextNextClass) {
+          document.getElementById("secondaryBox").innerHTML = `
+            <div class="next-next-class">
+              <span class="class-name">${nextNextClass.class}</span>
+              <span class="be-there">Be there at: ${format12Hr(nextNextClass.time)}</span>
             </div>
-            <br>
-            <div class="feature-box">
-                <h3>Check this out!</h3>
-                <p>Check out another schedule website, made by my classmate <b>Joshua Malic!</b></p>
-                <a href="https://classscheduleonec.carrd.co/" class="button">Joshua's Website</a>
-            </div>
-        </section>
-    </main>
-
-    <footer id="footer">
-        <p>Site made by <a href="https://glitchy-m.carrd.co">Alejandro</a> • <a href="isafixes.html">Issues?</a></p>
-    </footer>
+          `;
+        } else {
+          document.getElementById("secondaryBox").innerHTML = "";
+        }
+      })
+      .catch(err => {
+        console.error("Error fetching schedule:", err);
+        document.getElementById("primaryBox").innerText = "Error fetching schedule.";
+      });
+  }
+  
+  fetchSchedule();
+});
+  </script>
 </body>
 </html>
