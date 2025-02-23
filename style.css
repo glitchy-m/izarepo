@@ -20,7 +20,7 @@ body {
   The background video is fixed behind everything. 
   object-fit: cover => fill screen, cropping if needed.
 */
-#bgVideo {
+#bgVideo { 
   position: fixed;
   top: 0; left: 0;
   width: 100%;
