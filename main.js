@@ -57,7 +57,7 @@
     // Determine the view based on current time and day.
     if (weekday === 0 || weekday === 6) {
       viewType = "weekend";
-    } else if (currentMinutes >= afterSchoolStart || currentMinutes < morningEnd) {
+    } else if (currentMinutes >= afterSchoolStart) {
       viewType = "afterSchool";
     } else {
       viewType = "main";
