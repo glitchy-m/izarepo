@@ -96,7 +96,7 @@
         var breakText = "";
         if(nextBreakMins !== null){
             if(nextBreakMins <= 5) breakText = "It’s break time!";
-            else if(nextBreakMins >= 55 && nextBreakMins <= 65) breakText = "Break is in an hour";
+            else if(nextBreakMins >= 55 && nextBreakMins <= 65) breakText = "Break is in an hour.";
             else breakText = "Break is in " + nextBreakMins + " minutes.";
         } else {
             breakText = "No more breaks today.";
