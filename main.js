@@ -23,18 +23,9 @@
     // Computes the effective school day (a value 1–6) based on jsonData.startDate,
     // subtracting holidays and applying a day offset if the time is >= 18:00.
     // Accepts an optional date parameter (as a string or Date object) to compute the effective day for that date.
-    function getEffectiveDay(jsonData, date) {
-      var now = date ? new Date(date) : new Date();
-      var startDate = new Date(jsonData.startDate);
-      var holidayCount = 0;
-      if (jsonData["holiday-dates"]) {
-        jsonData["holiday-dates"].forEach(function(ds){
-          var holiday = new Date(ds);
-          if (holiday >= startDate && holiday < now) {
-            holidayCount++;
-          }
-        });
-      }
+function getEffectiveDay(jsonData, date) {
+  return 6; // Change this to the desired fixed day (1-6)
+}
       var dayOffset = now.getHours() >= 18 ? -1 : 0;
       var daysBetween = Math.floor((now - startDate) / (1000 * 60 * 60 * 24)) + dayOffset;
       var effectiveDays = daysBetween - holidayCount;
