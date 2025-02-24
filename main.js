@@ -47,7 +47,7 @@
     
     var breakTimes = ["09:00", "10:05", "14:00"],
         afterSchoolStart = 15 * 60 + 15, // 3:15 PM in minutes
-        morningEnd = 0;           // Midnight
+        morningEnd = 1 * 60;           // 1 AM
     
     var now = new Date(),
         currentMinutes = now.getHours() * 60 + now.getMinutes(),
