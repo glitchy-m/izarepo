@@ -18,7 +18,7 @@
       return h + ":" + (m < 10 ? "0" + m : m) + " " + ampm;
     }
     
-    var breakTimes = ["09:00", "10:05", "14:00"],
+    var breakTimes = ["09:00", "10:05", "14:00", "12:30"],
         afterSchoolStart = 15 * 60 + 15;
 
     var now = new Date(),
