@@ -201,7 +201,7 @@
           html += '<div id="topStatus" style="font-size:1.2rem; text-align:center; margin-bottom:20px;">' + topStatusText + '</div>';
           if(nextClass){
             html += '<div class="white-bubble" id="mainBubble">' +
-                      '<div class="main-line">' + nextClass.class + ' is next!</div>' +
+                      '<div class="main-line" style="font-size: 120%;"><b>' + nextClass.class + ' is next!<b></div>' +
                       '<div class="sub-line">Be there at: ' + format12Hr(nextClass.time) + ', ' + nextClass.building + '</div>' +
                     '</div>';
           }
