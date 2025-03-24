@@ -64,7 +64,7 @@
         // ------------------------
         // Set the day manually
         // ------------------------
-        var currentDay = 5; // Change this to set the desired fixed day (1-6)
+        var currentDay = 6; // Change this to set the desired fixed day (1-6)
         var dayKey = "day" + currentDay;
         var todaysSchedule = jsonData.schedule[dayKey];
         var currentClass = null;
