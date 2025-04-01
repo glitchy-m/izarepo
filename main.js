@@ -78,49 +78,11 @@
             }
         }
         
-        var upcomingClasses = todaysSchedule.filter(function(c){
-            return timeToMinutes(c.time) > currentMinutes;
-        });
-        var nextClass = upcomingClasses[0] || null;
-        var nextNextClass = upcomingClasses[1] || null;
-        var nextBreakMins = null;
-        
-        for(var j = 0; j < breakTimes.length; j++){
-            var bMins = timeToMinutes(breakTimes[j]);
-            if(bMins > currentMinutes){
-              nextBreakMins = bMins - currentMinutes;
-              break;
-            }
-        }
-        
-        var breakText = "";
-        if(nextBreakMins !== null){
-            if(nextBreakMins <= 5) breakText = "It’s break time!";
-            else if(nextBreakMins >= 55 && nextBreakMins <= 65) breakText = "Break is in an hour.";
-            else breakText = "Break is in " + nextBreakMins + " minutes.";
-        } else {
-            breakText = "No more breaks today.";
-        }
-        
-        var topStatusText = currentClass ?
-            "You’re having <strong>" + currentClass.class + "</strong>. " + breakText :
-            "No current class (Break/Lunch). " + breakText;
+        // All break-related calculations and next class bubbles have been removed.
+        // The top status text now simply announces break time:
+        var topStatusText = "<b>It's break time!</b>";
         
         html += '<div id="topStatus" style="font-size:1.2rem; text-align:center; margin-bottom:20px;">' + topStatusText + '</div>';
-        
-        if(nextClass){
-            html += '<div class="white-bubble" id="mainBubble">' +
-                      '<div class="main-line" style="font-size: 120%;"><b>' + nextClass.class + ' is next!<b></div>' +
-                      '<div class="sub-line">Be there at: ' + format12Hr(nextClass.time) + ', ' + nextClass.building + '</div>' +
-                    '</div>';
-        }
-        
-        if(nextNextClass){
-            html += '<div class="reflected-bubble" id="nextNextBubble">' +
-                      '<div class="main-line">' + nextNextClass.class + '</div>' +
-                      '<div class="sub-line">Be there at: ' + format12Hr(nextNextClass.time) + ', ' + nextNextClass.building + '</div>' +
-                    '</div>';
-        }
         
         container.innerHTML = html;
       })
