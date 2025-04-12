@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Personal Reminders</title>
+  <!-- Inter Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <!-- Flatpickr -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <style>
+    :root {
+      --bg: #f9f9f9;
+      --fg: #333;
+      --accent: #007bff;
+      --accent-hover: #0056b3;
+      --item-bg: #fff;
+      --item-fg: #333;
+    }
+    /* Themes */
+    .theme-default { --bg: #f9f9f9; --fg: #333; --accent: #007bff; --accent-hover: #0056b3; --item-bg: #fff; --item-fg: #333; }
+    .theme-dark    { --bg: #222;    --fg: #eee; --accent: #ff9800; --accent-hover: #e68900; --item-bg: #333; --item-fg: #eee; }
+    .theme-blue    { --bg: #e8f1fa; --fg: #1a237e; --accent: #2196f3; --accent-hover: #1769aa; --item-bg: #fff; --item-fg: #1a237e; }
+    .theme-green   { --bg: #e8f9ea; --fg: #1b5e20; --accent: #4caf50; --accent-hover: #357a38; --item-bg: #fff; --item-fg: #1b5e20; }
+    .theme-purple  { --bg: #f3e5f5; --fg: #4a148c; --accent: #9c27b0; --accent-hover: #6d1b7b; --item-bg: #fff; --item-fg: #4a148c; }
+    .theme-orange  { --bg: #fff3e0; --fg: #e65100; --accent: #ff5722; --accent-hover: #e64a19; --item-bg: #fff; --item-fg: #e65100; }
+    .theme-teal    { --bg: #e0f2f1; --fg: #004d40; --accent: #009688; --accent-hover: #00695c; --item-bg: #fff; --item-fg: #004d40; }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--fg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 1rem;
+    }
+    .container {
+      background: var(--bg);
+      border-radius: 12px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+      width: 100%; max-width: 480px;
+      padding: 1.5rem;
+      position: relative;
+    }
+    h1 { font-size: 1.5rem; margin-bottom: 1rem; }
+    .greeting { margin-bottom: 1rem; }
+    .theme-btn {
+      position: absolute;
+      top: 1rem; right: 1rem;
+      background: var(--accent);
+      border: none;
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: transform .2s;
+    }
+    .theme-btn:hover { transform: scale(1.1); }
+    .theme-menu {
+      position: absolute;
+      top: 3.5rem; right: 1rem;
+      background: var(--bg);
+      border: 1px solid var(--fg);
+      border-radius: 8px;
+      overflow: hidden;
+      opacity: 0; visibility: hidden;
+      transform: translateY(-10px);
+      transition: opacity .2s, transform .2s;
+    }
+    .theme-menu.open {
+      opacity: 1; visibility: visible;
+      transform: translateY(0);
+    }
+    .theme-menu button {
+      background: none; border: none;
+      padding: .75rem 1rem; width: 100%; text-align: left;
+      cursor: pointer;
+      color: var(--fg);
+    }
+    .theme-menu button:hover { background: var(--accent-hover); color: #fff; }
+
+    .form-group { margin-bottom: 1rem; }
+    .form-group label { display: block; margin-bottom: .25rem; font-weight: 600; }
+    .form-group input[type="text"], .form-group input[type="date"], .form-group input[type="text"].date-picker {
+      width: 100%; padding: .5rem; border: 1px solid #ccc; border-radius: 6px;
+    }
+    .form-group input.date-picker { cursor: pointer; }
+    .form-group button {
+      margin-top: .5rem;
+      background: var(--accent); color: #fff;
+      border: none; padding: .5rem 1rem;
+      border-radius: 6px; cursor: pointer;
+      font-weight: 600;
+    }
+    .form-group button:hover { background: var(--accent-hover); }
+
+    .separator { border-top: 1px solid #ccc; margin: 1.5rem 0 .75rem; }
+    .section-title { font-size: 1rem; font-weight: 600; margin-bottom: .5rem; color: var(--fg); }
+
+    .reminder-list { list-style: none; }
+    .reminder-item {
+      background: var(--item-bg); color: var(--item-fg);
+      display: flex; align-items: center;
+      justify-content: space-between; padding: .5rem;
+      border-radius: 6px; margin-bottom: .5rem;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      transition: transform .3s, opacity .3s;
+      pointer-events: auto;
+    }
+    .reminder-item.slide-out {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    .reminder-details { display: flex; align-items: center; gap: .5rem; }
+    .reminder-details input[type="checkbox"] { transform: scale(1.2); cursor: pointer; }
+    .trash-btn {
+      background: none; border: none; cursor: pointer;
+      width: 24px; height: 24px;
+      fill: red;
+      transition: transform .2s;
+    }
+    .trash-btn:hover { transform: scale(1.2); }
+
+    #viewAllLink {
+      display: inline-block;
+      margin-top: .5rem;
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    #viewAllLink:hover { text-decoration: underline; }
+
+    /* Overlay for name prompt */
+    .overlay {
+      position: fixed; top:0; left:0; right:0; bottom:0;
+      background: rgba(0,0,0,0.5);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 10;
+    }
+    .prompt {
+      background: #fff; padding: 2rem; border-radius: 12px;
+      text-align: center; width: 90%; max-width: 320px;
+    }
+    .prompt input { width: 100%; padding: .5rem; margin-top: 1rem; border-radius: 6px; border: 1px solid #ccc; }
+    .prompt button { margin-top: 1rem; padding: .5rem 1rem; border:none; border-radius:6px; background: var(--accent); color:#fff; cursor:pointer; }
+    .prompt button:hover { background: var(--accent-hover); }
+
+    .due-banner {
+      background: #ffe0e0; color: #900;
+      padding: .5rem; border-radius:6px;
+      text-align: center; margin-bottom:1rem;
+    }
+
+    /* Shake animation */
+    @keyframes shake {
+      0% { transform: translateX(0); }
+      25% { transform: translateX(2px); }
+      50% { transform: translateX(0); }
+      75% { transform: translateX(-2px); }
+      100% { transform: translateX(0); }
+    }
+    .shake { animation: shake 0.8s ease-in-out infinite; }
+
+    /* All View */
+    #allView { display: none; }
+    #allView .reminder-list .reminder-item { flex-direction: column; align-items: flex-start; }
+    #allView .reminder-item div { margin-bottom: .5rem; }
+    .reminder-actions { margin-top: .5rem; display: flex; gap: .5rem; align-items: center; }
+  </style>
+</head>
+<body class="theme-default">
+  <div class="container" id="mainContainer">
+    <button class="theme-btn" id="themeToggle" title="Themes">🎨</button>
+    <div class="theme-menu" id="themeMenu">
+      <button data-theme="default">Default</button>
+      <button data-theme="dark">Dark</button>
+      <button data-theme="blue">Blue</button>
+      <button data-theme="green">Green</button>
+      <button data-theme="purple">Purple</button>
+      <button data-theme="orange">Orange</button>
+      <button data-theme="teal">Teal</button>
+    </div>
+
+    <h1 class="greeting" id="greeting">Welcome!</h1>
+    <div id="dueBanner" class="due-banner" style="display:none;"></div>
+
+    <div class="form-group">
+      <label for="reminderText">Reminder</label>
+      <input type="text" id="reminderText" placeholder="What to remember?" />
+    </div>
+    <div class="form-group">
+      <label for="reminderDate">Due Date</label>
+      <input type="text" id="reminderDate" class="date-picker" placeholder="Select date" readonly />
+      <button id="addBtn">Add Reminder</button>
+    </div>
+
+    <div id="dueSection">
+      <div class="separator" id="sepDue"></div>
+      <div class="section-title">Due Reminders</div>
+      <ul class="reminder-list" id="dueList"></ul>
+      <div id="noDue">No due reminders. Great!</div>
+    </div>
+
+    <div id="upcomingSection">
+      <div class="separator" id="sepUpcoming"></div>
+      <div class="section-title">Upcoming Reminders</div>
+      <ul class="reminder-list" id="upcomingList"></ul>
+      <div id="viewAllContainer" style="display:none;"><a href="#" id="viewAllLink">View All?</a></div>
+    </div>
+  </div>
+
+  <div class="container" id="allView">
+    <h1>All Reminders</h1>
+    <ul class="reminder-list" id="allList"></ul>
+    <button id="backBtn">Back</button>
+  </div>
+
+  <!-- Name Prompt Overlay -->
+  <div class="overlay" id="nameOverlay">
+    <div class="prompt">
+      <h2>Welcome! What's your name?</h2>
+      <input type="text" id="nameInput" placeholder="Your name..." />
+      <button id="saveName">Continue</button>
+    </div>
+  </div>
+
+  <!-- Flatpickr -->
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script>
+    // Initialize date picker
+    flatpickr("#reminderDate", {
+      altInput: true,
+      altFormat: "d M Y",
+      dateFormat: "Y-m-d",
+    });
+
+    // Cookie helpers
+    function setCookie(name, value, days=365) {
+      const d = new Date(); d.setTime(d.getTime() + days*24*60*60*1000);
+      document.cookie = name + '=' + encodeURIComponent(value) + ';expires=' + d.toUTCString() + ';path=/';
+    }
+    function getCookie(name) {
+      const v = document.cookie.match('(^|;) ?' + name + '=([^;]*)(;|$)');
+      return v ? decodeURIComponent(v[2]) : null;
+    }
+
+    // Theme logic
+    const themeBtn = document.getElementById('themeToggle');
+    const themeMenu = document.getElementById('themeMenu');
+    themeBtn.addEventListener('click', ()=> themeMenu.classList.toggle('open'));
+    themeMenu.querySelectorAll('button').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const t = btn.dataset.theme;
+        document.body.className = 'theme-' + t;
+        setCookie('theme', t);
+        themeMenu.classList.remove('open');
+      });
+    });
+    const savedTheme = getCookie('theme') || 'default';
+    document.body.className = 'theme-' + savedTheme;
+
+    // Name prompt
+    const overlay = document.getElementById('nameOverlay');
+    const greeting = document.getElementById('greeting');
+    const storedName = getCookie('username');
+    const nameInput = document.getElementById('nameInput');
+    if (storedName) { overlay.style.display = 'none'; setGreeting(storedName); }
+    document.getElementById('saveName').onclick = ()=>{
+      const name = nameInput.value.trim() || 'Friend';
+      setCookie('username', name);
+      overlay.style.display = 'none';
+      setGreeting(name);
+    };
+    function setGreeting(name) {
+      const msgs = [
+        `Welcome, <b>${name}</b>!`,
+        `Good to see you, <b>${name}</b>.`,
+        `Ready when you are, <b>${name}</b>.`,
+        `Let's crush it today, <b>${name}</b>.`
+      ];
+      greeting.innerHTML = msgs[Math.floor(Math.random()*msgs.length)];
+    }
+
+    // Reminders logic
+    let reminders = [];
+    const dueList = document.getElementById('dueList');
+    const upcomingList = document.getElementById('upcomingList');
+    const noDue = document.getElementById('noDue');
+    const dueBanner = document.getElementById('dueBanner');
+    const dueSection = document.getElementById('dueSection');
+    const upcomingSection = document.getElementById('upcomingSection');
+    const viewAllContainer = document.getElementById('viewAllContainer');
+    const viewAllLink = document.getElementById('viewAllLink');
+    const mainContainer = document.getElementById('mainContainer');
+    const allView = document.getElementById('allView');
+    const allList = document.getElementById('allList');
+    const backBtn = document.getElementById('backBtn');
+
+    function formatDate(dateStr) {
+      const [y,m,d] = dateStr.split('-').map(Number);
+      const dObj = new Date(y, m-1, d);
+      return dObj.toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
+    }
+    function formatDateTime(ms) {
+      const d = new Date(parseInt(ms));
+      return d.toLocaleString();
+    }
+
+    function loadReminders() {
+      const data = getCookie('reminders');
+      reminders = data ? JSON.parse(data) : [];
+    }
+    function saveReminders() { setCookie('reminders', JSON.stringify(reminders)); }
+
+    function renderReminders() {
+      if (reminders.length === 0) {
+        dueSection.style.display = 'none';
+        upcomingSection.style.display = 'none';
+      } else {
+        dueSection.style.display = 'block';
+        upcomingSection.style.display = 'block';
+      }
+      dueList.innerHTML = '';
+      upcomingList.innerHTML = '';
+      const today = new Date().toISOString().split('T')[0];
+      let hasDue = false;
+      reminders.sort((a,b)=> a.date.localeCompare(b.date));
+      reminders.forEach(r=>{
+        const li = document.createElement('li');
+        li.className = 'reminder-item';
+        li.innerHTML = `
+          <div class="reminder-details">
+            <input type="checkbox" ${r.completed?'checked':''} data-id="${r.id}" />
+            <span>${r.text} <small>(${formatDate(r.date)})</small></span>
+          </div>
+          <button class="trash-btn" data-id="${r.id}" title="Delete">🗑️</button>
+        `;
+        // Attach events
+        li.querySelector('input').addEventListener('change', e=>{
+          const id = e.target.dataset.id;
+          const rem = reminders.find(x=>x.id==id);
+          rem.completed = e.target.checked;
+          saveReminders(); renderReminders();
+        });
+        li.querySelector('.trash-btn').addEventListener('click', e=>{
+          const id = e.target.dataset.id;
+          li.classList.add('slide-out');
+          setTimeout(()=>{
+            reminders = reminders.filter(x=>x.id!=id);
+            saveReminders(); renderReminders();
+          },300);
+        });
+        if (!r.completed && r.date <= today) {
+          li.classList.add('shake');
+          dueList.appendChild(li);
+          hasDue = true;
+        } else {
+          upcomingList.appendChild(li);
+        }
+      });
+      noDue.style.display = hasDue? 'none':'block';
+      if (hasDue) {
+        dueBanner.textContent = 'You have due reminders!';
+        dueBanner.style.display = 'block';
+      } else {
+        dueBanner.style.display = 'none';
+      }
+      viewAllContainer.style.display = reminders.length > 5? 'block':'none';
+    }
+
+    document.getElementById('addBtn').addEventListener('click', ()=>{
+      const text = document.getElementById('reminderText').value.trim();
+      const date = document.getElementById('reminderDate').value;
+      if (!text || !date) return;
+      reminders.push({ id: Date.now(), text, date, completed: false });
+      saveReminders(); renderReminders();
+      document.getElementById('reminderText').value='';
+      document.getElementById('reminderDate').value='';
+    });
+
+    viewAllLink.addEventListener('click', e=>{
+      e.preventDefault();
+      mainContainer.style.display = 'none';
+      allView.style.display = 'block';
+      renderAllReminders();
+    });
+    function renderAllReminders() {
+      allList.innerHTML = '';
+      reminders.sort((a,b)=> a.date.localeCompare(b.date));
+      reminders.forEach(r=>{
+        const li = document.createElement('li');
+        li.className = 'reminder-item';
+        li.innerHTML = `
+          <div><strong>${r.text}</strong></div>
+          <div>Due: ${formatDate(r.date)}</div>
+          <div>Created: ${formatDateTime(r.id)}</div>
+          <div class="reminder-actions">
+            <label><input type="checkbox" data-id="${r.id}" ${r.completed?'checked':''}/> Completed</label>
+            <button class="trash-btn" data-id="${r.id}" title="Delete">🗑️</button>
+          </div>
+        `;
+        li.querySelector('input[type="checkbox"]').addEventListener('change', e=>{
+          const id = e.target.dataset.id;
+          const rem = reminders.find(x=>x.id==id);
+          rem.completed = e.target.checked;
+          saveReminders(); renderAllReminders();
+        });
+        li.querySelector('.trash-btn').addEventListener('click', e=>{
+          const id = e.target.dataset.id;
+          if (confirm('Delete this reminder?')) {
+            reminders = reminders.filter(x=>x.id!=id);
+            saveReminders(); renderAllReminders();
+          }
+        });
+        allList.appendChild(li);
+      });
+    }
+    backBtn.addEventListener('click', ()=>{
+      allView.style.display = 'none';
+      mainContainer.style.display = 'block';
+    });
+
+    // init
+    loadReminders(); renderReminders();
+  </script>
+</body>
+</html>
