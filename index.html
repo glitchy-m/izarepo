@@ -6,15 +6,42 @@
   <title>Schedule Assistant V2</title>
   <link rel="stylesheet" href="style.css">
   <link rel="icon" type="image/x-icon" href="https://raw.githubusercontent.com/glitchy-m/izarepo/main/icon.png">
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: transparent;
+      overflow: hidden;
+    }
+    #bgVideo {
+      position: fixed;
+      top: 0;
+      left: 0;
+      min-width: 100%;
+      min-height: 100%;
+      z-index: -1;
+      object-fit: cover;
+    }
+    #main, #container, footer {
+      background: transparent;
+    }
+    /* Hide background video if embedded in an iframe (like Discord embed) */
+    @media (prefers-reduced-motion: reduce) {
+      #bgVideo {
+        display: none;
+      }
+    }
+    /* OR better: detect iframe */
+    body.embedded #bgVideo {
+      display: none;
+    }
+  </style>
 </head>
 <body>
-  <!-- Background video -->
   <video autoplay muted loop playsinline id="bgVideo">
     <source src="https://raw.githubusercontent.com/glitchy-m/izarepo/main/background.mp4" type="video/mp4" />
-    <!-- fallback text / poster if needed -->
   </video>
-  
-  <!-- Main container + footer -->
+
   <div id="main">
     <div id="container">
       <!-- your dynamic content goes here -->
@@ -24,7 +51,13 @@
   <footer>
     Schedule Assistant <b>V2.</b> Made by <i>Alejandro Moralez.</i>
   </footer>
-  
+
+  <script>
+    // Detect if inside iframe (common for embeds like Discord)
+    if (window !== window.parent) {
+      document.body.classList.add('embedded');
+    }
+  </script>
   <script src="main.js"></script>
 </body>
 </html>
