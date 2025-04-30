@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Personal Reminders</title>
   <!-- Inter Font -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
@@ -25,6 +25,7 @@
     .theme-purple  { --bg: #f3e5f5; --fg: #4a148c; --accent: #9c27b0; --accent-hover: #6d1b7b; --item-bg: #fff; --item-fg: #4a148c; }
     .theme-orange  { --bg: #fff3e0; --fg: #e65100; --accent: #ff5722; --accent-hover: #e64a19; --item-bg: #fff; --item-fg: #e65100; }
     .theme-teal    { --bg: #e0f2f1; --fg: #004d40; --accent: #009688; --accent-hover: #00695c; --item-bg: #fff; --item-fg: #004d40; }
+    .theme-custom  { /* custom variables will be set dynamically */ }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -47,7 +48,7 @@
     }
     h1 { font-size: 1.5rem; margin-bottom: 1rem; }
     .greeting { margin-bottom: 1rem; }
-    .theme-btn {
+    .toolbar-btn {
       position: absolute;
       top: 1rem; right: 1rem;
       background: var(--accent);
@@ -57,9 +58,10 @@
       cursor: pointer;
       display: flex; align-items: center; justify-content: center;
       transition: transform .2s;
+      color: #fff;
     }
-    .theme-btn:hover { transform: scale(1.1); }
-    .theme-menu {
+    .toolbar-btn:hover { transform: scale(1.1); }
+    .menu {
       position: absolute;
       top: 3.5rem; right: 1rem;
       background: var(--bg);
@@ -69,18 +71,32 @@
       opacity: 0; visibility: hidden;
       transform: translateY(-10px);
       transition: opacity .2s, transform .2s;
+      z-index: 5;
+      min-width: 200px; /* Ensure the menu is wide enough */
     }
-    .theme-menu.open {
+    .menu.open {
       opacity: 1; visibility: visible;
       transform: translateY(0);
     }
-    .theme-menu button {
+    .menu ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .menu li {
+      padding: 0;
+      margin: 0;
+    }
+    .menu button, .menu label {
       background: none; border: none;
       padding: .75rem 1rem; width: 100%; text-align: left;
       cursor: pointer;
       color: var(--fg);
+      display: block;
+      transition: background-color 0.2s, color 0.2s; /* Add transition for hover effect */
     }
-    .theme-menu button:hover { background: var(--accent-hover); color: #fff; }
+    .menu button:hover { background: var(--accent-hover); color: #fff; }
+    .menu input[type="color"] { margin: .5rem 1rem; width: calc(100% - 2rem); height: 2rem; border: none; }
 
     .form-group { margin-bottom: 1rem; }
     .form-group label { display: block; margin-bottom: .25rem; font-weight: 600; }
@@ -134,55 +150,118 @@
     }
     #viewAllLink:hover { text-decoration: underline; }
 
-    /* Overlay for name prompt */
     .overlay {
       position: fixed; top:0; left:0; right:0; bottom:0;
       background: rgba(0,0,0,0.5);
       display: flex; align-items: center; justify-content: center;
       z-index: 10;
     }
-    .prompt {
-      background: #fff; padding: 2rem; border-radius: 12px;
-      text-align: center; width: 90%; max-width: 320px;
-    }
+    .prompt { background: #fff; padding: 2rem; border-radius: 12px; text-align: center; width: 90%; max-width: 320px; }
     .prompt input { width: 100%; padding: .5rem; margin-top: 1rem; border-radius: 6px; border: 1px solid #ccc; }
     .prompt button { margin-top: 1rem; padding: .5rem 1rem; border:none; border-radius:6px; background: var(--accent); color:#fff; cursor:pointer; }
     .prompt button:hover { background: var(--accent-hover); }
 
-    .due-banner {
-      background: #ffe0e0; color: #900;
-      padding: .5rem; border-radius:6px;
-      text-align: center; margin-bottom:1rem;
-    }
-
-    /* Shake animation */
-    @keyframes shake {
-      0% { transform: translateX(0); }
-      25% { transform: translateX(2px); }
-      50% { transform: translateX(0); }
-      75% { transform: translateX(-2px); }
-      100% { transform: translateX(0); }
-    }
+    .due-banner { background: #ffe0e0; color: #900; padding: .5rem; border-radius:6px; text-align: center; margin-bottom:1rem; }
+    @keyframes shake { 0%{transform:translateX(0);}25%{transform:translateX(2px);}50%{transform:translateX(0);}75%{transform:translateX(-2px);}100%{transform:translateX(0);} }
     .shake { animation: shake 0.8s ease-in-out infinite; }
 
-    /* All View */
     #allView { display: none; }
     #allView .reminder-list .reminder-item { flex-direction: column; align-items: flex-start; }
     #allView .reminder-item div { margin-bottom: .5rem; }
     .reminder-actions { margin-top: .5rem; display: flex; gap: .5rem; align-items: center; }
+
+    /* Rainbow Button Style */
+    .rainbow-btn {
+      background: linear-gradient(to right, red, orange, yellow, green, blue, indigo, violet);
+      color: white;
+      padding: 0.75rem 1rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      background-size: 400% 400%;
+      animation: rainbow 5s ease infinite;
+    }
+
+    @keyframes rainbow {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* Custom Theme Prompt Styles */
+    #customThemeOverlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        justify-content: center;
+        align-items: center;
+        z-index: 11;
+    }
+
+    #customThemePrompt {
+        background: #fff;
+        padding: 2rem;
+        border-radius: 12px;
+        text-align: center;
+        width: 90%;
+        max-width: 320px;
+    }
+
+    #customThemePrompt label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+    }
+
+    #customThemePrompt input[type="color"] {
+        width: 100%;
+        padding: 0.5rem;
+        margin-bottom: 1rem;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+    }
+
+    #customThemePrompt button {
+        margin-top: 1rem;
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 6px;
+        background: var(--accent);
+        color: #fff;
+        cursor: pointer;
+    }
+
+    #customThemePrompt button:hover {
+        background: var(--accent-hover);
+    }
   </style>
 </head>
 <body class="theme-default">
   <div class="container" id="mainContainer">
-    <button class="theme-btn" id="themeToggle" title="Themes">🎨</button>
-    <div class="theme-menu" id="themeMenu">
-      <button data-theme="default">Default</button>
-      <button data-theme="dark">Dark</button>
-      <button data-theme="blue">Blue</button>
-      <button data-theme="green">Green</button>
-      <button data-theme="purple">Purple</button>
-      <button data-theme="orange">Orange</button>
-      <button data-theme="teal">Teal</button>
+    <button class="toolbar-btn" id="settingsBtn" title="Settings">⚙️</button>
+    <div class="menu" id="settingsMenu">
+      <ul>
+        <li><div class="section-title">Data Synchronization</div></li>
+        <li><button id="signinBtn">Sign in with Google</button></li>
+        <li><button id="signoutBtn" style="display:none;">Sign out</button></li>
+        <li><button id="importBtn">Import Reminders</button></li>
+        <li><button id="exportBtn">Export Reminders</button></li>
+        <li><div class="separator"></div></li>
+        <li><div class="section-title">Themes</div></li>
+        <li><button data-theme="default">Default</button></li>
+        <li><button data-theme="dark">Dark</button></li>
+        <li><button data-theme="blue">Blue</button></li>
+        <li><button data-theme="green">Green</button></li>
+        <li><button data-theme="purple">Purple</button></li>
+        <li><button data-theme="orange">Orange</button></li>
+        <li><button data-theme="teal">Teal</button></li>
+        <li><button id="customThemeBtn" class="rainbow-btn">Custom Theme</button></li>
+      </ul>
     </div>
 
     <h1 class="greeting" id="greeting">Welcome!</h1>
@@ -219,7 +298,6 @@
     <button id="backBtn">Back</button>
   </div>
 
-  <!-- Name Prompt Overlay -->
   <div class="overlay" id="nameOverlay">
     <div class="prompt">
       <h2>Welcome! What's your name?</h2>
@@ -228,8 +306,24 @@
     </div>
   </div>
 
-  <!-- Flatpickr -->
+  <div id="customThemeOverlay">
+        <div id="customThemePrompt">
+            <h2>Customize Your Theme</h2>
+            <label for="customColor">Pick a Color:</label>
+            <input type="color" id="customColor">
+            <label for="themeType">Theme Type:</label>
+            <select id="themeType">
+                <option value="light">Light</option>
+                <option value="dark">Dark</option>
+            </select>
+            <button id="applyCustomTheme">Apply Theme</button>
+        </div>
+    </div>
+
+  <input type="file" id="importFile" accept="application/json" style="display:none;">
+
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="https://apis.google.com/js/api.js"></script>
   <script>
     // Initialize date picker
     flatpickr("#reminderDate", {
@@ -248,184 +342,204 @@
       return v ? decodeURIComponent(v[2]) : null;
     }
 
-    // Theme logic
-    const themeBtn = document.getElementById('themeToggle');
-    const themeMenu = document.getElementById('themeMenu');
-    themeBtn.addEventListener('click', ()=> themeMenu.classList.toggle('open'));
-    themeMenu.querySelectorAll('button').forEach(btn=>{
+    // Google API setup
+    const CLIENT_ID = 'YOUR_GOOGLE_CLIENT_ID';
+    const API_KEY = 'YOUR_API_KEY';
+    const DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"];
+    const SCOPES = 'https://www.googleapis.com/auth/drive.appdata';
+
+    let gapiInited = false;
+    let isSignedIn = false;
+
+    function gapiLoad() {
+      gapi.load('client:auth2', initGapiClient);
+    }
+    async function initGapiClient() {
+      await gapi.client.init({apiKey: API_KEY, clientId: CLIENT_ID, discoveryDocs: DISCOVERY_DOCS, scope: SCOPES});
+      gapiInited = true;
+      gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
+      updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
+    }
+    function handleAuthClick() { gapi.auth2.getAuthInstance().signIn(); }
+    function handleSignoutClick() { gapi.auth2.getAuthInstance().signOut(); }
+    function updateSigninStatus(signedIn) {
+      isSignedIn = signedIn;
+      document.getElementById('signinBtn').style.display = signedIn ? 'none' : 'block';
+      document.getElementById('signoutBtn').style.display = signedIn ? 'block' : 'none';
+      if (signedIn) loadFromCloud();
+    }
+
+    // Cloud storage
+    async function loadFromCloud() {
+      const res = await gapi.client.drive.files.list({spaces:'appDataFolder', fields:'files(id,name)'});
+      const file = res.result.files.find(f=>f.name==='reminders.json');
+      if (file) {
+        const resp = await gapi.client.drive.files.get({fileId:file.id, alt:'media'});
+        reminders = JSON.parse(resp.body);
+        saveReminders(); renderReminders();
+      }
+    }
+    async function saveToCloud() {
+      const metadata = {name:'reminders.json', parents:['appDataFolder']};
+      const blob = new Blob([JSON.stringify(reminders)], {type:'application/json'});
+      const form = new FormData();
+      form.append('metadata', new Blob([JSON.stringify(metadata)], {type:'application/json'}));
+      form.append('file', blob);
+      // delete old then upload new
+      const list = await gapi.client.drive.files.list({spaces:'appDataFolder', fields:'files(id,name)'});
+      const old = list.result.files.find(f=>f.name==='reminders.json');
+      if (old) await gapi.client.drive.files.delete({fileId:old.id});
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST','https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart');
+      xhr.setRequestHeader('Authorization','Bearer '+gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().access_token);
+      xhr.send(form);
+    }
+
+    // File import/export
+    document.getElementById('importBtn').addEventListener('click', () => {
+      document.getElementById('importFile').click();
+    });
+    document.getElementById('importFile').addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        reminders = JSON.parse(reader.result);
+        saveReminders(); renderReminders();
+      };
+      reader.readAsText(file);
+    });
+    document.getElementById('exportBtn').addEventListener('click', () => {
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(new Blob([JSON.stringify(reminders)],{type:'application/json'}));
+      link.download = 'reminders.json';
+      link.click();
+    });
+
+    // Theme & settings
+    const settingsBtn = document.getElementById('settingsBtn');
+    const settingsMenu = document.getElementById('settingsMenu');
+    settingsBtn.addEventListener('click', ()=> settingsMenu.classList.toggle('open'));
+    settingsMenu.querySelectorAll('[data-theme]').forEach(btn=>{
       btn.addEventListener('click', ()=>{
         const t = btn.dataset.theme;
         document.body.className = 'theme-' + t;
         setCookie('theme', t);
-        themeMenu.classList.remove('open');
       });
     });
+
+    // Custom theme logic
+    const customThemeBtn = document.getElementById('customThemeBtn');
+    const customThemeOverlay = document.getElementById('customThemeOverlay');
+    const customThemePrompt = document.getElementById('customThemePrompt');
+    const customColorInput = document.getElementById('customColor');
+    const themeTypeSelect = document.getElementById('themeType');
+    const applyCustomThemeBtn = document.getElementById('applyCustomTheme');
+
+    customThemeBtn.addEventListener('click', () => {
+        customThemeOverlay.style.display = 'flex';
+    });
+
+    applyCustomThemeBtn.addEventListener('click', () => {
+        const selectedColor = customColorInput.value;
+        const selectedThemeType = themeTypeSelect.value;
+
+        document.documentElement.style.setProperty('--accent', selectedColor);
+        document.documentElement.style.setProperty('--accent-hover', selectedColor + 'cc');
+
+        // Adjust text color based on theme type
+        let textColor;
+        if (selectedThemeType === 'light') {
+            document.documentElement.style.setProperty('--bg', '#f9f9f9');
+            document.documentElement.style.setProperty('--fg', '#333');
+            textColor = '#000';
+        } else {
+            document.documentElement.style.setProperty('--bg', '#222');
+            document.documentElement.style.setProperty('--fg', '#eee');
+            textColor = '#fff';
+        }
+        document.documentElement.style.setProperty('--item-fg', textColor);
+
+        document.body.className = 'theme-custom';
+        setCookie('theme', 'custom');
+        setCookie('customColor', selectedColor);
+        setCookie('themeType', selectedThemeType);
+
+        customThemeOverlay.style.display = 'none';
+    });
+
+    // Load custom theme from cookies
     const savedTheme = getCookie('theme') || 'default';
     document.body.className = 'theme-' + savedTheme;
 
-    // Name prompt
+    if (savedTheme === 'custom') {
+        const customColor = getCookie('customColor');
+        const themeType = getCookie('themeType') || 'light';
+
+        if (customColor) {
+            document.documentElement.style.setProperty('--accent', customColor);
+            document.documentElement.style.setProperty('--accent-hover', customColor + 'cc');
+
+            let textColor;
+            if (themeType === 'light') {
+                document.documentElement.style.setProperty('--bg', '#f9f9f9');
+                document.documentElement.style.setProperty('--fg', '#333');
+                textColor = '#000';
+            } else {
+                document.documentElement.style.setProperty('--bg', '#222');
+                document.documentElement.style.setProperty('--fg', '#eee');
+                textColor = '#fff';
+            }
+            document.documentElement.style.setProperty('--item-fg', textColor);
+        }
+    }
+
+    // Google button events
+    document.getElementById('signinBtn').addEventListener('click', handleAuthClick);
+    document.getElementById('signoutBtn').addEventListener('click', handleSignoutClick);
+    window.onload = () => { gapiLoad(); initApp(); };
+
+    // Name prompt & greeting
     const overlay = document.getElementById('nameOverlay');
     const greeting = document.getElementById('greeting');
     const storedName = getCookie('username');
     const nameInput = document.getElementById('nameInput');
     if (storedName) { overlay.style.display = 'none'; setGreeting(storedName); }
     document.getElementById('saveName').onclick = ()=>{
-      const name = nameInput.value.trim() || 'Friend';
-      setCookie('username', name);
-      overlay.style.display = 'none';
-      setGreeting(name);
+      const name = nameInput.value.trim()||'Friend';
+      setCookie('username', name); overlay.style.display='none'; setGreeting(name);
     };
     function setGreeting(name) {
-      const msgs = [
-        `Welcome, <b>${name}</b>!`,
-        `Good to see you, <b>${name}</b>.`,
-        `Ready when you are, <b>${name}</b>.`,
-        `Let's crush it today, <b>${name}</b>.`
-      ];
+      const msgs = [`Welcome, <b>${name}</b>!`,`Good to see you, <b>${name}</b>.`,`Ready when you are, <b>${name}</b>.`,`Let's crush it today, <b>${name}</b>.`];
       greeting.innerHTML = msgs[Math.floor(Math.random()*msgs.length)];
     }
 
-    // Reminders logic
-    let reminders = [];
-    const dueList = document.getElementById('dueList');
-    const upcomingList = document.getElementById('upcomingList');
-    const noDue = document.getElementById('noDue');
-    const dueBanner = document.getElementById('dueBanner');
-    const dueSection = document.getElementById('dueSection');
-    const upcomingSection = document.getElementById('upcomingSection');
-    const viewAllContainer = document.getElementById('viewAllContainer');
-    const viewAllLink = document.getElementById('viewAllLink');
-    const mainContainer = document.getElementById('mainContainer');
-    const allView = document.getElementById('allView');
-    const allList = document.getElementById('allList');
-    const backBtn = document.getElementById('backBtn');
-
-    function formatDate(dateStr) {
-      const [y,m,d] = dateStr.split('-').map(Number);
-      const dObj = new Date(y, m-1, d);
-      return dObj.toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
-    }
-    function formatDateTime(ms) {
-      const d = new Date(parseInt(ms));
-      return d.toLocaleString();
-    }
-
-    function loadReminders() {
-      const data = getCookie('reminders');
-      reminders = data ? JSON.parse(data) : [];
-    }
-    function saveReminders() { setCookie('reminders', JSON.stringify(reminders)); }
-
-    function renderReminders() {
-      if (reminders.length === 0) {
-        dueSection.style.display = 'none';
-        upcomingSection.style.display = 'none';
-      } else {
-        dueSection.style.display = 'block';
-        upcomingSection.style.display = 'block';
-      }
-      dueList.innerHTML = '';
-      upcomingList.innerHTML = '';
-      const today = new Date().toISOString().split('T')[0];
-      let hasDue = false;
-      reminders.sort((a,b)=> a.date.localeCompare(b.date));
-      reminders.forEach(r=>{
-        const li = document.createElement('li');
-        li.className = 'reminder-item';
-        li.innerHTML = `
-          <div class="reminder-details">
-            <input type="checkbox" ${r.completed?'checked':''} data-id="${r.id}" />
-            <span>${r.text} <small>(${formatDate(r.date)})</small></span>
-          </div>
-          <button class="trash-btn" data-id="${r.id}" title="Delete">🗑️</button>
-        `;
-        // Attach events
-        li.querySelector('input').addEventListener('change', e=>{
-          const id = e.target.dataset.id;
-          const rem = reminders.find(x=>x.id==id);
-          rem.completed = e.target.checked;
-          saveReminders(); renderReminders();
-        });
-        li.querySelector('.trash-btn').addEventListener('click', e=>{
-          const id = e.target.dataset.id;
-          li.classList.add('slide-out');
-          setTimeout(()=>{
-            reminders = reminders.filter(x=>x.id!=id);
-            saveReminders(); renderReminders();
-          },300);
-        });
-        if (!r.completed && r.date <= today) {
-          li.classList.add('shake');
-          dueList.appendChild(li);
-          hasDue = true;
-        } else {
-          upcomingList.appendChild(li);
-        }
-      });
-      noDue.style.display = hasDue? 'none':'block';
-      if (hasDue) {
-        dueBanner.textContent = 'You have due reminders!';
-        dueBanner.style.display = 'block';
-      } else {
-        dueBanner.style.display = 'none';
-      }
-      viewAllContainer.style.display = reminders.length > 5? 'block':'none';
-    }
-
-    document.getElementById('addBtn').addEventListener('click', ()=>{
-      const text = document.getElementById('reminderText').value.trim();
-      const date = document.getElementById('reminderDate').value;
-      if (!text || !date) return;
-      reminders.push({ id: Date.now(), text, date, completed: false });
-      saveReminders(); renderReminders();
-      document.getElementById('reminderText').value='';
-      document.getElementById('reminderDate').value='';
-    });
-
-    viewAllLink.addEventListener('click', e=>{
-      e.preventDefault();
-      mainContainer.style.display = 'none';
-      allView.style.display = 'block';
-      renderAllReminders();
-    });
-    function renderAllReminders() {
-      allList.innerHTML = '';
-      reminders.sort((a,b)=> a.date.localeCompare(b.date));
-      reminders.forEach(r=>{
-        const li = document.createElement('li');
-        li.className = 'reminder-item';
-        li.innerHTML = `
-          <div><strong>${r.text}</strong></div>
-          <div>Due: ${formatDate(r.date)}</div>
-          <div>Created: ${formatDateTime(r.id)}</div>
-          <div class="reminder-actions">
-            <label><input type="checkbox" data-id="${r.id}" ${r.completed?'checked':''}/> Completed</label>
-            <button class="trash-btn" data-id="${r.id}" title="Delete">🗑️</button>
-          </div>
-        `;
-        li.querySelector('input[type="checkbox"]').addEventListener('change', e=>{
-          const id = e.target.dataset.id;
-          const rem = reminders.find(x=>x.id==id);
-          rem.completed = e.target.checked;
-          saveReminders(); renderAllReminders();
-        });
-        li.querySelector('.trash-btn').addEventListener('click', e=>{
-          const id = e.target.dataset.id;
-          if (confirm('Delete this reminder?')) {
-            reminders = reminders.filter(x=>x.id!=id);
-            saveReminders(); renderAllReminders();
-          }
-        });
+    // Reminders data & rendering
+    let reminders = []; const dueList=document.getElementById('dueList'), upcomingList=document.getElementById('upcomingList');
+    function loadReminders(){ const d=getCookie('reminders'); reminders=d?JSON.parse(d):[]; }
+    function saveReminders(){ setCookie('reminders', JSON.stringify(reminders)); if(isSignedIn) saveToCloud(); }
+    function formatDate(d){ const [y,m,dd]=d.split('-').map(Number), D=new Date(y,m-1,dd); return D.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}); }
+    function formatDateTime(ms){ return new Date(parseInt(ms)).toLocaleString(); }
+    function renderReminders(){ if(!reminders.length){ document.getElementById('dueSection').style.display='none'; document.getElementById('upcomingSection').style.display='none'; }
+      else{ document.getElementById('dueSection').style.display='block'; document.getElementById('upcomingSection').style.display='block'; }
+      dueList.innerHTML=''; upcomingList.innerHTML=''; const today=new Date().toISOString().split('T')[0]; let hasDue=false;
+      reminders.sort((a,b)=>a.date.localeCompare(b.date)); reminders.forEach(r=>{
+        const li=document.createElement('li'); li.className='reminder-item'; li.innerHTML=`<div class="reminder-details"><input type="checkbox" ${r.completed?'checked':''} data-id="${r.id}"/><span>${r.text} <small>(${formatDate(r.date)})</small></span></div><button class="trash-btn" data-id="${r.id}" title="Delete">🗑️</button>`;
+        li.querySelector('input').addEventListener('change',e=>{ const rem=reminders.find(x=>x.id==e.target.dataset.id); rem.completed=e.target.checked; saveReminders(); renderReminders(); });
+        li.querySelector('.trash-btn').addEventListener('click',e=>{ const id=e.target.dataset.id; li.classList.add('slide-out'); setTimeout(()=>{reminders=reminders.filter(x=>x.id!=id); saveReminders(); renderReminders();},300); });
+        if(!r.completed&&r.date<=today){ li.classList.add('shake'); dueList.appendChild(li); hasDue=true;} else upcomingList.appendChild(li);
+      }); document.getElementById('noDue').style.display=hasDue?'none':'block'; document.getElementById('dueBanner').style.display=hasDue?'block':'none';
+      document.getElementById('dueBanner').textContent='You have due reminders!'; document.getElementById('viewAllContainer').style.display=reminders.length>5?'block':'none'; }
+    document.getElementById('addBtn').addEventListener('click',()=>{ const t=document.getElementById('reminderText').value.trim(); const d=document.getElementById('reminderDate').value; if(!t||!d)return; reminders.push({id:Date.now(),text:t,date:d,completed:false}); saveReminders(); renderReminders(); document.getElementById('reminderText').value=''; document.getElementById('reminderDate').value=''; });
+    document.getElementById('viewAllLink').addEventListener('click',e=>{ e.preventDefault(); document.getElementById('mainContainer').style.display='none'; document.getElementById('allView').style.display='block'; renderAllReminders(); });
+    function renderAllReminders(){ const allList=document.getElementById('allList'); allList.innerHTML=''; reminders.sort((a,b)=>a.date.localeCompare(b.date)); reminders.forEach(r=>{ const li=document.createElement('li'); li.className='reminder-item'; li.innerHTML=`<div><strong>${r.text}</strong></div><div>Due: ${formatDate(r.date)}</div><div>Created: ${formatDateTime(r.id)}</div><div class="reminder-actions"><label><input type="checkbox" data-id="${r.id}" ${r.completed?'checked':''}/> Completed</label><button class="trash-btn" data-id="${r.id}" title="Delete">🗑️</button></div>`;
+        li.querySelector('input[type="checkbox"]').addEventListener('change',e=>{ const rem=reminders.find(x=>x.id==e.target.dataset.id); rem.completed=e.target.checked; saveReminders(); renderAllReminders(); });
+        li.querySelector('.trash-btn').addEventListener('click',e=>{ if(confirm('Delete this reminder?')){ reminders=reminders.filter(x=>x.id!=e.target.dataset.id); saveReminders(); renderAllReminders(); }});
         allList.appendChild(li);
-      });
-    }
-    backBtn.addEventListener('click', ()=>{
-      allView.style.display = 'none';
-      mainContainer.style.display = 'block';
-    });
+      }); }
+    document.getElementById('backBtn').addEventListener('click',()=>{ document.getElementById('allView').style.display='none'; document.getElementById('mainContainer').style.display='block'; });
 
-    // init
-    loadReminders(); renderReminders();
+    function initApp(){ loadReminders(); renderReminders(); }
   </script>
 </body>
 </html>
