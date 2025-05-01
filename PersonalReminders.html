@@ -1,545 +1,1226 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Personal Reminders</title>
-  <!-- Inter Font -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-  <!-- Flatpickr -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-  <style>
-    :root {
-      --bg: #f9f9f9;
-      --fg: #333;
-      --accent: #007bff;
-      --accent-hover: #0056b3;
-      --item-bg: #fff;
-      --item-fg: #333;
-    }
-    /* Themes */
-    .theme-default { --bg: #f9f9f9; --fg: #333; --accent: #007bff; --accent-hover: #0056b3; --item-bg: #fff; --item-fg: #333; }
-    .theme-dark    { --bg: #222;    --fg: #eee; --accent: #ff9800; --accent-hover: #e68900; --item-bg: #333; --item-fg: #eee; }
-    .theme-blue    { --bg: #e8f1fa; --fg: #1a237e; --accent: #2196f3; --accent-hover: #1769aa; --item-bg: #fff; --item-fg: #1a237e; }
-    .theme-green   { --bg: #e8f9ea; --fg: #1b5e20; --accent: #4caf50; --accent-hover: #357a38; --item-bg: #fff; --item-fg: #1b5e20; }
-    .theme-purple  { --bg: #f3e5f5; --fg: #4a148c; --accent: #9c27b0; --accent-hover: #6d1b7b; --item-bg: #fff; --item-fg: #4a148c; }
-    .theme-orange  { --bg: #fff3e0; --fg: #e65100; --accent: #ff5722; --accent-hover: #e64a19; --item-bg: #fff; --item-fg: #e65100; }
-    .theme-teal    { --bg: #e0f2f1; --fg: #004d40; --accent: #009688; --accent-hover: #00695c; --item-bg: #fff; --item-fg: #004d40; }
-    .theme-custom  { /* custom variables will be set dynamically */ }
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Personal Reminders (React)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: 'Inter', sans-serif;
-      background: var(--bg);
-      color: var(--fg);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      padding: 1rem;
-    }
-    .container {
-      background: var(--bg);
-      border-radius: 12px;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.1);
-      width: 100%; max-width: 480px;
-      padding: 1.5rem;
-      position: relative;
-    }
-    h1 { font-size: 1.5rem; margin-bottom: 1rem; }
-    .greeting { margin-bottom: 1rem; }
-    .toolbar-btn {
-      position: absolute;
-      top: 1rem; right: 1rem;
-      background: var(--accent);
-      border: none;
-      width: 32px; height: 32px;
-      border-radius: 50%;
-      cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      transition: transform .2s;
-      color: #fff;
-    }
-    .toolbar-btn:hover { transform: scale(1.1); }
-    .menu {
-      position: absolute;
-      top: 3.5rem; right: 1rem;
-      background: var(--bg);
-      border: 1px solid var(--fg);
-      border-radius: 8px;
-      overflow: hidden;
-      opacity: 0; visibility: hidden;
-      transform: translateY(-10px);
-      transition: opacity .2s, transform .2s;
-      z-index: 5;
-      min-width: 200px; /* Ensure the menu is wide enough */
-    }
-    .menu.open {
-      opacity: 1; visibility: visible;
-      transform: translateY(0);
-    }
-    .menu ul {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
-    .menu li {
-      padding: 0;
-      margin: 0;
-    }
-    .menu button, .menu label {
-      background: none; border: none;
-      padding: .75rem 1rem; width: 100%; text-align: left;
-      cursor: pointer;
-      color: var(--fg);
-      display: block;
-      transition: background-color 0.2s, color 0.2s; /* Add transition for hover effect */
-    }
-    .menu button:hover { background: var(--accent-hover); color: #fff; }
-    .menu input[type="color"] { margin: .5rem 1rem; width: calc(100% - 2rem); height: 2rem; border: none; }
+    <style>
+        /* --- Base Variables & Themes --- */
+        :root {
+            --bg: #f9f9f9;
+            --fg: #333;
+            --accent: #007bff;
+            --accent-hover: #0056b3;
+            --item-bg: #fff;
+            --item-fg: #333;
+            --menu-bg: #ffffff;
+            --menu-fg: #333;
+            --menu-hover-bg: #f0f0f0;
+            --menu-hover-fg: #000;
+            --separator-color: #e0e0e0;
+            --input-border: #ccc;
+            --shadow-color: rgba(0,0,0,0.1);
+            --modal-bg: rgba(0, 0, 0, 0.6);
+            --button-text: #fff; /* Default button text color */
+        }
 
-    .form-group { margin-bottom: 1rem; }
-    .form-group label { display: block; margin-bottom: .25rem; font-weight: 600; }
-    .form-group input[type="text"], .form-group input[type="date"], .form-group input[type="text"].date-picker {
-      width: 100%; padding: .5rem; border: 1px solid #ccc; border-radius: 6px;
-    }
-    .form-group input.date-picker { cursor: pointer; }
-    .form-group button {
-      margin-top: .5rem;
-      background: var(--accent); color: #fff;
-      border: none; padding: .5rem 1rem;
-      border-radius: 6px; cursor: pointer;
-      font-weight: 600;
-    }
-    .form-group button:hover { background: var(--accent-hover); }
+        /* Predefined Themes */
+        .theme-default { --bg: #f9f9f9; --fg: #333; --accent: #007bff; --accent-hover: #0056b3; --item-bg: #fff; --item-fg: #333; --menu-bg: #fff; --menu-fg: #333; --menu-hover-bg: #f0f0f0; --separator-color: #e0e0e0; --input-border: #ccc; --button-text: #fff; }
+        .theme-dark    { --bg: #1a1a1a; --fg: #e0e0e0; --accent: #ff9800; --accent-hover: #e68900; --item-bg: #2a2a2a; --item-fg: #e0e0e0; --menu-bg: #252525; --menu-fg: #e0e0e0; --menu-hover-bg: #353535; --separator-color: #444; --input-border: #555; --button-text: #000; }
+        .theme-blue    { --bg: #e3f2fd; --fg: #0d47a1; --accent: #2196f3; --accent-hover: #1976d2; --item-bg: #ffffff; --item-fg: #0d47a1; --menu-bg: #fff; --menu-fg: #0d47a1; --menu-hover-bg: #bbdefb; --separator-color: #b3e5fc; --input-border: #90caf9; --button-text: #fff; }
+        .theme-green   { --bg: #e8f5e9; --fg: #1b5e20; --accent: #4caf50; --accent-hover: #388e3c; --item-bg: #ffffff; --item-fg: #1b5e20; --menu-bg: #fff; --menu-fg: #1b5e20; --menu-hover-bg: #c8e6c9; --separator-color: #a5d6a7; --input-border: #81c784; --button-text: #fff; }
+        .theme-purple  { --bg: #f3e5f5; --fg: #4a148c; --accent: #9c27b0; --accent-hover: #7b1fa2; --item-bg: #ffffff; --item-fg: #4a148c; --menu-bg: #fff; --menu-fg: #4a148c; --menu-hover-bg: #e1bee7; --separator-color: #ce93d8; --input-border: #ba68c8; --button-text: #fff; }
+        .theme-orange  { --bg: #fff3e0; --fg: #e65100; --accent: #ff9800; --accent-hover: #f57c00; --item-bg: #ffffff; --item-fg: #e65100; --menu-bg: #fff; --menu-fg: #e65100; --menu-hover-bg: #ffe0b2; --separator-color: #ffcc80; --input-border: #ffb74d; --button-text: #000; }
+        .theme-teal    { --bg: #e0f2f1; --fg: #004d40; --accent: #009688; --accent-hover: #00796b; --item-bg: #ffffff; --item-fg: #004d40; --menu-bg: #fff; --menu-fg: #004d40; --menu-hover-bg: #b2dfdb; --separator-color: #80cbc4; --input-border: #4db6ac; --button-text: #fff; }
+        .theme-custom  { /* Dynamically set */ }
 
-    .separator { border-top: 1px solid #ccc; margin: 1.5rem 0 .75rem; }
-    .section-title { font-size: 1rem; font-weight: 600; margin-bottom: .5rem; color: var(--fg); }
+        /* --- Global Styles --- */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html { font-size: 16px; }
+        body {
+          font-family: 'Inter', sans-serif;
+          background: var(--bg);
+          color: var(--fg);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          min-height: 100vh;
+          padding: 1rem;
+          transition: background 0.3s ease, color 0.3s ease;
+        }
+        #root { width: 100%; display: flex; justify-content: center; align-items: center; }
 
-    .reminder-list { list-style: none; }
-    .reminder-item {
-      background: var(--item-bg); color: var(--item-fg);
-      display: flex; align-items: center;
-      justify-content: space-between; padding: .5rem;
-      border-radius: 6px; margin-bottom: .5rem;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-      transition: transform .3s, opacity .3s;
-      pointer-events: auto;
-    }
-    .reminder-item.slide-out {
-      transform: translateX(100%);
-      opacity: 0;
-    }
-    .reminder-details { display: flex; align-items: center; gap: .5rem; }
-    .reminder-details input[type="checkbox"] { transform: scale(1.2); cursor: pointer; }
-    .trash-btn {
-      background: none; border: none; cursor: pointer;
-      width: 24px; height: 24px;
-      fill: red;
-      transition: transform .2s;
-    }
-    .trash-btn:hover { transform: scale(1.2); }
+        /* --- Container & Basic Elements --- */
+        .container {
+          background: var(--item-bg); /* Use item-bg for container */
+          color: var(--item-fg);
+          border-radius: 12px;
+          box-shadow: 0 6px 24px var(--shadow-color);
+          width: 100%; max-width: 500px;
+          padding: 2rem;
+          position: relative;
+          transition: background 0.3s ease, color 0.3s ease;
+        }
+        h1 { font-size: 1.75rem; margin-bottom: 1rem; font-weight: 700; }
+        h2 { font-size: 1.25rem; margin-bottom: 1rem; font-weight: 600; }
+        .greeting { margin-bottom: 1.5rem; font-size: 1.5rem; }
+        .separator { border-top: 1px solid var(--separator-color); margin: 1.5rem 0; }
+        .section-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; color: var(--fg); }
+        label { display: block; margin-bottom: .5rem; font-weight: 600; font-size: 0.9rem; }
+        input[type="text"], input[type="date"], input.flatpickr-input, select {
+            width: 100%;
+            padding: .75rem;
+            border: 1px solid var(--input-border);
+            border-radius: 8px;
+            font-size: 1rem;
+            background-color: var(--bg);
+            color: var(--fg);
+            transition: border-color 0.2s ease;
+        }
+        input[type="text"]:focus, input[type="date"]:focus, select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px var(--accent-hover);
+        }
+        button {
+            background: var(--accent); color: var(--button-text); /* Use CSS variable for text */
+            border: none; padding: .75rem 1.5rem;
+            border-radius: 8px; cursor: pointer;
+            font-weight: 600; font-size: 0.9rem;
+            transition: background-color .2s ease, color .2s ease, transform 0.1s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        button:hover { background: var(--accent-hover); }
+        button:active { transform: scale(0.98); }
+        button.secondary { background-color: var(--menu-hover-bg); color: var(--menu-hover-fg); }
+        button.secondary:hover { background-color: var(--separator-color); }
+        button.danger { background-color: #e74c3c; color: #fff;} /* Danger button uses white text */
+        button.danger:hover { background-color: #c0392b; }
+        button.icon-btn { padding: 0.5rem; min-width: auto; font-size: 1.2rem; }
 
-    #viewAllLink {
-      display: inline-block;
-      margin-top: .5rem;
-      color: var(--accent);
-      text-decoration: none;
-      font-weight: 600;
-      cursor: pointer;
-    }
-    #viewAllLink:hover { text-decoration: underline; }
+        /* --- Form --- */
+        .form-group { margin-bottom: 1.5rem; }
+        .form-actions { margin-top: 1rem; text-align: right; }
 
-    .overlay {
-      position: fixed; top:0; left:0; right:0; bottom:0;
-      background: rgba(0,0,0,0.5);
-      display: flex; align-items: center; justify-content: center;
-      z-index: 10;
-    }
-    .prompt { background: #fff; padding: 2rem; border-radius: 12px; text-align: center; width: 90%; max-width: 320px; }
-    .prompt input { width: 100%; padding: .5rem; margin-top: 1rem; border-radius: 6px; border: 1px solid #ccc; }
-    .prompt button { margin-top: 1rem; padding: .5rem 1rem; border:none; border-radius:6px; background: var(--accent); color:#fff; cursor:pointer; }
-    .prompt button:hover { background: var(--accent-hover); }
+        /* --- Reminder List --- */
+        .reminder-list { list-style: none; margin-top: 1rem; }
+        .reminder-item {
+            background: var(--bg); /* Use main bg for items now */
+            color: var(--fg);
+            display: flex; align-items: center;
+            justify-content: space-between; padding: 1rem;
+            border-radius: 8px; margin-bottom: .75rem;
+            border: 1px solid var(--separator-color);
+            transition: transform .3s ease, opacity .3s ease, background 0.3s ease;
+            pointer-events: auto;
+        }
+        .reminder-item.completed .reminder-text { text-decoration: line-through; opacity: 0.6; }
+        .reminder-item.slide-out { transform: translateX(100%); opacity: 0; }
+        .reminder-details { display: flex; align-items: center; gap: .75rem; flex-grow: 1; }
+        .reminder-details input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; accent-color: var(--accent); }
+        .reminder-text { flex-grow: 1; }
+        .reminder-date { font-size: 0.85rem; opacity: 0.8; margin-left: 0.5rem; white-space: nowrap; }
+        .reminder-item-actions { display: flex; gap: 0.5rem; margin-left: 1rem; }
+        .trash-btn {
+            background: none; border: none; cursor: pointer;
+            width: 28px; height: 28px; color: #e74c3c;
+            transition: transform .2s ease, color 0.2s ease;
+            font-size: 1rem;
+            display: inline-flex; align-items: center; justify-content: center;
+            border-radius: 50%;
+            padding: 0;
+        }
+        .trash-btn:hover { transform: scale(1.15); background-color: rgba(231, 76, 60, 0.1); }
 
-    .due-banner { background: #ffe0e0; color: #900; padding: .5rem; border-radius:6px; text-align: center; margin-bottom:1rem; }
-    @keyframes shake { 0%{transform:translateX(0);}25%{transform:translateX(2px);}50%{transform:translateX(0);}75%{transform:translateX(-2px);}100%{transform:translateX(0);} }
-    .shake { animation: shake 0.8s ease-in-out infinite; }
+        /* --- Due Banner --- */
+        .due-banner { background: #ffe0e0; color: #c0392b; padding: 1rem; border-radius: 8px; text-align: center; margin-bottom: 1.5rem; font-weight: 600; border: 1px solid #f5c6cb; }
+        @keyframes shake { 0%{transform:translateX(0);} 25%{transform:translateX(3px);} 50%{transform:translateX(0);} 75%{transform:translateX(-3px);} 100%{transform:translateX(0);} }
+        .shake { animation: shake 0.5s ease-in-out 2; } /* Shake only a couple times */
 
-    #allView { display: none; }
-    #allView .reminder-list .reminder-item { flex-direction: column; align-items: flex-start; }
-    #allView .reminder-item div { margin-bottom: .5rem; }
-    .reminder-actions { margin-top: .5rem; display: flex; gap: .5rem; align-items: center; }
+        /* --- Settings Menu --- */
+        .toolbar { position: absolute; top: 1rem; right: 1rem; z-index: 10; }
+        .settings-menu {
+            position: absolute;
+            top: calc(100% + 10px); /* Position below the button */
+            right: 0;
+            background: var(--menu-bg);
+            color: var(--menu-fg);
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+            overflow: hidden;
+            z-index: 10;
+            width: 280px; /* Wider menu */
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: opacity .2s ease, transform .2s ease, visibility 0s .2s linear;
+            border: 1px solid var(--separator-color);
+        }
+        .settings-menu.open {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+            transition: opacity .2s ease, transform .2s ease, visibility 0s 0s linear;
+        }
+        .settings-menu-section { padding: 0.75rem 1rem; }
+        .settings-menu-section .title {
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: var(--fg);
+            opacity: 0.7;
+            margin-bottom: 0.5rem;
+            padding: 0.5rem 0;
+        }
+        .settings-menu ul { list-style: none; padding: 0; margin: 0; }
+        .settings-menu li button {
+            background: none; border: none;
+            padding: .8rem 1rem; width: 100%; text-align: left;
+            cursor: pointer;
+            color: var(--menu-fg);
+            display: flex; /* Use flex for icon alignment */
+            align-items: center;
+            gap: 0.75rem; /* Space between icon and text */
+            font-size: 0.95rem;
+            border-radius: 0; /* Remove individual button radius */
+            transition: background-color 0.2s, color 0.2s;
+        }
+        .settings-menu li button i { width: 18px; text-align: center; opacity: 0.8; } /* Style for icons */
+        .settings-menu li button:hover { background: var(--menu-hover-bg); color: var(--menu-hover-fg); }
+        .settings-menu .separator { margin: 0.5rem 0; border-color: var(--separator-color); }
 
-    /* Rainbow Button Style */
-    .rainbow-btn {
-      background: linear-gradient(to right, red, orange, yellow, green, blue, indigo, violet);
-      color: white;
-      padding: 0.75rem 1rem;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: 600;
-      background-size: 400% 400%;
-      animation: rainbow 5s ease infinite;
-    }
+        /* Theme Buttons in Menu */
+        .theme-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(50px, 1fr));
+            gap: 0.5rem;
+            padding: 0.5rem 1rem 1rem 1rem;
+        }
+        .theme-button {
+            width: 100%;
+            height: 30px;
+            border-radius: 6px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: border-color 0.2s;
+        }
+        .theme-button.active { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent); }
+        .theme-button:hover { border-color: var(--fg); opacity: 0.8; }
+        .theme-button span { display: none; } /* Hide text */
+        /* Add specific styles for each theme button background */
+        .theme-button[data-theme="default"] { background-color: #f9f9f9; border-color: #ccc; }
+        .theme-button[data-theme="dark"] { background-color: #222; border-color: #555; }
+        .theme-button[data-theme="blue"] { background-color: #e3f2fd; border-color: #90caf9; }
+        .theme-button[data-theme="green"] { background-color: #e8f5e9; border-color: #81c784; }
+        .theme-button[data-theme="purple"] { background-color: #f3e5f5; border-color: #ba68c8; }
+        .theme-button[data-theme="orange"] { background-color: #fff3e0; border-color: #ffb74d; }
+        .theme-button[data-theme="teal"] { background-color: #e0f2f1; border-color: #4db6ac; }
 
-    @keyframes rainbow {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
+        /* Custom Theme Button */
+        .settings-menu li button.custom-theme-btn {
+            background: linear-gradient(to right, #ff7e5f, #feb47b); /* Default nice gradient */
+            color: #fff;
+            font-weight: 600;
+            justify-content: center; /* Center content */
+        }
+        .settings-menu li button.custom-theme-btn:hover {
+            opacity: 0.9;
+        }
 
-    /* Custom Theme Prompt Styles */
-    #customThemeOverlay {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.5);
-        justify-content: center;
-        align-items: center;
-        z-index: 11;
-    }
+        /* --- Modal Styles (for Name Prompt & Custom Theme) --- */
+        .modal-overlay {
+            position: fixed; top:0; left:0; right:0; bottom:0;
+            background: var(--modal-bg);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 1000; /* High z-index */
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0s 0.3s linear;
+        }
+        .modal-overlay.open {
+            opacity: 1;
+            visibility: visible;
+            transition: opacity 0.3s ease, visibility 0s 0s linear;
+        }
+        .modal-content {
+            background: var(--item-bg);
+            color: var(--item-fg);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            width: 90%; max-width: 400px;
+            text-align: center;
+            transform: scale(0.95);
+            transition: transform 0.3s ease;
+        }
+        .modal-overlay.open .modal-content {
+            transform: scale(1);
+        }
+        .modal-content h2 { margin-top: 0; color: var(--fg); }
+        .modal-content p { margin-bottom: 1.5rem; }
+        .modal-content input[type="text"],
+        .modal-content input[type="color"],
+        .modal-content select {
+            margin-top: 1rem;
+            margin-bottom: 1rem; /* Add space below input */
+            text-align: center;
+        }
+         .modal-content input[type="color"] {
+            height: 40px; /* Make color picker taller */
+            padding: 0.25rem; /* Adjust padding */
+         }
+        .modal-actions { margin-top: 1.5rem; display: flex; justify-content: center; gap: 1rem; }
 
-    #customThemePrompt {
-        background: #fff;
-        padding: 2rem;
-        border-radius: 12px;
-        text-align: center;
-        width: 90%;
-        max-width: 320px;
-    }
+        /* --- All Reminders View --- */
+        #allView { display: block; /* Managed by React state now */ }
+        #allView .reminder-item { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+        .all-reminder-details > div { margin-bottom: 0.3rem; }
+        .all-reminder-details strong { font-weight: 600; }
+        .all-reminder-details small { opacity: 0.8; font-size: 0.85rem; }
+        .reminder-actions { margin-top: 1rem; display: flex; gap: 1rem; align-items: center; width: 100%; justify-content: space-between; }
+        .reminder-actions label { display: flex; align-items: center; gap: 0.5rem; font-weight: normal; font-size: 0.9rem; margin-bottom: 0;}
+        .view-all-controls { margin-top: 1.5rem; display: flex; justify-content: space-between; align-items: center;}
 
-    #customThemePrompt label {
-        display: block;
-        margin-bottom: 0.5rem;
-        font-weight: 600;
-    }
 
-    #customThemePrompt input[type="color"] {
-        width: 100%;
-        padding: 0.5rem;
-        margin-bottom: 1rem;
-        border-radius: 6px;
-        border: 1px solid #ccc;
-    }
-
-    #customThemePrompt button {
-        margin-top: 1rem;
-        padding: 0.5rem 1rem;
-        border: none;
-        border-radius: 6px;
-        background: var(--accent);
-        color: #fff;
-        cursor: pointer;
-    }
-
-    #customThemePrompt button:hover {
-        background: var(--accent-hover);
-    }
-  </style>
+        /* Utility */
+        .hidden { display: none; }
+    </style>
 </head>
-<body class="theme-default">
-  <div class="container" id="mainContainer">
-    <button class="toolbar-btn" id="settingsBtn" title="Settings">⚙️</button>
-    <div class="menu" id="settingsMenu">
-      <ul>
-        <li><div class="section-title">Data Synchronization</div></li>
-        <li><button id="signinBtn">Sign in with Google</button></li>
-        <li><button id="signoutBtn" style="display:none;">Sign out</button></li>
-        <li><button id="importBtn">Import Reminders</button></li>
-        <li><button id="exportBtn">Export Reminders</button></li>
-        <li><div class="separator"></div></li>
-        <li><div class="section-title">Themes</div></li>
-        <li><button data-theme="default">Default</button></li>
-        <li><button data-theme="dark">Dark</button></li>
-        <li><button data-theme="blue">Blue</button></li>
-        <li><button data-theme="green">Green</button></li>
-        <li><button data-theme="purple">Purple</button></li>
-        <li><button data-theme="orange">Orange</button></li>
-        <li><button data-theme="teal">Teal</button></li>
-        <li><button id="customThemeBtn" class="rainbow-btn">Custom Theme</button></li>
-      </ul>
-    </div>
+<body>
+    <div id="root"></div>
+    <input type="file" id="importFileTrigger" accept="application/json" style="display:none;">
 
-    <h1 class="greeting" id="greeting">Welcome!</h1>
-    <div id="dueBanner" class="due-banner" style="display:none;"></div>
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
 
-    <div class="form-group">
-      <label for="reminderText">Reminder</label>
-      <input type="text" id="reminderText" placeholder="What to remember?" />
-    </div>
-    <div class="form-group">
-      <label for="reminderDate">Due Date</label>
-      <input type="text" id="reminderDate" class="date-picker" placeholder="Select date" readonly />
-      <button id="addBtn">Add Reminder</button>
-    </div>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-    <div id="dueSection">
-      <div class="separator" id="sepDue"></div>
-      <div class="section-title">Due Reminders</div>
-      <ul class="reminder-list" id="dueList"></ul>
-      <div id="noDue">No due reminders. Great!</div>
-    </div>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    
+   <script src="https://apis.google.com/js/api.js"></script>
 
-    <div id="upcomingSection">
-      <div class="separator" id="sepUpcoming"></div>
-      <div class="section-title">Upcoming Reminders</div>
-      <ul class="reminder-list" id="upcomingList"></ul>
-      <div id="viewAllContainer" style="display:none;"><a href="#" id="viewAllLink">View All?</a></div>
-    </div>
-  </div>
+    <script type="text/babel"> // Use text/babel for JSX transpilation
 
-  <div class="container" id="allView">
-    <h1>All Reminders</h1>
-    <ul class="reminder-list" id="allList"></ul>
-    <button id="backBtn">Back</button>
-  </div>
+        const { useState, useEffect, useRef, useCallback } = React;
 
-  <div class="overlay" id="nameOverlay">
-    <div class="prompt">
-      <h2>Welcome! What's your name?</h2>
-      <input type="text" id="nameInput" placeholder="Your name..." />
-      <button id="saveName">Continue</button>
-    </div>
-  </div>
+        // --- Constants ---
+        // Removed Google API Constants
+        // const GAPI_CLIENT_ID = '766195079872-ndank8bvfj4jbeklprl9egf0rk1rnlp7.apps.googleusercontent.com'; // <-- Replace with your actual Client ID
+        // const GAPI_API_KEY = '766195079872-ndank8bvfj4jbeklprl9egf0rk1rnlp7.apps.googleusercontent.com';         // <-- Replace with your actual API Key
+        // const GAPI_DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"];
+        // const GAPI_SCOPES = 'https://www.googleapis.com/auth/drive.appdata';
+        const REMINDER_TRUNCATE_LIMIT = 3; // <-- NEW: Define truncation limit
 
-  <div id="customThemeOverlay">
-        <div id="customThemePrompt">
-            <h2>Customize Your Theme</h2>
-            <label for="customColor">Pick a Color:</label>
-            <input type="color" id="customColor">
-            <label for="themeType">Theme Type:</label>
-            <select id="themeType">
-                <option value="light">Light</option>
-                <option value="dark">Dark</option>
-            </select>
-            <button id="applyCustomTheme">Apply Theme</button>
-        </div>
-    </div>
-
-  <input type="file" id="importFile" accept="application/json" style="display:none;">
-
-  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-  <script src="https://apis.google.com/js/api.js"></script>
-  <script>
-    // Initialize date picker
-    flatpickr("#reminderDate", {
-      altInput: true,
-      altFormat: "d M Y",
-      dateFormat: "Y-m-d",
-    });
-
-    // Cookie helpers
-    function setCookie(name, value, days=365) {
-      const d = new Date(); d.setTime(d.getTime() + days*24*60*60*1000);
-      document.cookie = name + '=' + encodeURIComponent(value) + ';expires=' + d.toUTCString() + ';path=/';
-    }
-    function getCookie(name) {
-      const v = document.cookie.match('(^|;) ?' + name + '=([^;]*)(;|$)');
-      return v ? decodeURIComponent(v[2]) : null;
-    }
-
-    // Google API setup
-    const CLIENT_ID = 'YOUR_GOOGLE_CLIENT_ID';
-    const API_KEY = 'YOUR_API_KEY';
-    const DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"];
-    const SCOPES = 'https://www.googleapis.com/auth/drive.appdata';
-
-    let gapiInited = false;
-    let isSignedIn = false;
-
-    function gapiLoad() {
-      gapi.load('client:auth2', initGapiClient);
-    }
-    async function initGapiClient() {
-      await gapi.client.init({apiKey: API_KEY, clientId: CLIENT_ID, discoveryDocs: DISCOVERY_DOCS, scope: SCOPES});
-      gapiInited = true;
-      gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
-      updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
-    }
-    function handleAuthClick() { gapi.auth2.getAuthInstance().signIn(); }
-    function handleSignoutClick() { gapi.auth2.getAuthInstance().signOut(); }
-    function updateSigninStatus(signedIn) {
-      isSignedIn = signedIn;
-      document.getElementById('signinBtn').style.display = signedIn ? 'none' : 'block';
-      document.getElementById('signoutBtn').style.display = signedIn ? 'block' : 'none';
-      if (signedIn) loadFromCloud();
-    }
-
-    // Cloud storage
-    async function loadFromCloud() {
-      const res = await gapi.client.drive.files.list({spaces:'appDataFolder', fields:'files(id,name)'});
-      const file = res.result.files.find(f=>f.name==='reminders.json');
-      if (file) {
-        const resp = await gapi.client.drive.files.get({fileId:file.id, alt:'media'});
-        reminders = JSON.parse(resp.body);
-        saveReminders(); renderReminders();
-      }
-    }
-    async function saveToCloud() {
-      const metadata = {name:'reminders.json', parents:['appDataFolder']};
-      const blob = new Blob([JSON.stringify(reminders)], {type:'application/json'});
-      const form = new FormData();
-      form.append('metadata', new Blob([JSON.stringify(metadata)], {type:'application/json'}));
-      form.append('file', blob);
-      // delete old then upload new
-      const list = await gapi.client.drive.files.list({spaces:'appDataFolder', fields:'files(id,name)'});
-      const old = list.result.files.find(f=>f.name==='reminders.json');
-      if (old) await gapi.client.drive.files.delete({fileId:old.id});
-      const xhr = new XMLHttpRequest();
-      xhr.open('POST','https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart');
-      xhr.setRequestHeader('Authorization','Bearer '+gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().access_token);
-      xhr.send(form);
-    }
-
-    // File import/export
-    document.getElementById('importBtn').addEventListener('click', () => {
-      document.getElementById('importFile').click();
-    });
-    document.getElementById('importFile').addEventListener('change', e => {
-      const file = e.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = () => {
-        reminders = JSON.parse(reader.result);
-        saveReminders(); renderReminders();
-      };
-      reader.readAsText(file);
-    });
-    document.getElementById('exportBtn').addEventListener('click', () => {
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(new Blob([JSON.stringify(reminders)],{type:'application/json'}));
-      link.download = 'reminders.json';
-      link.click();
-    });
-
-    // Theme & settings
-    const settingsBtn = document.getElementById('settingsBtn');
-    const settingsMenu = document.getElementById('settingsMenu');
-    settingsBtn.addEventListener('click', ()=> settingsMenu.classList.toggle('open'));
-    settingsMenu.querySelectorAll('[data-theme]').forEach(btn=>{
-      btn.addEventListener('click', ()=>{
-        const t = btn.dataset.theme;
-        document.body.className = 'theme-' + t;
-        setCookie('theme', t);
-      });
-    });
-
-    // Custom theme logic
-    const customThemeBtn = document.getElementById('customThemeBtn');
-    const customThemeOverlay = document.getElementById('customThemeOverlay');
-    const customThemePrompt = document.getElementById('customThemePrompt');
-    const customColorInput = document.getElementById('customColor');
-    const themeTypeSelect = document.getElementById('themeType');
-    const applyCustomThemeBtn = document.getElementById('applyCustomTheme');
-
-    customThemeBtn.addEventListener('click', () => {
-        customThemeOverlay.style.display = 'flex';
-    });
-
-    applyCustomThemeBtn.addEventListener('click', () => {
-        const selectedColor = customColorInput.value;
-        const selectedThemeType = themeTypeSelect.value;
-
-        document.documentElement.style.setProperty('--accent', selectedColor);
-        document.documentElement.style.setProperty('--accent-hover', selectedColor + 'cc');
-
-        // Adjust text color based on theme type
-        let textColor;
-        if (selectedThemeType === 'light') {
-            document.documentElement.style.setProperty('--bg', '#f9f9f9');
-            document.documentElement.style.setProperty('--fg', '#333');
-            textColor = '#000';
-        } else {
-            document.documentElement.style.setProperty('--bg', '#222');
-            document.documentElement.style.setProperty('--fg', '#eee');
-            textColor = '#fff';
+        // --- Helper Functions ---
+        function setCookie(name, value, days = 365) {
+            const d = new Date();
+            d.setTime(d.getTime() + days * 24 * 60 * 60 * 1000);
+            document.cookie = `${name}=${encodeURIComponent(value)};expires=${d.toUTCString()};path=/;SameSite=Lax`;
         }
-        document.documentElement.style.setProperty('--item-fg', textColor);
 
-        document.body.className = 'theme-custom';
-        setCookie('theme', 'custom');
-        setCookie('customColor', selectedColor);
-        setCookie('themeType', selectedThemeType);
+        function getCookie(name) {
+            const v = document.cookie.match('(^|;) ?' + name + '=([^;]*)(;|$)');
+            return v ? decodeURIComponent(v[2]) : null;
+        }
 
-        customThemeOverlay.style.display = 'none';
-    });
+        function formatDate(dateString) {
+            if (!dateString) return '';
+            const [y, m, d] = dateString.split('-').map(Number);
+            const dateObj = new Date(y, m - 1, d);
+             return dateObj.toLocaleDateString(navigator.language, { // Use browser's locale
+                day: 'numeric',
+                month: 'short',
+                year: 'numeric',
+             });
+        }
 
-    // Load custom theme from cookies
-    const savedTheme = getCookie('theme') || 'default';
-    document.body.className = 'theme-' + savedTheme;
+        function formatDateTime(timestamp) {
+             if (!timestamp) return '';
+             return new Date(parseInt(timestamp)).toLocaleString(navigator.language, { // Use browser's locale
+                 day: 'numeric',
+                 month: 'short',
+                 year: 'numeric',
+                 hour: 'numeric',
+                 minute: '2-digit'
+             });
+        }
 
-    if (savedTheme === 'custom') {
-        const customColor = getCookie('customColor');
-        const themeType = getCookie('themeType') || 'light';
+        // --- NEW: Contrast Checking Function ---
+        // Calculates perceived brightness (YIQ) - higher value means brighter color
+        function getContrastYIQ(hexcolor){
+            hexcolor = hexcolor.replace("#", "");
+            const r = parseInt(hexcolor.substr(0,2),16);
+            const g = parseInt(hexcolor.substr(2,2),16);
+            const b = parseInt(hexcolor.substr(4,2),16);
+            const yiq = ((r*299)+(g*587)+(b*114))/1000;
+            return yiq; // Returns a value between 0 and 255
+        }
 
-        if (customColor) {
-            document.documentElement.style.setProperty('--accent', customColor);
-            document.documentElement.style.setProperty('--accent-hover', customColor + 'cc');
 
-            let textColor;
-            if (themeType === 'light') {
-                document.documentElement.style.setProperty('--bg', '#f9f9f9');
-                document.documentElement.style.setProperty('--fg', '#333');
-                textColor = '#000';
-            } else {
-                document.documentElement.style.setProperty('--bg', '#222');
-                document.documentElement.style.setProperty('--fg', '#eee');
-                textColor = '#fff';
+        // --- React Components ---
+
+        // Settings Menu Component (no changes needed here for these requests)
+        // Removed Google Sign-in/Sign-out buttons
+        function SettingsMenu({ isOpen, onClose, onThemeChange, currentTheme, onImport, onExport, onOpenCustomTheme }) {
+            const menuRef = useRef();
+
+            // Close menu if clicked outside
+            useEffect(() => {
+                function handleClickOutside(event) {
+                    if (menuRef.current && !menuRef.current.contains(event.target)) {
+                        if (!event.target.closest('.toolbar-btn')) {
+                            onClose();
+                        }
+                    }
+                }
+                if (isOpen) {
+                    document.addEventListener("mousedown", handleClickOutside);
+                } else {
+                    document.removeEventListener("mousedown", handleClickOutside);
+                }
+                return () => {
+                    document.removeEventListener("mousedown", handleClickOutside);
+                };
+            }, [isOpen, onClose]);
+
+            const themes = ['default', 'dark', 'blue', 'green', 'purple', 'orange', 'teal'];
+
+            return (
+                <div ref={menuRef} className={`settings-menu ${isOpen ? 'open' : ''}`}>
+                    <div className="settings-menu-section">
+                        <div className="title">Data Sync</div>
+                        <ul>
+                            {/* Removed Google Sign-in/Sign-out buttons */}
+                            {/* {isSignedIn ? (
+                                <li><button onClick={onGoogleSignOut}><i className="fas fa-sign-out-alt"></i> Sign Out</button></li>
+                            ) : (
+                                <li><button onClick={onGoogleSignIn}><i className="fab fa-google"></i> Sign in with Google</button></li>
+                            )} */}
+                            <li><button onClick={onImport}><i className="fas fa-file-import"></i> Import Reminders</button></li>
+                            <li><button onClick={onExport}><i className="fas fa-file-export"></i> Export Reminders</button></li>
+                        </ul>
+                    </div>
+
+                    <div className="separator"></div>
+
+                    <div className="settings-menu-section">
+                        <div className="title">Themes</div>
+                        <div className="theme-options">
+                            {themes.map(theme => (
+                                <button
+                                    key={theme}
+                                    title={theme.charAt(0).toUpperCase() + theme.slice(1)}
+                                    className={`theme-button ${currentTheme === theme ? 'active' : ''}`}
+                                    data-theme={theme}
+                                    onClick={() => onThemeChange(theme)}
+                                >
+                                    <span>{theme}</span> {/* Hidden text, styled via CSS */}
+                                </button>
+                            ))}
+                        </div>
+                         <ul>
+                            <li>
+                                <button onClick={onOpenCustomTheme} className="custom-theme-btn">
+                                    <i className="fas fa-palette"></i> Custom Theme
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            );
+        }
+
+        // Custom Theme Modal Component (no changes needed here for these requests)
+        function CustomThemeModal({ isOpen, onClose, onApply, currentCustomColor, currentThemeType }) {
+            const [color, setColor] = useState(currentCustomColor || '#007bff'); // Default color
+            const [type, setType] = useState(currentThemeType || 'light');
+
+             // Update local state if props change (e.g., loaded from cookies)
+             useEffect(() => {
+                setColor(currentCustomColor || '#007bff');
+                setType(currentThemeType || 'light');
+            }, [currentCustomColor, currentThemeType, isOpen]);
+
+
+            if (!isOpen) return null;
+
+            const handleApply = () => {
+                onApply(color, type); // Pass color and type to the App component handler
+                onClose();
+            };
+
+            const handleOverlayClick = (e) => {
+                 if (e.target === e.currentTarget) { // Check if click is on overlay itself
+                     onClose();
+                 }
+            };
+
+            return (
+                <div className={`modal-overlay ${isOpen ? 'open' : ''}`} onClick={handleOverlayClick}>
+                    <div className="modal-content">
+                        <h2>Customize Your Theme</h2>
+                        <div>
+                            <label htmlFor="customColor">Accent Color:</label>
+                            <input
+                                type="color"
+                                id="customColor"
+                                value={color}
+                                onChange={(e) => setColor(e.target.value)}
+                            />
+                        </div>
+                         <div>
+                            <label htmlFor="themeType">Base Theme:</label>
+                            <select id="themeType" value={type} onChange={(e) => setType(e.target.value)}>
+                                <option value="light">Light</option>
+                                <option value="dark">Dark</option>
+                            </select>
+                        </div>
+                        <div className="modal-actions">
+                             <button onClick={handleApply}><i className="fas fa-check"></i> Apply Theme</button>
+                             <button onClick={onClose} className="secondary"><i className="fas fa-times"></i> Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // Name Prompt Modal Component (no changes needed here)
+        function NamePrompt({ isOpen, onSave }) {
+            const [name, setName] = useState('');
+
+            if (!isOpen) return null;
+
+            const handleSave = () => {
+                onSave(name.trim() || 'Friend');
             }
-            document.documentElement.style.setProperty('--item-fg', textColor);
+
+            // No overlay close for this one, force interaction
+            return (
+                 <div className={`modal-overlay ${isOpen ? 'open' : ''}`}>
+                    <div className="modal-content">
+                        <h2>Welcome!</h2>
+                        <p>Please enter your name to get started.</p>
+                        <input
+                            type="text"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            placeholder="Your name..."
+                            onKeyPress={(e) => e.key === 'Enter' && handleSave()}
+                            autoFocus
+                         />
+                        <div className="modal-actions">
+                            <button onClick={handleSave}>Continue</button>
+                         </div>
+                    </div>
+                </div>
+            );
         }
-    }
 
-    // Google button events
-    document.getElementById('signinBtn').addEventListener('click', handleAuthClick);
-    document.getElementById('signoutBtn').addEventListener('click', handleSignoutClick);
-    window.onload = () => { gapiLoad(); initApp(); };
+        // Reminder Item Component (no changes needed here)
+        function ReminderItem({ reminder, onToggleComplete, onDelete, isAllView = false }) {
+            const handleDelete = () => {
+                const itemElement = document.getElementById(`reminder-${reminder.id}`);
+                if (itemElement && !isAllView) {
+                    itemElement.classList.add('slide-out');
+                    // Wait for animation before actually deleting
+                    setTimeout(() => onDelete(reminder.id), 300);
+                } else {
+                     // No animation needed for all view, or if element not found
+                    if (isAllView && !confirm(`Delete reminder "${reminder.text}"?`)) {
+                       return; // Don't delete if confirmation is cancelled
+                    }
+                    onDelete(reminder.id);
+                }
+            };
 
-    // Name prompt & greeting
-    const overlay = document.getElementById('nameOverlay');
-    const greeting = document.getElementById('greeting');
-    const storedName = getCookie('username');
-    const nameInput = document.getElementById('nameInput');
-    if (storedName) { overlay.style.display = 'none'; setGreeting(storedName); }
-    document.getElementById('saveName').onclick = ()=>{
-      const name = nameInput.value.trim()||'Friend';
-      setCookie('username', name); overlay.style.display='none'; setGreeting(name);
-    };
-    function setGreeting(name) {
-      const msgs = [`Welcome, <b>${name}</b>!`,`Good to see you, <b>${name}</b>.`,`Ready when you are, <b>${name}</b>.`,`Let's crush it today, <b>${name}</b>.`];
-      greeting.innerHTML = msgs[Math.floor(Math.random()*msgs.length)];
-    }
+            return (
+                <li className={`reminder-item ${reminder.completed ? 'completed' : ''} ${!reminder.completed && !isAllView && new Date(reminder.date) <= new Date(new Date().toDateString()) ? 'shake' : ''}`} id={`reminder-${reminder.id}`}>
+                     {!isAllView ? (
+                        <>
+                            <div className="reminder-details">
+                                <input
+                                    type="checkbox"
+                                    checked={reminder.completed}
+                                    onChange={() => onToggleComplete(reminder.id)}
+                                    aria-label={`Mark ${reminder.text} as complete`}
+                                />
+                                <span className="reminder-text">
+                                    {reminder.text}
+                                    <span className="reminder-date">({formatDate(reminder.date)})</span>
+                                </span>
+                            </div>
+                             <div className="reminder-item-actions">
+                                <button onClick={handleDelete} className="trash-btn" title="Delete Reminder">
+                                    <i className="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
+                        </>
+                    ) : (
+                        <div className="all-reminder-details">
+                             <div><strong>{reminder.text}</strong></div>
+                             <div><small>Due: {formatDate(reminder.date)}</small></div>
+                             <div><small>Created: {formatDateTime(reminder.id)}</small></div>
+                             <div className="reminder-actions">
+                                 <label>
+                                     <input
+                                         type="checkbox"
+                                         checked={reminder.completed}
+                                         onChange={() => onToggleComplete(reminder.id)}
+                                     /> Completed
+                                 </label>
+                                 <button onClick={handleDelete} className="trash-btn danger" title="Delete Reminder">
+                                     <i className="fas fa-trash-alt"></i>
+                                 </button>
+                             </div>
+                         </div>
+                    )}
+                </li>
+            );
+        }
 
-    // Reminders data & rendering
-    let reminders = []; const dueList=document.getElementById('dueList'), upcomingList=document.getElementById('upcomingList');
-    function loadReminders(){ const d=getCookie('reminders'); reminders=d?JSON.parse(d):[]; }
-    function saveReminders(){ setCookie('reminders', JSON.stringify(reminders)); if(isSignedIn) saveToCloud(); }
-    function formatDate(d){ const [y,m,dd]=d.split('-').map(Number), D=new Date(y,m-1,dd); return D.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}); }
-    function formatDateTime(ms){ return new Date(parseInt(ms)).toLocaleString(); }
-    function renderReminders(){ if(!reminders.length){ document.getElementById('dueSection').style.display='none'; document.getElementById('upcomingSection').style.display='none'; }
-      else{ document.getElementById('dueSection').style.display='block'; document.getElementById('upcomingSection').style.display='block'; }
-      dueList.innerHTML=''; upcomingList.innerHTML=''; const today=new Date().toISOString().split('T')[0]; let hasDue=false;
-      reminders.sort((a,b)=>a.date.localeCompare(b.date)); reminders.forEach(r=>{
-        const li=document.createElement('li'); li.className='reminder-item'; li.innerHTML=`<div class="reminder-details"><input type="checkbox" ${r.completed?'checked':''} data-id="${r.id}"/><span>${r.text} <small>(${formatDate(r.date)})</small></span></div><button class="trash-btn" data-id="${r.id}" title="Delete">🗑️</button>`;
-        li.querySelector('input').addEventListener('change',e=>{ const rem=reminders.find(x=>x.id==e.target.dataset.id); rem.completed=e.target.checked; saveReminders(); renderReminders(); });
-        li.querySelector('.trash-btn').addEventListener('click',e=>{ const id=e.target.dataset.id; li.classList.add('slide-out'); setTimeout(()=>{reminders=reminders.filter(x=>x.id!=id); saveReminders(); renderReminders();},300); });
-        if(!r.completed&&r.date<=today){ li.classList.add('shake'); dueList.appendChild(li); hasDue=true;} else upcomingList.appendChild(li);
-      }); document.getElementById('noDue').style.display=hasDue?'none':'block'; document.getElementById('dueBanner').style.display=hasDue?'block':'none';
-      document.getElementById('dueBanner').textContent='You have due reminders!'; document.getElementById('viewAllContainer').style.display=reminders.length>5?'block':'none'; }
-    document.getElementById('addBtn').addEventListener('click',()=>{ const t=document.getElementById('reminderText').value.trim(); const d=document.getElementById('reminderDate').value; if(!t||!d)return; reminders.push({id:Date.now(),text:t,date:d,completed:false}); saveReminders(); renderReminders(); document.getElementById('reminderText').value=''; document.getElementById('reminderDate').value=''; });
-    document.getElementById('viewAllLink').addEventListener('click',e=>{ e.preventDefault(); document.getElementById('mainContainer').style.display='none'; document.getElementById('allView').style.display='block'; renderAllReminders(); });
-    function renderAllReminders(){ const allList=document.getElementById('allList'); allList.innerHTML=''; reminders.sort((a,b)=>a.date.localeCompare(b.date)); reminders.forEach(r=>{ const li=document.createElement('li'); li.className='reminder-item'; li.innerHTML=`<div><strong>${r.text}</strong></div><div>Due: ${formatDate(r.date)}</div><div>Created: ${formatDateTime(r.id)}</div><div class="reminder-actions"><label><input type="checkbox" data-id="${r.id}" ${r.completed?'checked':''}/> Completed</label><button class="trash-btn" data-id="${r.id}" title="Delete">🗑️</button></div>`;
-        li.querySelector('input[type="checkbox"]').addEventListener('change',e=>{ const rem=reminders.find(x=>x.id==e.target.dataset.id); rem.completed=e.target.checked; saveReminders(); renderAllReminders(); });
-        li.querySelector('.trash-btn').addEventListener('click',e=>{ if(confirm('Delete this reminder?')){ reminders=reminders.filter(x=>x.id!=e.target.dataset.id); saveReminders(); renderAllReminders(); }});
-        allList.appendChild(li);
-      }); }
-    document.getElementById('backBtn').addEventListener('click',()=>{ document.getElementById('allView').style.display='none'; document.getElementById('mainContainer').style.display='block'; });
+        // Reminder List Component
+        // MODIFIED: Conditionally render the entire section based on reminders.length
+        function ReminderList({ title, reminders, onToggleComplete, onDelete, showViewAllLink, onViewAll, emptyMessage, isAllView = false }) {
 
-    function initApp(){ loadReminders(); renderReminders(); }
-  </script>
+            // --- MODIFICATION Start ---
+            // In the main view, don't render the section at all if there are no reminders for it.
+            // Keep rendering empty state in the 'All Reminders' view if applicable.
+            if (!isAllView && reminders.length === 0) {
+                 return null; // Render nothing if the list is empty in main view
+            }
+            // --- MODIFICATION End ---
+
+
+            return (
+                 <section>
+                    {/* Title is only rendered if the component itself renders */}
+                    {title && <div className="section-title">{title}</div>}
+
+                    {/* Keep original logic for list or empty message display */}
+                    {reminders.length > 0 ? (
+                        <ul className="reminder-list">
+                            {reminders.map(reminder => (
+                                <ReminderItem
+                                    key={reminder.id}
+                                    reminder={reminder}
+                                    onToggleComplete={onToggleComplete}
+                                    onDelete={onDelete}
+                                    isAllView={isAllView}
+                                />
+                            ))}
+                        </ul>
+                    ) : (
+                         // This empty message will now only show in the 'All Reminders' view if it's empty
+                        <p>{emptyMessage}</p>
+                    )}
+                    {showViewAllLink && reminders.length > 0 && ( // Keep condition > 0 for link itself
+                        <div style={{ marginTop: '1rem' }}>
+                            <a href="#" onClick={onViewAll} style={{ color: 'var(--accent)', fontWeight: 600, textDecoration: 'none' }}>
+                                View All?
+                            </a>
+                        </div>
+                    )}
+                </section>
+            );
+        }
+
+         // Main App Component
+        function App() {
+            const [userName, setUserName] = useState(null);
+            const [greeting, setGreeting] = useState('');
+            const [reminders, setReminders] = useState([]);
+            const [newReminderText, setNewReminderText] = useState('');
+            const [newReminderDate, setNewReminderDate] = useState('');
+            const [theme, setTheme] = useState('default');
+            const [customColor, setCustomColor] = useState(null);
+            const [themeType, setThemeType] = useState('light'); // 'light' or 'dark' for custom
+            const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+            const [isCustomThemeOpen, setIsCustomThemeOpen] = useState(false);
+            const [isNamePromptOpen, setIsNamePromptOpen] = useState(false);
+            // Removed Google Sign-in state
+            // const [isSignedIn, setIsSignedIn] = useState(false); // Google Sign-in
+            const [isGapiReady, setIsGapiReady] = useState(false); // Keep for now, maybe useful later?
+            const [view, setView] = useState('main'); // 'main' or 'all'
+
+            const flatpickrRef = useRef(null);
+            const dateInputRef = useRef(null);
+            const importFileRef = useRef(null); // Ref for the hidden file input
+
+            // --- Effects ---
+
+            // Load initial data (name, theme, reminders) from cookies
+             useEffect(() => {
+                const storedName = getCookie('username');
+                if (storedName) {
+                    setUserName(storedName);
+                    updateGreeting(storedName);
+                } else {
+                    setIsNamePromptOpen(true);
+                }
+
+                const storedTheme = getCookie('theme') || 'default';
+                const storedCustomColor = getCookie('customColor');
+                const storedThemeType = getCookie('themeType') || 'light';
+
+                setTheme(storedTheme);
+                 if (storedTheme === 'custom' && storedCustomColor) {
+                     setCustomColor(storedCustomColor);
+                     setThemeType(storedThemeType);
+                     // Apply custom theme *including contrast check* on initial load
+                     applyCustomThemeStyles(storedCustomColor, storedThemeType, false); // false = don't show alert on load
+                 } else {
+                     document.body.className = `theme-${storedTheme}`;
+                 }
+
+
+                const storedReminders = getCookie('reminders');
+                if (storedReminders) {
+                    try {
+                        setReminders(JSON.parse(storedReminders));
+                    } catch (e) {
+                        console.error("Failed to parse reminders from cookie:", e);
+                        setReminders([]);
+                    }
+                 }
+
+                // Removed GAPI load
+                // loadGapiScript();
+
+                // Setup hidden file input ref
+                importFileRef.current = document.getElementById('importFileTrigger');
+                importFileRef.current.addEventListener('change', handleFileImport);
+
+                 // Cleanup listener on unmount
+                 return () => {
+                    if (importFileRef.current) {
+                        importFileRef.current.removeEventListener('change', handleFileImport);
+                    }
+                 };
+
+            }, []); // Run only once on mount
+
+
+             // Initialize Flatpickr
+            useEffect(() => {
+                if (dateInputRef.current && !flatpickrRef.current) {
+                    flatpickrRef.current = flatpickr(dateInputRef.current, {
+                        altInput: true,
+                        altFormat: "d M Y",
+                        dateFormat: "Y-m-d",
+                        onChange: (selectedDates, dateStr) => {
+                            setNewReminderDate(dateStr); // Update state on date change
+                        },
+                        // Make sure the calendar uses the current theme's background/text
+                         onOpen: function(selectedDates, dateStr, instance) {
+                            instance.calendarContainer.classList.add(`theme-${theme}`);
+                         },
+                         onMonthChange: function(selectedDates, dateStr, instance) {
+                             instance.calendarContainer.classList.add(`theme-${theme}`);
+                         },
+                          onYearChange: function(selectedDates, dateStr, instance) {
+                              instance.calendarContainer.classList.add(`theme-${theme}`);
+                          }
+                    });
+                }
+                 // Cleanup Flatpickr instance on unmount or if ref changes
+                return () => {
+                    if (flatpickrRef.current) {
+                        flatpickrRef.current.destroy();
+                        flatpickrRef.current = null;
+                    }
+                };
+            }, [theme]); // Re-initialize if theme changes, to apply theme class to calendar
+
+             // Save reminders to cookie and cloud whenever they change
+             useEffect(() => {
+                setCookie('reminders', JSON.stringify(reminders));
+                // Removed Cloud Save logic
+                //  if (isSignedIn && isGapiReady) {
+                //     saveToCloud(reminders);
+                // }
+            }, [reminders]); // Removed isSignedIn, isGapiReady from dependency array
+
+
+            // --- State Update & Helper Functions ---
+            const updateGreeting = (name) => {
+                const msgs = [
+                    `Welcome back, <strong>${name}</strong>!`,
+                    `Good to see you, <strong>${name}</strong>.`,
+                    `What's on the agenda, <strong>${name}</strong>?`,
+                    `Let's get things done, <strong>${name}</strong>.`
+                ];
+                setGreeting(msgs[Math.floor(Math.random() * msgs.length)]);
+            };
+
+            const handleSaveName = (name) => {
+                setUserName(name);
+                setCookie('username', name);
+                updateGreeting(name);
+                setIsNamePromptOpen(false);
+            };
+
+             // MODIFIED: Added contrast check and optional notification
+             const applyCustomThemeStyles = (color, type, notifyUser = true) => {
+                 const root = document.documentElement;
+                 let buttonTextColor = '#fff'; // Default assumption
+                 let contrastIssue = false;
+
+                 root.style.setProperty('--accent', color);
+                 root.style.setProperty('--accent-hover', color + 'cc'); // Simple hover generation
+
+                 // Determine base background color for contrast check
+                 const baseBgColor = type === 'light' ? '#f9f9f9' : '#1a1a1a';
+
+                 // Calculate contrast between accent color and base background
+                 const accentYIQ = getContrastYIQ(color);
+                 const baseBgYIQ = getContrastYIQ(baseBgColor); // Get YIQ for the base background
+
+                 // Check contrast: Threshold 128 is common, adjust if needed
+                 // We want the button text to contrast with the ACCENT color
+                 if (accentYIQ >= 128) { // If accent color is light...
+                     buttonTextColor = '#000'; // ...use dark text
+                 } else { // If accent color is dark...
+                     buttonTextColor = '#fff'; // ...use light text
+                 }
+
+                 // --- Professional Notification Logic ---
+                 // Check if the *original* default button text for the theme type
+                 // would have had poor contrast with the chosen accent color.
+                 const originalButtonTextColor = type === 'light' ? '#fff' : '#000'; // Default assumptions per type
+                 const originalContrastYIQ = getContrastYIQ(originalButtonTextColor === '#fff' ? '#ffffff' : '#000000');
+
+                 // Check contrast between accent and the *original* button text color
+                 if (Math.abs(accentYIQ - originalContrastYIQ) < 128) { // If contrast is potentially poor
+                     contrastIssue = true; // Flag that we potentially adjusted
+                 }
+
+
+                 if (type === 'light') {
+                     root.style.setProperty('--bg', '#f9f9f9');
+                     root.style.setProperty('--fg', '#333');
+                     root.style.setProperty('--item-bg', '#ffffff');
+                     root.style.setProperty('--item-fg', '#333');
+                     root.style.setProperty('--menu-bg', '#ffffff');
+                     root.style.setProperty('--menu-fg', '#333');
+                     root.style.setProperty('--menu-hover-bg', '#f0f0f0');
+                     root.style.setProperty('--separator-color', '#e0e0e0');
+                     root.style.setProperty('--input-border', '#ccc');
+                 } else { // dark
+                     root.style.setProperty('--bg', '#1a1a1a');
+                     root.style.setProperty('--fg', '#e0e0e0');
+                     root.style.setProperty('--item-bg', '#2a2a2a');
+                     root.style.setProperty('--item-fg', '#e0e0e0');
+                     root.style.setProperty('--menu-bg', '#252525');
+                     root.style.setProperty('--menu-fg', '#e0e0e0');
+                     root.style.setProperty('--menu-hover-bg', '#353535');
+                     root.style.setProperty('--separator-color', '#444');
+                     root.style.setProperty('--input-border', '#555');
+                 }
+
+                 // Apply the determined button text color
+                 root.style.setProperty('--button-text', buttonTextColor);
+                 document.body.className = 'theme-custom'; // Apply the class
+
+                 // Notify user if needed
+                 if (contrastIssue && notifyUser) {
+                    alert("Theme Applied: The button text color was automatically adjusted against the selected accent color to ensure readability.");
+                 }
+             };
+
+
+            const handleThemeChange = (newTheme) => {
+                setTheme(newTheme);
+                setIsSettingsOpen(false); // Close menu
+                setCookie('theme', newTheme);
+
+                if (newTheme === 'custom') {
+                     if (!customColor) {
+                        setIsCustomThemeOpen(true);
+                     } else {
+                         applyCustomThemeStyles(customColor, themeType); // Apply existing custom style
+                     }
+                } else {
+                    document.body.className = `theme-${newTheme}`;
+                    // Reset CSS variables potentially set by custom theme
+                    document.documentElement.style.removeProperty('--accent');
+                    document.documentElement.style.removeProperty('--accent-hover');
+                    document.documentElement.style.removeProperty('--button-text');
+                    document.documentElement.style.removeProperty('--bg');
+                    document.documentElement.style.removeProperty('--fg');
+                    document.documentElement.style.removeProperty('--item-bg');
+                    document.documentElement.style.removeProperty('--item-fg');
+                    document.documentElement.style.removeProperty('--menu-bg');
+                    document.documentElement.style.removeProperty('--menu-fg');
+                    document.documentElement.style.removeProperty('--menu-hover-bg');
+                    document.documentElement.style.removeProperty('--separator-color');
+                    document.documentElement.style.removeProperty('--input-border');
+                }
+            };
+
+            const handleApplyCustomTheme = (color, type) => {
+                setCustomColor(color);
+                setThemeType(type);
+                setTheme('custom');
+                applyCustomThemeStyles(color, type, true); // true = notify user if contrast adjusted
+                setCookie('theme', 'custom');
+                setCookie('customColor', color);
+                setCookie('themeType', type);
+             };
+
+            // --- Reminder Actions ---
+            const addReminder = (e) => {
+                e.preventDefault(); // Prevent form submission
+                if (!newReminderText.trim() || !newReminderDate) return;
+                const newReminder = {
+                    id: Date.now(), // Use timestamp as unique ID
+                    text: newReminderText.trim(),
+                    date: newReminderDate,
+                    completed: false,
+                };
+                setReminders(prev => [...prev, newReminder].sort((a, b) => a.date.localeCompare(b.date)));
+                setNewReminderText('');
+                setNewReminderDate('');
+                if (flatpickrRef.current) {
+                    flatpickrRef.current.clear(); // Clear the date picker
+                }
+            };
+
+            const toggleComplete = (id) => {
+                setReminders(prev =>
+                    prev.map(r => r.id === id ? { ...r, completed: !r.completed } : r)
+                );
+            };
+
+            const deleteReminder = (id) => {
+                 setReminders(prev => prev.filter(r => r.id !== id));
+            };
+
+
+            // --- Import / Export ---
+             const handleImportClick = () => {
+                if (importFileRef.current) {
+                     importFileRef.current.value = null; // Reset file input
+                     importFileRef.current.click();
+                 }
+                 setIsSettingsOpen(false);
+            };
+
+            const handleFileImport = (event) => {
+                const file = event.target.files[0];
+                 if (!file) return;
+                 const reader = new FileReader();
+                 reader.onload = (e) => {
+                     try {
+                         const importedReminders = JSON.parse(e.target.result);
+                         if (Array.isArray(importedReminders)) {
+                             setReminders(importedReminders.sort((a, b) => a.date.localeCompare(b.date)));
+                             alert('Reminders imported successfully!');
+                         } else {
+                             alert('Invalid file format. Please import a valid JSON array of reminders.');
+                         }
+                     } catch (error) {
+                         console.error("Error parsing imported file:", error);
+                         alert('Error importing reminders. Please ensure the file is correct JSON format.');
+                     }
+                 };
+                 reader.readAsText(file);
+             };
+
+            const handleExportClick = () => {
+                if (reminders.length === 0) {
+                    alert("No reminders to export.");
+                    return;
+                }
+                const jsonString = JSON.stringify(reminders, null, 2); // Pretty print JSON
+                const blob = new Blob([jsonString], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = 'reminders.json';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+                 setIsSettingsOpen(false);
+            };
+
+
+            // --- Google API Integration --- (Logic removed)
+            // const loadGapiScript = () => {
+            //      const script = document.createElement('script');
+            //      script.src = 'https://apis.google.com/js/api.js';
+            //      script.onload = () => {
+            //          console.log('GAPI script loaded');
+            //          gapi.load('client:auth2', initGapiClient);
+            //      };
+            //      script.onerror = () => console.error("Failed to load GAPI script");
+            //      document.body.appendChild(script);
+            //  };
+
+            // const initGapiClient = useCallback(async () => {
+            //     try {
+            //         await gapi.client.init({
+            //             apiKey: GAPI_API_KEY,
+            //             clientId: GAPI_CLIENT_ID,
+            //             discoveryDocs: GAPI_DISCOVERY_DOCS,
+            //             scope: GAPI_SCOPES,
+            //         });
+            //         console.log('GAPI client initialized');
+            //         setIsGapiReady(true);
+            //         gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
+            //         updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
+            //     } catch (error) {
+            //         console.error("Error initializing GAPI client: ", error);
+            //      }
+            // }, []);
+
+            // const updateSigninStatus = useCallback(async (signedIn) => {
+            //     setIsSignedIn(signedIn);
+            //     if (signedIn && isGapiReady) {
+            //         console.log("User signed in. Loading from cloud...");
+            //         try {
+            //              const cloudReminders = await loadFromCloud();
+            //              if (cloudReminders) {
+            //                  console.log("Loaded reminders from cloud:", cloudReminders.length);
+            //                  setReminders(cloudReminders.sort((a, b) => a.date.localeCompare(b.date)));
+            //              } else {
+            //                  console.log("No reminders file found in cloud for this app.");
+            //              }
+            //          } catch (error) {
+            //              console.error("Error loading from cloud:", error);
+            //          }
+            //     } else {
+            //         console.log("User signed out or GAPI not ready.");
+            //     }
+            // }, [isGapiReady]);
+
+            // const handleAuthClick = () => {
+            //     if (!isGapiReady) return;
+            //     gapi.auth2.getAuthInstance().signIn();
+            //     setIsSettingsOpen(false);
+            // };
+
+            // const handleSignoutClick = () => {
+            //     if (!isGapiReady) return;
+            //     gapi.auth2.getAuthInstance().signOut();
+            //     setIsSettingsOpen(false);
+            // };
+
+            // const loadFromCloud = async () => {
+            //     console.log("Attempting to load from Google Drive AppData...");
+            //      try {
+            //         const response = await gapi.client.drive.files.list({
+            //              spaces: 'appDataFolder',
+            //              fields: 'files(id, name)',
+            //              pageSize: 10
+            //         });
+            //          const files = response.result.files;
+            //          const reminderFile = files && files.find(f => f.name === 'reminders.json');
+
+            //         if (reminderFile) {
+            //             console.log(`Found reminders file: ${reminderFile.id}`);
+            //             const fileResponse = await gapi.client.drive.files.get({
+            //                 fileId: reminderFile.id,
+            //                 alt: 'media',
+            //             });
+            //             return JSON.parse(fileResponse.body);
+            //         } else {
+            //             console.log("No 'reminders.json' found in AppData.");
+            //             return null;
+            //         }
+            //     } catch (error) {
+            //         console.error('Error loading data from cloud:', error);
+            //         throw error;
+            //     }
+            // };
+
+            //  const saveToCloud = async (dataToSave) => {
+            //      if (!isSignedIn || !isGapiReady) return;
+            //      console.log("Attempting to save to Google Drive AppData...");
+            //      try {
+            //          const boundary = '-------314159265358979323846';
+            //          const delimiter = "\r\n--" + boundary + "\r\n";
+            //          const closer = "\r\n--" + boundary + "--";
+            //          const metadata = { name: 'reminders.json', mimeType: 'application/json' };
+
+            //          const listResponse = await gapi.client.drive.files.list({
+            //              spaces: 'appDataFolder', fields: 'files(id, name)', pageSize: 10
+            //          });
+            //          const existingFile = listResponse.result.files.find(f => f.name === 'reminders.json');
+            //          const fileContent = JSON.stringify(dataToSave);
+            //          var requestBody = delimiter + 'Content-Type: application/json; charset=UTF-8\r\n\r\n' + JSON.stringify(metadata) + delimiter + 'Content-Type: application/json\r\n\r\n' + fileContent + closer;
+            //          const path = existingFile ? `/upload/drive/v3/files/${existingFile.id}?uploadType=multipart` : '/upload/drive/v3/files?uploadType=multipart';
+            //          const method = existingFile ? 'PATCH' : 'POST';
+
+            //          const response = await gapi.client.request({
+            //               path: path, method: method, params: { uploadType: 'multipart' },
+            //               headers: { 'Content-Type': 'multipart/related; boundary="' + boundary + '"' },
+            //               body: requestBody
+            //          });
+            //          console.log("Successfully saved to cloud:", response.result);
+            //       } catch (error) {
+            //           console.error('Error saving data to cloud:', error);
+            //       }
+            //  };
+
+             // --- Filtering Reminders for Display ---
+            const today = new Date();
+            today.setHours(0, 0, 0, 0); // Set to start of today
+
+            const dueReminders = reminders.filter(r => !r.completed && new Date(r.date) <= today);
+            const upcomingReminders = reminders.filter(r => r.completed || new Date(r.date) > today);
+
+            // --- MODIFICATION: Use Constant for Limit ---
+            const limitedUpcomingReminders = upcomingReminders.slice(0, REMINDER_TRUNCATE_LIMIT);
+            const showViewAll = upcomingReminders.length > REMINDER_TRUNCATE_LIMIT;
+            // --- MODIFICATION End ---
+
+
+            // --- Render Logic ---
+
+            // 'All Reminders' View (no changes needed here)
+            if (view === 'all') {
+                return (
+                    <div className="container" id="allView">
+                         <div className="view-all-controls">
+                            <h1>All Reminders</h1>
+                             <button onClick={() => setView('main')} className="secondary"><i className="fas fa-arrow-left"></i> Back to Main</button>
+                        </div>
+                        <ReminderList
+                            reminders={reminders} // Pass all reminders sorted
+                            onToggleComplete={toggleComplete}
+                            onDelete={deleteReminder}
+                            emptyMessage="You have no reminders at all."
+                            isAllView={true}
+                         />
+                     </div>
+                );
+            }
+
+            // Main View
+             return (
+                <div className="container" id="mainContainer">
+                    {/* Toolbar remains the same */}
+                    <div className="toolbar">
+                        <button
+                             className="toolbar-btn icon-btn"
+                             onClick={() => setIsSettingsOpen(o => !o)}
+                             title="Settings"
+                         >
+                            <i className="fas fa-cog"></i>
+                         </button>
+                         <SettingsMenu
+                            isOpen={isSettingsOpen}
+                            onClose={() => setIsSettingsOpen(false)}
+                            onThemeChange={handleThemeChange}
+                            currentTheme={theme}
+                            // Removed Google Sign-in/Sign-out props
+                            // onGoogleSignIn={handleAuthClick}
+                            // onGoogleSignOut={handleSignoutClick}
+                            // isSignedIn={isSignedIn}
+                            onImport={handleImportClick}
+                            onExport={handleExportClick}
+                            onOpenCustomTheme={() => { setIsCustomThemeOpen(true); setIsSettingsOpen(false); }}
+                         />
+                    </div>
+
+                    {/* Greeting remains the same */}
+                    {greeting && <div className="greeting" dangerouslySetInnerHTML={{ __html: greeting }}></div>}
+
+                     {/* Due Banner remains conditional */}
+                     {dueReminders.length > 0 && (
+                        <div className="due-banner">
+                            You have {dueReminders.length} reminder(s) due!
+                        </div>
+                    )}
+
+                    {/* Form remains the same */}
+                    <form onSubmit={addReminder}>
+                        <div className="form-group">
+                            <label htmlFor="reminderText">New Reminder</label>
+                            <input
+                                type="text"
+                                id="reminderText"
+                                value={newReminderText}
+                                onChange={(e) => setNewReminderText(e.target.value)}
+                                placeholder="What do you want to remember?"
+                            />
+                        </div>
+                        <div className="form-group">
+                             <label htmlFor="reminderDate">Due Date</label>
+                             <input
+                                ref={dateInputRef}
+                                type="text"
+                                id="reminderDate"
+                                placeholder="Select date..."
+                                readOnly
+                            />
+                        </div>
+                         <div className="form-actions">
+                            <button type="submit"><i className="fas fa-plus"></i> Add Reminder</button>
+                        </div>
+                    </form>
+
+                    {/* --- MODIFICATION START: Conditional Separator and Lists --- */}
+
+                    {/* Separator before Due List (only if there are any reminders) */}
+                    {reminders.length > 0 && <div className="separator"></div>}
+
+                    {/* Due Reminders List (will render null if dueReminders is empty) */}
+                    <ReminderList
+                         title="Due Reminders"
+                         reminders={dueReminders}
+                         onToggleComplete={toggleComplete}
+                         onDelete={deleteReminder}
+                         emptyMessage="No due reminders. Great job!" // Only shown in 'All View'
+                     />
+
+                    {/* Separator between Due and Upcoming (only if BOTH could potentially show) */}
+                     {dueReminders.length > 0 && upcomingReminders.length > 0 && <div className="separator"></div>}
+
+                     {/* Upcoming Reminders List (will render null if upcomingReminders is empty) */}
+                     <ReminderList
+                         title="Upcoming & Completed"
+                         reminders={limitedUpcomingReminders} // Use the limited list
+                         onToggleComplete={toggleComplete}
+                         onDelete={deleteReminder}
+                         showViewAllLink={showViewAll} // Use updated flag
+                         onViewAll={(e) => { e.preventDefault(); setView('all'); }}
+                         emptyMessage="No upcoming or completed reminders." // Only shown in 'All View'
+                     />
+
+                    {/* --- MODIFICATION END --- */}
+
+
+                    {/* --- Modals --- */}
+                    <NamePrompt
+                        isOpen={isNamePromptOpen}
+                        onSave={handleSaveName}
+                    />
+                    <CustomThemeModal
+                        isOpen={isCustomThemeOpen}
+                        onClose={() => setIsCustomThemeOpen(false)}
+                        onApply={handleApplyCustomTheme}
+                         currentCustomColor={customColor}
+                         currentThemeType={themeType}
+                     />
+                </div>
+            );
+        }
+
+        // --- Render the App ---
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+
+    </script>
 </body>
 </html>
