@@ -3,13 +3,12 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Personal Reminders (React)</title>
+    <title>Personal Reminders V2</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
     <style>
-        /* --- Base Variables & Themes --- */
         :root {
             --bg: #f9f9f9;
             --fg: #333;
@@ -25,20 +24,20 @@
             --input-border: #ccc;
             --shadow-color: rgba(0,0,0,0.1);
             --modal-bg: rgba(0, 0, 0, 0.6);
-            --button-text: #fff; /* Default button text color */
+            --button-text: #fff;
+            --input-bg: #fff;
+            --input-fg: #333;
         }
 
-        /* Predefined Themes */
-        .theme-default { --bg: #f9f9f9; --fg: #333; --accent: #007bff; --accent-hover: #0056b3; --item-bg: #fff; --item-fg: #333; --menu-bg: #fff; --menu-fg: #333; --menu-hover-bg: #f0f0f0; --separator-color: #e0e0e0; --input-border: #ccc; --button-text: #fff; }
-        .theme-dark    { --bg: #1a1a1a; --fg: #e0e0e0; --accent: #ff9800; --accent-hover: #e68900; --item-bg: #2a2a2a; --item-fg: #e0e0e0; --menu-bg: #252525; --menu-fg: #e0e0e0; --menu-hover-bg: #353535; --separator-color: #444; --input-border: #555; --button-text: #000; }
-        .theme-blue    { --bg: #e3f2fd; --fg: #0d47a1; --accent: #2196f3; --accent-hover: #1976d2; --item-bg: #ffffff; --item-fg: #0d47a1; --menu-bg: #fff; --menu-fg: #0d47a1; --menu-hover-bg: #bbdefb; --separator-color: #b3e5fc; --input-border: #90caf9; --button-text: #fff; }
-        .theme-green   { --bg: #e8f5e9; --fg: #1b5e20; --accent: #4caf50; --accent-hover: #388e3c; --item-bg: #ffffff; --item-fg: #1b5e20; --menu-bg: #fff; --menu-fg: #1b5e20; --menu-hover-bg: #c8e6c9; --separator-color: #a5d6a7; --input-border: #81c784; --button-text: #fff; }
-        .theme-purple  { --bg: #f3e5f5; --fg: #4a148c; --accent: #9c27b0; --accent-hover: #7b1fa2; --item-bg: #ffffff; --item-fg: #4a148c; --menu-bg: #fff; --menu-fg: #4a148c; --menu-hover-bg: #e1bee7; --separator-color: #ce93d8; --input-border: #ba68c8; --button-text: #fff; }
-        .theme-orange  { --bg: #fff3e0; --fg: #e65100; --accent: #ff9800; --accent-hover: #f57c00; --item-bg: #ffffff; --item-fg: #e65100; --menu-bg: #fff; --menu-fg: #e65100; --menu-hover-bg: #ffe0b2; --separator-color: #ffcc80; --input-border: #ffb74d; --button-text: #000; }
-        .theme-teal    { --bg: #e0f2f1; --fg: #004d40; --accent: #009688; --accent-hover: #00796b; --item-bg: #ffffff; --item-fg: #004d40; --menu-bg: #fff; --menu-fg: #004d40; --menu-hover-bg: #b2dfdb; --separator-color: #80cbc4; --input-border: #4db6ac; --button-text: #fff; }
+        .theme-default { --bg: #f9f9f9; --fg: #333; --accent: #007bff; --accent-hover: #0056b3; --item-bg: #fff; --item-fg: #333; --menu-bg: #fff; --menu-fg: #333; --menu-hover-bg: #f0f0f0; --separator-color: #e0e0e0; --input-border: #ccc; --button-text: #fff; --input-bg: #fff; --input-fg: #333;}
+        .theme-dark    { --bg: #1a1a1a; --fg: #e0e0e0; --accent: #ff9800; --accent-hover: #e68900; --item-bg: #2a2a2a; --item-fg: #e0e0e0; --menu-bg: #252525; --menu-fg: #e0e0e0; --menu-hover-bg: #353535; --separator-color: #444; --input-border: #555; --button-text: #000; --input-bg: #2a2a2a; --input-fg: #e0e0e0;}
+        .theme-blue    { --bg: #e3f2fd; --fg: #0d47a1; --accent: #2196f3; --accent-hover: #1976d2; --item-bg: #ffffff; --item-fg: #0d47a1; --menu-bg: #fff; --menu-fg: #0d47a1; --menu-hover-bg: #bbdefb; --separator-color: #b3e5fc; --input-border: #90caf9; --button-text: #fff; --input-bg: #fff; --input-fg: #0d47a1;}
+        .theme-green   { --bg: #e8f5e9; --fg: #1b5e20; --accent: #4caf50; --accent-hover: #388e3c; --item-bg: #ffffff; --item-fg: #1b5e20; --menu-bg: #fff; --menu-fg: #1b5e20; --menu-hover-bg: #c8e6c9; --separator-color: #a5d6a7; --input-border: #81c784; --button-text: #fff; --input-bg: #fff; --input-fg: #1b5e20;}
+        .theme-purple  { --bg: #f3e5f5; --fg: #4a148c; --accent: #9c27b0; --accent-hover: #7b1fa2; --item-bg: #ffffff; --item-fg: #4a148c; --menu-bg: #fff; --menu-fg: #4a148c; --menu-hover-bg: #e1bee7; --separator-color: #ce93d8; --input-border: #ba68c8; --button-text: #fff; --input-bg: #fff; --input-fg: #4a148c;}
+        .theme-orange  { --bg: #fff3e0; --fg: #e65100; --accent: #ff9800; --accent-hover: #f57c00; --item-bg: #ffffff; --item-fg: #e65100; --menu-bg: #fff; --menu-fg: #e65100; --menu-hover-bg: #ffe0b2; --separator-color: #ffcc80; --input-border: #ffb74d; --button-text: #000; --input-bg: #fff; --input-fg: #e65100;}
+        .theme-teal    { --bg: #e0f2f1; --fg: #004d40; --accent: #009688; --accent-hover: #00796b; --item-bg: #ffffff; --item-fg: #004d40; --menu-bg: #fff; --menu-fg: #004d40; --menu-hover-bg: #b2dfdb; --separator-color: #80cbc4; --input-border: #4db6ac; --button-text: #fff; --input-bg: #fff; --input-fg: #004d40;}
         .theme-custom  { /* Dynamically set */ }
 
-        /* --- Global Styles --- */
         * { box-sizing: border-box; margin: 0; padding: 0; }
         html { font-size: 16px; }
         body {
@@ -54,9 +53,8 @@
         }
         #root { width: 100%; display: flex; justify-content: center; align-items: center; }
 
-        /* --- Container & Basic Elements --- */
         .container {
-          background: var(--item-bg); /* Use item-bg for container */
+          background: var(--item-bg);
           color: var(--item-fg);
           border-radius: 12px;
           box-shadow: 0 6px 24px var(--shadow-color);
@@ -71,23 +69,26 @@
         .separator { border-top: 1px solid var(--separator-color); margin: 1.5rem 0; }
         .section-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; color: var(--fg); }
         label { display: block; margin-bottom: .5rem; font-weight: 600; font-size: 0.9rem; }
+
         input[type="text"], input[type="date"], input.flatpickr-input, select {
             width: 100%;
             padding: .75rem;
-            border: 1px solid var(--input-border);
+            border: 1px solid var(--input-border, var(--input-border));
             border-radius: 8px;
             font-size: 1rem;
-            background-color: var(--bg);
-            color: var(--fg);
-            transition: border-color 0.2s ease;
+            background-color: var(--input-bg, var(--bg));
+            color: var(--input-fg, var(--fg));
+            transition: border-color 0.2s ease, background 0.3s, color 0.3s;
         }
         input[type="text"]:focus, input[type="date"]:focus, select:focus {
             outline: none;
             border-color: var(--accent);
             box-shadow: 0 0 0 2px var(--accent-hover);
+            color: var(--input-fg, var(--fg));
         }
+
         button {
-            background: var(--accent); color: var(--button-text); /* Use CSS variable for text */
+            background: var(--accent); color: var(--button-text);
             border: none; padding: .75rem 1.5rem;
             border-radius: 8px; cursor: pointer;
             font-weight: 600; font-size: 0.9rem;
@@ -98,26 +99,24 @@
         }
         button:hover { background: var(--accent-hover); }
         button:active { transform: scale(0.98); }
-        button.secondary { background-color: var(--menu-hover-bg); color: var(--menu-hover-fg); }
+        button.secondary { background-color: var(--menu-hover-bg); color: var(--menu-fg); }
         button.secondary:hover { background-color: var(--separator-color); }
-        button.danger { background-color: #e74c3c; color: #fff;} /* Danger button uses white text */
+        button.danger { background-color: #e74c3c; color: #fff;}
         button.danger:hover { background-color: #c0392b; }
         button.icon-btn { padding: 0.5rem; min-width: auto; font-size: 1.2rem; }
 
-        /* --- Form --- */
         .form-group { margin-bottom: 1.5rem; }
         .form-actions { margin-top: 1rem; text-align: right; }
 
-        /* --- Reminder List --- */
         .reminder-list { list-style: none; margin-top: 1rem; }
         .reminder-item {
-            background: var(--bg); /* Use main bg for items now */
+            background: var(--bg);
             color: var(--fg);
             display: flex; align-items: center;
             justify-content: space-between; padding: 1rem;
             border-radius: 8px; margin-bottom: .75rem;
             border: 1px solid var(--separator-color);
-            transition: transform .3s ease, opacity .3s ease, background 0.3s ease;
+            transition: transform .3s ease, opacity .3s ease, background 0.3s, color 0.3s;
             pointer-events: auto;
         }
         .reminder-item.completed .reminder-text { text-decoration: line-through; opacity: 0.6; }
@@ -125,7 +124,7 @@
         .reminder-details { display: flex; align-items: center; gap: .75rem; flex-grow: 1; }
         .reminder-details input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; accent-color: var(--accent); }
         .reminder-text { flex-grow: 1; }
-        .reminder-date { font-size: 0.85rem; opacity: 0.8; margin-left: 0.5rem; white-space: nowrap; }
+        .reminder-date { font-size: 0.85rem; opacity: 0.8; margin-left: 0.5rem; white-space: nowrap; color: var(--accent);}
         .reminder-item-actions { display: flex; gap: 0.5rem; margin-left: 1rem; }
         .trash-btn {
             background: none; border: none; cursor: pointer;
@@ -138,16 +137,14 @@
         }
         .trash-btn:hover { transform: scale(1.15); background-color: rgba(231, 76, 60, 0.1); }
 
-        /* --- Due Banner --- */
         .due-banner { background: #ffe0e0; color: #c0392b; padding: 1rem; border-radius: 8px; text-align: center; margin-bottom: 1.5rem; font-weight: 600; border: 1px solid #f5c6cb; }
         @keyframes shake { 0%{transform:translateX(0);} 25%{transform:translateX(3px);} 50%{transform:translateX(0);} 75%{transform:translateX(-3px);} 100%{transform:translateX(0);} }
-        .shake { animation: shake 0.5s ease-in-out 2; } /* Shake only a couple times */
+        .shake { animation: shake 0.5s ease-in-out 2; }
 
-        /* --- Settings Menu --- */
         .toolbar { position: absolute; top: 1rem; right: 1rem; z-index: 10; }
         .settings-menu {
             position: absolute;
-            top: calc(100% + 10px); /* Position below the button */
+            top: calc(100% + 10px);
             right: 0;
             background: var(--menu-bg);
             color: var(--menu-fg);
@@ -155,7 +152,7 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.15);
             overflow: hidden;
             z-index: 10;
-            width: 280px; /* Wider menu */
+            width: 280px;
             opacity: 0;
             visibility: hidden;
             transform: translateY(-10px);
@@ -184,18 +181,17 @@
             padding: .8rem 1rem; width: 100%; text-align: left;
             cursor: pointer;
             color: var(--menu-fg);
-            display: flex; /* Use flex for icon alignment */
+            display: flex;
             align-items: center;
-            gap: 0.75rem; /* Space between icon and text */
+            gap: 0.75rem;
             font-size: 0.95rem;
-            border-radius: 0; /* Remove individual button radius */
+            border-radius: 0;
             transition: background-color 0.2s, color 0.2s;
         }
-        .settings-menu li button i { width: 18px; text-align: center; opacity: 0.8; } /* Style for icons */
+        .settings-menu li button i { width: 18px; text-align: center; opacity: 0.8; }
         .settings-menu li button:hover { background: var(--menu-hover-bg); color: var(--menu-hover-fg); }
         .settings-menu .separator { margin: 0.5rem 0; border-color: var(--separator-color); }
 
-        /* Theme Buttons in Menu */
         .theme-options {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(50px, 1fr));
@@ -215,8 +211,7 @@
         }
         .theme-button.active { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent); }
         .theme-button:hover { border-color: var(--fg); opacity: 0.8; }
-        .theme-button span { display: none; } /* Hide text */
-        /* Add specific styles for each theme button background */
+        .theme-button span { display: none; }
         .theme-button[data-theme="default"] { background-color: #f9f9f9; border-color: #ccc; }
         .theme-button[data-theme="dark"] { background-color: #222; border-color: #555; }
         .theme-button[data-theme="blue"] { background-color: #e3f2fd; border-color: #90caf9; }
@@ -225,23 +220,21 @@
         .theme-button[data-theme="orange"] { background-color: #fff3e0; border-color: #ffb74d; }
         .theme-button[data-theme="teal"] { background-color: #e0f2f1; border-color: #4db6ac; }
 
-        /* Custom Theme Button */
         .settings-menu li button.custom-theme-btn {
-            background: linear-gradient(to right, #ff7e5f, #feb47b); /* Default nice gradient */
+            background: linear-gradient(to right, #ff7e5f, #feb47b);
             color: #fff;
             font-weight: 600;
-            justify-content: center; /* Center content */
+            justify-content: center;
         }
         .settings-menu li button.custom-theme-btn:hover {
             opacity: 0.9;
         }
 
-        /* --- Modal Styles (for Name Prompt & Custom Theme) --- */
         .modal-overlay {
             position: fixed; top:0; left:0; right:0; bottom:0;
             background: var(--modal-bg);
             display: flex; align-items: center; justify-content: center;
-            z-index: 1000; /* High z-index */
+            z-index: 1000;
             opacity: 0;
             visibility: hidden;
             transition: opacity 0.3s ease, visibility 0s 0.3s linear;
@@ -271,17 +264,16 @@
         .modal-content input[type="color"],
         .modal-content select {
             margin-top: 1rem;
-            margin-bottom: 1rem; /* Add space below input */
+            margin-bottom: 1rem;
             text-align: center;
         }
          .modal-content input[type="color"] {
-            height: 40px; /* Make color picker taller */
-            padding: 0.25rem; /* Adjust padding */
+            height: 40px;
+            padding: 0.25rem;
          }
         .modal-actions { margin-top: 1.5rem; display: flex; justify-content: center; gap: 1rem; }
 
-        /* --- All Reminders View --- */
-        #allView { display: block; /* Managed by React state now */ }
+        #allView { display: block; }
         #allView .reminder-item { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
         .all-reminder-details > div { margin-bottom: 0.3rem; }
         .all-reminder-details strong { font-weight: 600; }
@@ -290,9 +282,74 @@
         .reminder-actions label { display: flex; align-items: center; gap: 0.5rem; font-weight: normal; font-size: 0.9rem; margin-bottom: 0;}
         .view-all-controls { margin-top: 1.5rem; display: flex; justify-content: space-between; align-items: center;}
 
-
-        /* Utility */
         .hidden { display: none; }
+
+        /* ----------- Custom Theme Extension ----------- */
+        body.theme-custom {
+            background: var(--bg);
+            color: var(--fg);
+        }
+        .theme-custom .container,
+        body.theme-custom .container {
+            background: var(--item-bg);
+            color: var(--item-fg);
+        }
+        .theme-custom .reminder-item {
+            background: var(--bg);
+            color: var(--fg);
+        }
+        .theme-custom .reminder-item.completed .reminder-text {
+            color: var(--fg);
+            opacity: 0.6;
+        }
+        .theme-custom .reminder-text {
+            color: var(--fg);
+        }
+        .theme-custom .reminder-date {
+            color: var(--accent);
+        }
+        .theme-custom button {
+            background: var(--accent);
+            color: var(--button-text);
+        }
+        .theme-custom button.secondary {
+            background-color: var(--menu-hover-bg);
+            color: var(--menu-fg);
+        }
+        .theme-custom button.danger {
+            background-color: #e74c3c;
+            color: #fff;
+        }
+        .theme-custom .settings-menu {
+            background: var(--menu-bg);
+            color: var(--menu-fg);
+        }
+        .theme-custom .settings-menu li button,
+        .theme-custom .settings-menu li button.custom-theme-btn {
+            color: var(--menu-fg);
+        }
+        .theme-custom .settings-menu li button:hover,
+        .theme-custom .settings-menu li button.custom-theme-btn:hover {
+            background: var(--menu-hover-bg);
+            color: var(--menu-fg);
+        }
+        .theme-custom .separator {
+            border-color: var(--separator-color);
+        }
+        .theme-custom .modal-content {
+            background: var(--item-bg);
+            color: var(--item-fg);
+        }
+        .theme-custom input[type="text"], .theme-custom input[type="date"], .theme-custom select, .theme-custom input.flatpickr-input {
+            background-color: var(--input-bg);
+            color: var(--input-fg);
+            border: 1px solid var(--input-border);
+        }
+        .theme-custom input[type="text"]:focus, .theme-custom input[type="date"]:focus, .theme-custom select:focus, .theme-custom input.flatpickr-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px var(--accent-hover);
+            color: var(--input-fg);
+        }
     </style>
 </head>
 <body>
@@ -301,24 +358,51 @@
 
     <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
-
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    
-   <script src="https://apis.google.com/js/api.js"></script>
+    <script src="https://apis.google.com/js/api.js"></script>
 
-    <script type="text/babel"> // Use text/babel for JSX transpilation
+    <script type="text/babel">
 
-        const { useState, useEffect, useRef, useCallback } = React;
+        // --- COLOR HELPERS & CONTRAST LOGIC ---
 
-        // --- Constants ---
-        // Removed Google API Constants
-        // const GAPI_CLIENT_ID = '766195079872-ndank8bvfj4jbeklprl9egf0rk1rnlp7.apps.googleusercontent.com'; // <-- Replace with your actual Client ID
-        // const GAPI_API_KEY = '766195079872-ndank8bvfj4jbeklprl9egf0rk1rnlp7.apps.googleusercontent.com';         // <-- Replace with your actual API Key
-        // const GAPI_DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"];
-        // const GAPI_SCOPES = 'https://www.googleapis.com/auth/drive.appdata';
-        const REMINDER_TRUNCATE_LIMIT = 3; // <-- NEW: Define truncation limit
+        function hexToRgb(hex) {
+            hex = hex.replace("#", "");
+            if (hex.length === 3) hex = hex.split('').map(c => c + c).join('');
+            const bigint = parseInt(hex, 16);
+            return [ (bigint >> 16) & 255, (bigint >> 8) & 255, bigint & 255 ];
+        }
+        function rgbToHex(r, g, b) {
+            return "#" + [r,g,b].map(x => x.toString(16).padStart(2, "0")).join("");
+        }
+        function blendColors(hexA, hexB, percent) {
+            const [r1,g1,b1] = hexToRgb(hexA), [r2,g2,b2] = hexToRgb(hexB);
+            return rgbToHex(
+                Math.round(r1 * (1-percent) + r2 * percent),
+                Math.round(g1 * (1-percent) + g2 * percent),
+                Math.round(b1 * (1-percent) + b2 * percent)
+            );
+        }
+        function luminance([r, g, b]) {
+            const a = [r, g, b].map(v => {
+                v /= 255;
+                return v <= 0.03928 ? v/12.92 : Math.pow((v+0.055)/1.055, 2.4);
+            });
+            return 0.2126*a[0] + 0.7152*a[1] + 0.0722*a[2];
+        }
+        function getContrastRatio(hexA, hexB) {
+            const lumA = luminance(hexToRgb(hexA));
+            const lumB = luminance(hexToRgb(hexB));
+            return (Math.max(lumA, lumB) + 0.05) / (Math.min(lumA, lumB) + 0.05);
+        }
+        function getContrastYIQ(hexcolor){
+            hexcolor = hexcolor.replace("#", "");
+            const r = parseInt(hexcolor.substr(0,2),16);
+            const g = parseInt(hexcolor.substr(2,2),16);
+            const b = parseInt(hexcolor.substr(4,2),16);
+            const yiq = ((r*299)+(g*587)+(b*114))/1000;
+            return yiq;
+        }
 
         // --- Helper Functions ---
         function setCookie(name, value, days = 365) {
@@ -326,26 +410,23 @@
             d.setTime(d.getTime() + days * 24 * 60 * 60 * 1000);
             document.cookie = `${name}=${encodeURIComponent(value)};expires=${d.toUTCString()};path=/;SameSite=Lax`;
         }
-
         function getCookie(name) {
             const v = document.cookie.match('(^|;) ?' + name + '=([^;]*)(;|$)');
             return v ? decodeURIComponent(v[2]) : null;
         }
-
         function formatDate(dateString) {
             if (!dateString) return '';
             const [y, m, d] = dateString.split('-').map(Number);
             const dateObj = new Date(y, m - 1, d);
-             return dateObj.toLocaleDateString(navigator.language, { // Use browser's locale
+            return dateObj.toLocaleDateString(navigator.language, {
                 day: 'numeric',
                 month: 'short',
                 year: 'numeric',
-             });
+            });
         }
-
         function formatDateTime(timestamp) {
              if (!timestamp) return '';
-             return new Date(parseInt(timestamp)).toLocaleString(navigator.language, { // Use browser's locale
+             return new Date(parseInt(timestamp)).toLocaleString(navigator.language, {
                  day: 'numeric',
                  month: 'short',
                  year: 'numeric',
@@ -354,27 +435,97 @@
              });
         }
 
-        // --- NEW: Contrast Checking Function ---
-        // Calculates perceived brightness (YIQ) - higher value means brighter color
-        function getContrastYIQ(hexcolor){
-            hexcolor = hexcolor.replace("#", "");
-            const r = parseInt(hexcolor.substr(0,2),16);
-            const g = parseInt(hexcolor.substr(2,2),16);
-            const b = parseInt(hexcolor.substr(4,2),16);
-            const yiq = ((r*299)+(g*587)+(b*114))/1000;
-            return yiq; // Returns a value between 0 and 255
-        }
+        // --- CUSTOM THEME ADVANCED LOGIC ---
+        const MIN_CONTRAST = 4.5; // WCAG AA for normal text
 
+        const applyCustomThemeStyles = (color, type, notifyUser = true) => {
+            const root = document.documentElement;
+            let accent = color;
+            let accentHover = blendColors(color, type === "light" ? "#000000" : "#ffffff", 0.2);
 
-        // --- React Components ---
+            // Calculate base/background colors
+            const baseBgColor = type === "light" ? "#f9f9f9" : "#1a1a1a";
+            const baseFgColor = type === "light" ? "#333333" : "#e0e0e0";
+            const itemBg = type === "light" ? "#ffffff" : "#2a2a2a";
+            const menuBg = type === "light" ? "#ffffff" : "#252525";
+            const menuFg = type === "light" ? "#333333" : "#e0e0e0";
+            const separatorColor = type === "light" ? "#e0e0e0" : "#444444";
+            const inputBorder = blendColors(accent, baseBgColor, 0.75);
 
-        // Settings Menu Component (no changes needed here for these requests)
-        // Removed Google Sign-in/Sign-out buttons
+            // --- Set background to a very light or dark tint of the accent color ---
+            const bgTint = blendColors(baseBgColor, accent, 0.10);
+
+            // --- Set text color to a blended/tinted accent color ---
+            let textTint = blendColors(baseFgColor, accent, 0.25);
+
+            // --- Input background & text ---
+            const inputBg = blendColors(itemBg, accent, 0.06);
+
+            // --- Input text color: ensure high contrast with inputBg ---
+            let inputFg = blendColors(baseFgColor, accent, 0.25);
+            if (getContrastRatio(inputBg, inputFg) < MIN_CONTRAST) {
+                inputFg = getContrastRatio(inputBg, baseFgColor) > getContrastRatio(inputBg, "#000") ?
+                    baseFgColor : "#000";
+                if (getContrastRatio(inputBg, inputFg) < MIN_CONTRAST) inputFg = "#fff";
+            }
+
+            // --- Button text color ---
+            let buttonTextColor = getContrastYIQ(accent) >= 128 ? "#000" : "#fff";
+            if (getContrastRatio(accent, buttonTextColor) < MIN_CONTRAST) {
+                buttonTextColor = getContrastYIQ(accent) >= 128 ? "#222" : "#fff";
+                if (getContrastRatio(accent, buttonTextColor) < MIN_CONTRAST) {
+                    buttonTextColor = getContrastYIQ(accent) >= 128 ? "#000" : "#fff";
+                }
+            }
+
+            // --- Fix for BAD accent color (e.g. white, too close to bg/input) ---
+            let contrastFixed = false;
+            if (getContrastRatio(accent, bgTint) < MIN_CONTRAST || getContrastRatio(accent, "#fff") < MIN_CONTRAST) {
+                accent = type === "light"
+                    ? blendColors(color, "#000000", 0.25)
+                    : blendColors(color, "#ffffff", 0.25);
+                accentHover = blendColors(accent, type === "light" ? "#000000" : "#ffffff", 0.2);
+                contrastFixed = true;
+            }
+
+            // --- Apply all to :root ---
+            root.style.setProperty('--bg', bgTint);
+            root.style.setProperty('--fg', textTint);
+            root.style.setProperty('--accent', accent);
+            root.style.setProperty('--accent-hover', accentHover);
+            root.style.setProperty('--item-bg', blendColors(itemBg, accent, 0.06));
+            root.style.setProperty('--item-fg', textTint);
+            root.style.setProperty('--menu-bg', menuBg);
+            root.style.setProperty('--menu-fg', menuFg);
+            root.style.setProperty('--menu-hover-bg', blendColors(menuBg, accent, 0.08));
+            root.style.setProperty('--separator-color', separatorColor);
+            root.style.setProperty('--input-border', inputBorder);
+            root.style.setProperty('--button-text', buttonTextColor);
+            root.style.setProperty('--input-bg', inputBg);
+            root.style.setProperty('--input-fg', inputFg);
+
+            document.body.className = 'theme-custom';
+
+            if (contrastFixed && notifyUser) {
+                alert("Your selected accent color did not have enough contrast for readability. The system has automatically adjusted it for better accessibility.");
+            } else if (notifyUser && buttonTextColor !== (getContrastYIQ(accent) >= 128 ? "#000" : "#fff")) {
+                alert("Button text color was automatically adjusted for readability.");
+            }
+        };
+
+        // --- React Components (unchanged except calls to applyCustomThemeStyles) ---
+
+        // ... [All React components are unchanged, only the applyCustomThemeStyles and new helpers are updated above] ...
+
+        // SettingsMenu, CustomThemeModal, NamePrompt, ReminderItem, ReminderList
+        // ... [see your original, unchanged implementations] ...
+
+        // --- (Rest of React code below is unchanged) ---
+
+        // SettingsMenu Component
         function SettingsMenu({ isOpen, onClose, onThemeChange, currentTheme, onImport, onExport, onOpenCustomTheme }) {
-            const menuRef = useRef();
-
-            // Close menu if clicked outside
-            useEffect(() => {
+            const menuRef = React.useRef();
+            React.useEffect(() => {
                 function handleClickOutside(event) {
                     if (menuRef.current && !menuRef.current.contains(event.target)) {
                         if (!event.target.closest('.toolbar-btn')) {
@@ -391,27 +542,17 @@
                     document.removeEventListener("mousedown", handleClickOutside);
                 };
             }, [isOpen, onClose]);
-
             const themes = ['default', 'dark', 'blue', 'green', 'purple', 'orange', 'teal'];
-
             return (
                 <div ref={menuRef} className={`settings-menu ${isOpen ? 'open' : ''}`}>
                     <div className="settings-menu-section">
                         <div className="title">Data Sync</div>
                         <ul>
-                            {/* Removed Google Sign-in/Sign-out buttons */}
-                            {/* {isSignedIn ? (
-                                <li><button onClick={onGoogleSignOut}><i className="fas fa-sign-out-alt"></i> Sign Out</button></li>
-                            ) : (
-                                <li><button onClick={onGoogleSignIn}><i className="fab fa-google"></i> Sign in with Google</button></li>
-                            )} */}
                             <li><button onClick={onImport}><i className="fas fa-file-import"></i> Import Reminders</button></li>
                             <li><button onClick={onExport}><i className="fas fa-file-export"></i> Export Reminders</button></li>
                         </ul>
                     </div>
-
                     <div className="separator"></div>
-
                     <div className="settings-menu-section">
                         <div className="title">Themes</div>
                         <div className="theme-options">
@@ -423,7 +564,7 @@
                                     data-theme={theme}
                                     onClick={() => onThemeChange(theme)}
                                 >
-                                    <span>{theme}</span> {/* Hidden text, styled via CSS */}
+                                    <span>{theme}</span>
                                 </button>
                             ))}
                         </div>
@@ -438,32 +579,23 @@
                 </div>
             );
         }
-
-        // Custom Theme Modal Component (no changes needed here for these requests)
         function CustomThemeModal({ isOpen, onClose, onApply, currentCustomColor, currentThemeType }) {
-            const [color, setColor] = useState(currentCustomColor || '#007bff'); // Default color
-            const [type, setType] = useState(currentThemeType || 'light');
-
-             // Update local state if props change (e.g., loaded from cookies)
-             useEffect(() => {
+            const [color, setColor] = React.useState(currentCustomColor || '#007bff');
+            const [type, setType] = React.useState(currentThemeType || 'light');
+            React.useEffect(() => {
                 setColor(currentCustomColor || '#007bff');
                 setType(currentThemeType || 'light');
             }, [currentCustomColor, currentThemeType, isOpen]);
-
-
             if (!isOpen) return null;
-
             const handleApply = () => {
-                onApply(color, type); // Pass color and type to the App component handler
+                onApply(color, type);
                 onClose();
             };
-
             const handleOverlayClick = (e) => {
-                 if (e.target === e.currentTarget) { // Check if click is on overlay itself
+                 if (e.target === e.currentTarget) {
                      onClose();
                  }
             };
-
             return (
                 <div className={`modal-overlay ${isOpen ? 'open' : ''}`} onClick={handleOverlayClick}>
                     <div className="modal-content">
@@ -492,18 +624,12 @@
                 </div>
             );
         }
-
-        // Name Prompt Modal Component (no changes needed here)
         function NamePrompt({ isOpen, onSave }) {
-            const [name, setName] = useState('');
-
+            const [name, setName] = React.useState('');
             if (!isOpen) return null;
-
             const handleSave = () => {
                 onSave(name.trim() || 'Friend');
             }
-
-            // No overlay close for this one, force interaction
             return (
                  <div className={`modal-overlay ${isOpen ? 'open' : ''}`}>
                     <div className="modal-content">
@@ -524,24 +650,19 @@
                 </div>
             );
         }
-
-        // Reminder Item Component (no changes needed here)
         function ReminderItem({ reminder, onToggleComplete, onDelete, isAllView = false }) {
             const handleDelete = () => {
                 const itemElement = document.getElementById(`reminder-${reminder.id}`);
                 if (itemElement && !isAllView) {
                     itemElement.classList.add('slide-out');
-                    // Wait for animation before actually deleting
                     setTimeout(() => onDelete(reminder.id), 300);
                 } else {
-                     // No animation needed for all view, or if element not found
                     if (isAllView && !confirm(`Delete reminder "${reminder.text}"?`)) {
-                       return; // Don't delete if confirmation is cancelled
+                       return;
                     }
                     onDelete(reminder.id);
                 }
             };
-
             return (
                 <li className={`reminder-item ${reminder.completed ? 'completed' : ''} ${!reminder.completed && !isAllView && new Date(reminder.date) <= new Date(new Date().toDateString()) ? 'shake' : ''}`} id={`reminder-${reminder.id}`}>
                      {!isAllView ? (
@@ -586,26 +707,13 @@
                 </li>
             );
         }
-
-        // Reminder List Component
-        // MODIFIED: Conditionally render the entire section based on reminders.length
         function ReminderList({ title, reminders, onToggleComplete, onDelete, showViewAllLink, onViewAll, emptyMessage, isAllView = false }) {
-
-            // --- MODIFICATION Start ---
-            // In the main view, don't render the section at all if there are no reminders for it.
-            // Keep rendering empty state in the 'All Reminders' view if applicable.
             if (!isAllView && reminders.length === 0) {
-                 return null; // Render nothing if the list is empty in main view
+                 return null;
             }
-            // --- MODIFICATION End ---
-
-
             return (
                  <section>
-                    {/* Title is only rendered if the component itself renders */}
                     {title && <div className="section-title">{title}</div>}
-
-                    {/* Keep original logic for list or empty message display */}
                     {reminders.length > 0 ? (
                         <ul className="reminder-list">
                             {reminders.map(reminder => (
@@ -619,10 +727,9 @@
                             ))}
                         </ul>
                     ) : (
-                         // This empty message will now only show in the 'All Reminders' view if it's empty
                         <p>{emptyMessage}</p>
                     )}
-                    {showViewAllLink && reminders.length > 0 && ( // Keep condition > 0 for link itself
+                    {showViewAllLink && reminders.length > 0 && (
                         <div style={{ marginTop: '1rem' }}>
                             <a href="#" onClick={onViewAll} style={{ color: 'var(--accent)', fontWeight: 600, textDecoration: 'none' }}>
                                 View All?
@@ -633,32 +740,29 @@
             );
         }
 
-         // Main App Component
+        // --- Main App ---
         function App() {
-            const [userName, setUserName] = useState(null);
-            const [greeting, setGreeting] = useState('');
-            const [reminders, setReminders] = useState([]);
-            const [newReminderText, setNewReminderText] = useState('');
-            const [newReminderDate, setNewReminderDate] = useState('');
-            const [theme, setTheme] = useState('default');
-            const [customColor, setCustomColor] = useState(null);
-            const [themeType, setThemeType] = useState('light'); // 'light' or 'dark' for custom
-            const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-            const [isCustomThemeOpen, setIsCustomThemeOpen] = useState(false);
-            const [isNamePromptOpen, setIsNamePromptOpen] = useState(false);
-            // Removed Google Sign-in state
-            // const [isSignedIn, setIsSignedIn] = useState(false); // Google Sign-in
-            const [isGapiReady, setIsGapiReady] = useState(false); // Keep for now, maybe useful later?
-            const [view, setView] = useState('main'); // 'main' or 'all'
+            const REMINDER_TRUNCATE_LIMIT = 3;
 
-            const flatpickrRef = useRef(null);
-            const dateInputRef = useRef(null);
-            const importFileRef = useRef(null); // Ref for the hidden file input
+            const [userName, setUserName] = React.useState(null);
+            const [greeting, setGreeting] = React.useState('');
+            const [reminders, setReminders] = React.useState([]);
+            const [newReminderText, setNewReminderText] = React.useState('');
+            const [newReminderDate, setNewReminderDate] = React.useState('');
+            const [theme, setTheme] = React.useState('default');
+            const [customColor, setCustomColor] = React.useState(null);
+            const [themeType, setThemeType] = React.useState('light');
+            const [isSettingsOpen, setIsSettingsOpen] = React.useState(false);
+            const [isCustomThemeOpen, setIsCustomThemeOpen] = React.useState(false);
+            const [isNamePromptOpen, setIsNamePromptOpen] = React.useState(false);
+            const [isGapiReady, setIsGapiReady] = React.useState(false);
+            const [view, setView] = React.useState('main');
 
-            // --- Effects ---
+            const flatpickrRef = React.useRef(null);
+            const dateInputRef = React.useRef(null);
+            const importFileRef = React.useRef(null);
 
-            // Load initial data (name, theme, reminders) from cookies
-             useEffect(() => {
+            React.useEffect(() => {
                 const storedName = getCookie('username');
                 if (storedName) {
                     setUserName(storedName);
@@ -672,15 +776,13 @@
                 const storedThemeType = getCookie('themeType') || 'light';
 
                 setTheme(storedTheme);
-                 if (storedTheme === 'custom' && storedCustomColor) {
-                     setCustomColor(storedCustomColor);
-                     setThemeType(storedThemeType);
-                     // Apply custom theme *including contrast check* on initial load
-                     applyCustomThemeStyles(storedCustomColor, storedThemeType, false); // false = don't show alert on load
-                 } else {
-                     document.body.className = `theme-${storedTheme}`;
-                 }
-
+                if (storedTheme === 'custom' && storedCustomColor) {
+                    setCustomColor(storedCustomColor);
+                    setThemeType(storedThemeType);
+                    applyCustomThemeStyles(storedCustomColor, storedThemeType, false);
+                } else {
+                    document.body.className = `theme-${storedTheme}`;
+                }
 
                 const storedReminders = getCookie('reminders');
                 if (storedReminders) {
@@ -692,34 +794,25 @@
                     }
                  }
 
-                // Removed GAPI load
-                // loadGapiScript();
-
-                // Setup hidden file input ref
                 importFileRef.current = document.getElementById('importFileTrigger');
                 importFileRef.current.addEventListener('change', handleFileImport);
 
-                 // Cleanup listener on unmount
                  return () => {
                     if (importFileRef.current) {
                         importFileRef.current.removeEventListener('change', handleFileImport);
                     }
                  };
+            }, []);
 
-            }, []); // Run only once on mount
-
-
-             // Initialize Flatpickr
-            useEffect(() => {
+            React.useEffect(() => {
                 if (dateInputRef.current && !flatpickrRef.current) {
                     flatpickrRef.current = flatpickr(dateInputRef.current, {
                         altInput: true,
                         altFormat: "d M Y",
                         dateFormat: "Y-m-d",
                         onChange: (selectedDates, dateStr) => {
-                            setNewReminderDate(dateStr); // Update state on date change
+                            setNewReminderDate(dateStr);
                         },
-                        // Make sure the calendar uses the current theme's background/text
                          onOpen: function(selectedDates, dateStr, instance) {
                             instance.calendarContainer.classList.add(`theme-${theme}`);
                          },
@@ -731,26 +824,18 @@
                           }
                     });
                 }
-                 // Cleanup Flatpickr instance on unmount or if ref changes
                 return () => {
                     if (flatpickrRef.current) {
                         flatpickrRef.current.destroy();
                         flatpickrRef.current = null;
                     }
                 };
-            }, [theme]); // Re-initialize if theme changes, to apply theme class to calendar
+            }, [theme]);
 
-             // Save reminders to cookie and cloud whenever they change
-             useEffect(() => {
+            React.useEffect(() => {
                 setCookie('reminders', JSON.stringify(reminders));
-                // Removed Cloud Save logic
-                //  if (isSignedIn && isGapiReady) {
-                //     saveToCloud(reminders);
-                // }
-            }, [reminders]); // Removed isSignedIn, isGapiReady from dependency array
+            }, [reminders]);
 
-
-            // --- State Update & Helper Functions ---
             const updateGreeting = (name) => {
                 const msgs = [
                     `Welcome back, <strong>${name}</strong>!`,
@@ -760,7 +845,6 @@
                 ];
                 setGreeting(msgs[Math.floor(Math.random() * msgs.length)]);
             };
-
             const handleSaveName = (name) => {
                 setUserName(name);
                 setCookie('username', name);
@@ -768,89 +852,19 @@
                 setIsNamePromptOpen(false);
             };
 
-             // MODIFIED: Added contrast check and optional notification
-             const applyCustomThemeStyles = (color, type, notifyUser = true) => {
-                 const root = document.documentElement;
-                 let buttonTextColor = '#fff'; // Default assumption
-                 let contrastIssue = false;
-
-                 root.style.setProperty('--accent', color);
-                 root.style.setProperty('--accent-hover', color + 'cc'); // Simple hover generation
-
-                 // Determine base background color for contrast check
-                 const baseBgColor = type === 'light' ? '#f9f9f9' : '#1a1a1a';
-
-                 // Calculate contrast between accent color and base background
-                 const accentYIQ = getContrastYIQ(color);
-                 const baseBgYIQ = getContrastYIQ(baseBgColor); // Get YIQ for the base background
-
-                 // Check contrast: Threshold 128 is common, adjust if needed
-                 // We want the button text to contrast with the ACCENT color
-                 if (accentYIQ >= 128) { // If accent color is light...
-                     buttonTextColor = '#000'; // ...use dark text
-                 } else { // If accent color is dark...
-                     buttonTextColor = '#fff'; // ...use light text
-                 }
-
-                 // --- Professional Notification Logic ---
-                 // Check if the *original* default button text for the theme type
-                 // would have had poor contrast with the chosen accent color.
-                 const originalButtonTextColor = type === 'light' ? '#fff' : '#000'; // Default assumptions per type
-                 const originalContrastYIQ = getContrastYIQ(originalButtonTextColor === '#fff' ? '#ffffff' : '#000000');
-
-                 // Check contrast between accent and the *original* button text color
-                 if (Math.abs(accentYIQ - originalContrastYIQ) < 128) { // If contrast is potentially poor
-                     contrastIssue = true; // Flag that we potentially adjusted
-                 }
-
-
-                 if (type === 'light') {
-                     root.style.setProperty('--bg', '#f9f9f9');
-                     root.style.setProperty('--fg', '#333');
-                     root.style.setProperty('--item-bg', '#ffffff');
-                     root.style.setProperty('--item-fg', '#333');
-                     root.style.setProperty('--menu-bg', '#ffffff');
-                     root.style.setProperty('--menu-fg', '#333');
-                     root.style.setProperty('--menu-hover-bg', '#f0f0f0');
-                     root.style.setProperty('--separator-color', '#e0e0e0');
-                     root.style.setProperty('--input-border', '#ccc');
-                 } else { // dark
-                     root.style.setProperty('--bg', '#1a1a1a');
-                     root.style.setProperty('--fg', '#e0e0e0');
-                     root.style.setProperty('--item-bg', '#2a2a2a');
-                     root.style.setProperty('--item-fg', '#e0e0e0');
-                     root.style.setProperty('--menu-bg', '#252525');
-                     root.style.setProperty('--menu-fg', '#e0e0e0');
-                     root.style.setProperty('--menu-hover-bg', '#353535');
-                     root.style.setProperty('--separator-color', '#444');
-                     root.style.setProperty('--input-border', '#555');
-                 }
-
-                 // Apply the determined button text color
-                 root.style.setProperty('--button-text', buttonTextColor);
-                 document.body.className = 'theme-custom'; // Apply the class
-
-                 // Notify user if needed
-                 if (contrastIssue && notifyUser) {
-                    alert("Theme Applied: The button text color was automatically adjusted against the selected accent color to ensure readability.");
-                 }
-             };
-
-
             const handleThemeChange = (newTheme) => {
                 setTheme(newTheme);
-                setIsSettingsOpen(false); // Close menu
+                setIsSettingsOpen(false);
                 setCookie('theme', newTheme);
 
                 if (newTheme === 'custom') {
                      if (!customColor) {
                         setIsCustomThemeOpen(true);
                      } else {
-                         applyCustomThemeStyles(customColor, themeType); // Apply existing custom style
+                         applyCustomThemeStyles(customColor, themeType);
                      }
                 } else {
                     document.body.className = `theme-${newTheme}`;
-                    // Reset CSS variables potentially set by custom theme
                     document.documentElement.style.removeProperty('--accent');
                     document.documentElement.style.removeProperty('--accent-hover');
                     document.documentElement.style.removeProperty('--button-text');
@@ -863,6 +877,8 @@
                     document.documentElement.style.removeProperty('--menu-hover-bg');
                     document.documentElement.style.removeProperty('--separator-color');
                     document.documentElement.style.removeProperty('--input-border');
+                    document.documentElement.style.removeProperty('--input-bg');
+                    document.documentElement.style.removeProperty('--input-fg');
                 }
             };
 
@@ -870,18 +886,17 @@
                 setCustomColor(color);
                 setThemeType(type);
                 setTheme('custom');
-                applyCustomThemeStyles(color, type, true); // true = notify user if contrast adjusted
+                applyCustomThemeStyles(color, type, true);
                 setCookie('theme', 'custom');
                 setCookie('customColor', color);
                 setCookie('themeType', type);
              };
 
-            // --- Reminder Actions ---
             const addReminder = (e) => {
-                e.preventDefault(); // Prevent form submission
+                e.preventDefault();
                 if (!newReminderText.trim() || !newReminderDate) return;
                 const newReminder = {
-                    id: Date.now(), // Use timestamp as unique ID
+                    id: Date.now(),
                     text: newReminderText.trim(),
                     date: newReminderDate,
                     completed: false,
@@ -890,7 +905,7 @@
                 setNewReminderText('');
                 setNewReminderDate('');
                 if (flatpickrRef.current) {
-                    flatpickrRef.current.clear(); // Clear the date picker
+                    flatpickrRef.current.clear();
                 }
             };
 
@@ -904,11 +919,9 @@
                  setReminders(prev => prev.filter(r => r.id !== id));
             };
 
-
-            // --- Import / Export ---
              const handleImportClick = () => {
                 if (importFileRef.current) {
-                     importFileRef.current.value = null; // Reset file input
+                     importFileRef.current.value = null;
                      importFileRef.current.click();
                  }
                  setIsSettingsOpen(false);
@@ -940,7 +953,7 @@
                     alert("No reminders to export.");
                     return;
                 }
-                const jsonString = JSON.stringify(reminders, null, 2); // Pretty print JSON
+                const jsonString = JSON.stringify(reminders, null, 2);
                 const blob = new Blob([jsonString], { type: 'application/json' });
                 const url = URL.createObjectURL(blob);
                 const link = document.createElement('a');
@@ -953,141 +966,15 @@
                  setIsSettingsOpen(false);
             };
 
-
-            // --- Google API Integration --- (Logic removed)
-            // const loadGapiScript = () => {
-            //      const script = document.createElement('script');
-            //      script.src = 'https://apis.google.com/js/api.js';
-            //      script.onload = () => {
-            //          console.log('GAPI script loaded');
-            //          gapi.load('client:auth2', initGapiClient);
-            //      };
-            //      script.onerror = () => console.error("Failed to load GAPI script");
-            //      document.body.appendChild(script);
-            //  };
-
-            // const initGapiClient = useCallback(async () => {
-            //     try {
-            //         await gapi.client.init({
-            //             apiKey: GAPI_API_KEY,
-            //             clientId: GAPI_CLIENT_ID,
-            //             discoveryDocs: GAPI_DISCOVERY_DOCS,
-            //             scope: GAPI_SCOPES,
-            //         });
-            //         console.log('GAPI client initialized');
-            //         setIsGapiReady(true);
-            //         gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
-            //         updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
-            //     } catch (error) {
-            //         console.error("Error initializing GAPI client: ", error);
-            //      }
-            // }, []);
-
-            // const updateSigninStatus = useCallback(async (signedIn) => {
-            //     setIsSignedIn(signedIn);
-            //     if (signedIn && isGapiReady) {
-            //         console.log("User signed in. Loading from cloud...");
-            //         try {
-            //              const cloudReminders = await loadFromCloud();
-            //              if (cloudReminders) {
-            //                  console.log("Loaded reminders from cloud:", cloudReminders.length);
-            //                  setReminders(cloudReminders.sort((a, b) => a.date.localeCompare(b.date)));
-            //              } else {
-            //                  console.log("No reminders file found in cloud for this app.");
-            //              }
-            //          } catch (error) {
-            //              console.error("Error loading from cloud:", error);
-            //          }
-            //     } else {
-            //         console.log("User signed out or GAPI not ready.");
-            //     }
-            // }, [isGapiReady]);
-
-            // const handleAuthClick = () => {
-            //     if (!isGapiReady) return;
-            //     gapi.auth2.getAuthInstance().signIn();
-            //     setIsSettingsOpen(false);
-            // };
-
-            // const handleSignoutClick = () => {
-            //     if (!isGapiReady) return;
-            //     gapi.auth2.getAuthInstance().signOut();
-            //     setIsSettingsOpen(false);
-            // };
-
-            // const loadFromCloud = async () => {
-            //     console.log("Attempting to load from Google Drive AppData...");
-            //      try {
-            //         const response = await gapi.client.drive.files.list({
-            //              spaces: 'appDataFolder',
-            //              fields: 'files(id, name)',
-            //              pageSize: 10
-            //         });
-            //          const files = response.result.files;
-            //          const reminderFile = files && files.find(f => f.name === 'reminders.json');
-
-            //         if (reminderFile) {
-            //             console.log(`Found reminders file: ${reminderFile.id}`);
-            //             const fileResponse = await gapi.client.drive.files.get({
-            //                 fileId: reminderFile.id,
-            //                 alt: 'media',
-            //             });
-            //             return JSON.parse(fileResponse.body);
-            //         } else {
-            //             console.log("No 'reminders.json' found in AppData.");
-            //             return null;
-            //         }
-            //     } catch (error) {
-            //         console.error('Error loading data from cloud:', error);
-            //         throw error;
-            //     }
-            // };
-
-            //  const saveToCloud = async (dataToSave) => {
-            //      if (!isSignedIn || !isGapiReady) return;
-            //      console.log("Attempting to save to Google Drive AppData...");
-            //      try {
-            //          const boundary = '-------314159265358979323846';
-            //          const delimiter = "\r\n--" + boundary + "\r\n";
-            //          const closer = "\r\n--" + boundary + "--";
-            //          const metadata = { name: 'reminders.json', mimeType: 'application/json' };
-
-            //          const listResponse = await gapi.client.drive.files.list({
-            //              spaces: 'appDataFolder', fields: 'files(id, name)', pageSize: 10
-            //          });
-            //          const existingFile = listResponse.result.files.find(f => f.name === 'reminders.json');
-            //          const fileContent = JSON.stringify(dataToSave);
-            //          var requestBody = delimiter + 'Content-Type: application/json; charset=UTF-8\r\n\r\n' + JSON.stringify(metadata) + delimiter + 'Content-Type: application/json\r\n\r\n' + fileContent + closer;
-            //          const path = existingFile ? `/upload/drive/v3/files/${existingFile.id}?uploadType=multipart` : '/upload/drive/v3/files?uploadType=multipart';
-            //          const method = existingFile ? 'PATCH' : 'POST';
-
-            //          const response = await gapi.client.request({
-            //               path: path, method: method, params: { uploadType: 'multipart' },
-            //               headers: { 'Content-Type': 'multipart/related; boundary="' + boundary + '"' },
-            //               body: requestBody
-            //          });
-            //          console.log("Successfully saved to cloud:", response.result);
-            //       } catch (error) {
-            //           console.error('Error saving data to cloud:', error);
-            //       }
-            //  };
-
-             // --- Filtering Reminders for Display ---
             const today = new Date();
-            today.setHours(0, 0, 0, 0); // Set to start of today
+            today.setHours(0, 0, 0, 0);
 
             const dueReminders = reminders.filter(r => !r.completed && new Date(r.date) <= today);
             const upcomingReminders = reminders.filter(r => r.completed || new Date(r.date) > today);
 
-            // --- MODIFICATION: Use Constant for Limit ---
             const limitedUpcomingReminders = upcomingReminders.slice(0, REMINDER_TRUNCATE_LIMIT);
             const showViewAll = upcomingReminders.length > REMINDER_TRUNCATE_LIMIT;
-            // --- MODIFICATION End ---
 
-
-            // --- Render Logic ---
-
-            // 'All Reminders' View (no changes needed here)
             if (view === 'all') {
                 return (
                     <div className="container" id="allView">
@@ -1096,7 +983,7 @@
                              <button onClick={() => setView('main')} className="secondary"><i className="fas fa-arrow-left"></i> Back to Main</button>
                         </div>
                         <ReminderList
-                            reminders={reminders} // Pass all reminders sorted
+                            reminders={reminders}
                             onToggleComplete={toggleComplete}
                             onDelete={deleteReminder}
                             emptyMessage="You have no reminders at all."
@@ -1106,10 +993,8 @@
                 );
             }
 
-            // Main View
              return (
                 <div className="container" id="mainContainer">
-                    {/* Toolbar remains the same */}
                     <div className="toolbar">
                         <button
                              className="toolbar-btn icon-btn"
@@ -1123,27 +1008,17 @@
                             onClose={() => setIsSettingsOpen(false)}
                             onThemeChange={handleThemeChange}
                             currentTheme={theme}
-                            // Removed Google Sign-in/Sign-out props
-                            // onGoogleSignIn={handleAuthClick}
-                            // onGoogleSignOut={handleSignoutClick}
-                            // isSignedIn={isSignedIn}
                             onImport={handleImportClick}
                             onExport={handleExportClick}
                             onOpenCustomTheme={() => { setIsCustomThemeOpen(true); setIsSettingsOpen(false); }}
                          />
                     </div>
-
-                    {/* Greeting remains the same */}
                     {greeting && <div className="greeting" dangerouslySetInnerHTML={{ __html: greeting }}></div>}
-
-                     {/* Due Banner remains conditional */}
                      {dueReminders.length > 0 && (
                         <div className="due-banner">
                             You have {dueReminders.length} reminder(s) due!
                         </div>
                     )}
-
-                    {/* Form remains the same */}
                     <form onSubmit={addReminder}>
                         <div className="form-group">
                             <label htmlFor="reminderText">New Reminder</label>
@@ -1169,39 +1044,24 @@
                             <button type="submit"><i className="fas fa-plus"></i> Add Reminder</button>
                         </div>
                     </form>
-
-                    {/* --- MODIFICATION START: Conditional Separator and Lists --- */}
-
-                    {/* Separator before Due List (only if there are any reminders) */}
                     {reminders.length > 0 && <div className="separator"></div>}
-
-                    {/* Due Reminders List (will render null if dueReminders is empty) */}
                     <ReminderList
                          title="Due Reminders"
                          reminders={dueReminders}
                          onToggleComplete={toggleComplete}
                          onDelete={deleteReminder}
-                         emptyMessage="No due reminders. Great job!" // Only shown in 'All View'
+                         emptyMessage="No due reminders. Great job!"
                      />
-
-                    {/* Separator between Due and Upcoming (only if BOTH could potentially show) */}
                      {dueReminders.length > 0 && upcomingReminders.length > 0 && <div className="separator"></div>}
-
-                     {/* Upcoming Reminders List (will render null if upcomingReminders is empty) */}
                      <ReminderList
                          title="Upcoming & Completed"
-                         reminders={limitedUpcomingReminders} // Use the limited list
+                         reminders={limitedUpcomingReminders}
                          onToggleComplete={toggleComplete}
                          onDelete={deleteReminder}
-                         showViewAllLink={showViewAll} // Use updated flag
+                         showViewAllLink={showViewAll}
                          onViewAll={(e) => { e.preventDefault(); setView('all'); }}
-                         emptyMessage="No upcoming or completed reminders." // Only shown in 'All View'
+                         emptyMessage="No upcoming or completed reminders."
                      />
-
-                    {/* --- MODIFICATION END --- */}
-
-
-                    {/* --- Modals --- */}
                     <NamePrompt
                         isOpen={isNamePromptOpen}
                         onSave={handleSaveName}
@@ -1217,10 +1077,8 @@
             );
         }
 
-        // --- Render the App ---
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<App />);
-
     </script>
 </body>
 </html>
