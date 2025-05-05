@@ -67,72 +67,96 @@
       <tr><td colspan="3">Loading schedule...</td></tr>
     </tbody>
   </table>
-
   <script>
-    async function loadSchedule() {
+  async function loadSchedule() {
+    try {
       const res = await fetch("schedule.json");
-      return await res.json();
-    }
-
-    function isHoliday(dateStr, holidayList) {
-      return holidayList.includes(dateStr.toISOString().split('T')[0]);
-    }
-
-    function getSchoolDayNumber(startDateStr, holidays, currentDate = new Date()) {
-      const startDate = new Date(startDateStr);
-      let schoolDays = 0;
-
-      for (let d = new Date(startDate); d <= currentDate; d.setDate(d.getDate() + 1)) {
-        if (!isHoliday(new Date(d), holidays) && d.getDay() !== 0) {
-          schoolDays++;
-        }
-      }
-
-      return ((schoolDays - 1) % 6) + 1;
-    }
-
-    function getNextClass(schedule, currentTimeStr) {
-      for (const cls of schedule) {
-        if (cls.time > currentTimeStr) {
-          return cls;
-        }
-      }
+      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+      const data = await res.json();
+      return data;
+    } catch (err) {
+      console.error("Failed to load schedule.json:", err);
       return null;
     }
+  }
 
-    async function renderSchedule() {
-      const scheduleData = await loadSchedule();
-      const today = new Date();
-      const currentTime = today.toTimeString().substring(0, 5);
-      const dayNumber = getSchoolDayNumber(scheduleData.startDate, scheduleData.holidayDates, today);
-      const dayKey = `day${dayNumber}`;
-      const todaySchedule = scheduleData.schedule[dayKey];
+  function isHoliday(date, holidayList) {
+    if (!Array.isArray(holidayList)) return false;
+    const dateStr = date.toISOString().split('T')[0];
+    return holidayList.includes(dateStr);
+  }
 
-      const label = document.getElementById("day-label");
-      label.textContent = `Today is Day ${dayNumber} of the 6-day cycle`;
+  function getSchoolDayNumber(startDateStr, holidays = [], currentDate = new Date()) {
+    if (!startDateStr) return null;
+    const startDate = new Date(startDateStr);
+    let schoolDays = 0;
 
-      const tableBody = document.getElementById("schedule-body");
-      tableBody.innerHTML = "";
-
-      const nextClass = getNextClass(todaySchedule, currentTime);
-
-      for (const cls of todaySchedule) {
-        const row = document.createElement("tr");
-
-        if (cls === nextClass) {
-          row.classList.add("highlight");
-        }
-
-        row.innerHTML = `
-          <td>${cls.time}</td>
-          <td>${cls.class}</td>
-          <td>${cls.building}</td>
-        `;
-        tableBody.appendChild(row);
+    for (let d = new Date(startDate); d <= currentDate; d.setDate(d.getDate() + 1)) {
+      if (!isHoliday(new Date(d), holidays) && d.getDay() !== 0) {
+        schoolDays++;
       }
     }
 
-    window.onload = renderSchedule;
-  </script>
+    return ((schoolDays - 1) % 6) + 1;
+  }
+
+  function getNextClass(schedule, currentTimeStr) {
+    if (!Array.isArray(schedule)) return null;
+    for (const cls of schedule) {
+      if (cls.time > currentTimeStr) {
+        return cls;
+      }
+    }
+    return null;
+  }
+
+  async function renderSchedule() {
+    const scheduleData = await loadSchedule();
+    if (!scheduleData) {
+      document.getElementById("day-label").textContent = "Failed to load schedule.";
+      return;
+    }
+
+    const today = new Date();
+    const currentTime = today.toTimeString().substring(0, 5);
+    const dayNumber = getSchoolDayNumber(scheduleData.startDate, scheduleData.holidayDates, today);
+
+    if (!dayNumber) {
+      document.getElementById("day-label").textContent = "Missing startDate in schedule.json.";
+      return;
+    }
+
+    const dayKey = `day${dayNumber}`;
+    const todaySchedule = scheduleData.schedule?.[dayKey];
+
+    if (!Array.isArray(todaySchedule)) {
+      document.getElementById("day-label").textContent = `No schedule found for Day ${dayNumber}`;
+      return;
+    }
+
+    document.getElementById("day-label").textContent = `Today is Day ${dayNumber} of the 6-day cycle`;
+
+    const tableBody = document.getElementById("schedule-body");
+    tableBody.innerHTML = "";
+
+    const nextClass = getNextClass(todaySchedule, currentTime);
+
+    for (const cls of todaySchedule) {
+      const row = document.createElement("tr");
+      if (cls === nextClass) {
+        row.classList.add("highlight");
+      }
+
+      row.innerHTML = `
+        <td>${cls.time}</td>
+        <td>${cls.class}</td>
+        <td>${cls.building}</td>
+      `;
+      tableBody.appendChild(row);
+    }
+  }
+
+  window.onload = renderSchedule;
+</script>
 </body>
 </html>
