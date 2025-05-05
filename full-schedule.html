@@ -53,8 +53,8 @@
   </style>
 </head>
 <body>
-  <h1>Today's Class Schedule</h1>
-  <h3 id="day-label">Loading...</h3>
+  <h2 id="day-label">Loading...</h2>
+  <h3>Classes for today:</h3>
   <table id="schedule-table">
     <thead>
       <tr>
@@ -121,7 +121,7 @@
       return;
     }
 
-    document.getElementById("day-label").textContent = `Today is Day ${currentDay} of the 6-day cycle`;
+    document.getElementById("day-label").textContent = `Today is Day ${currentDay}.`;
 
     const tableBody = document.getElementById("schedule-body");
     tableBody.innerHTML = "";
