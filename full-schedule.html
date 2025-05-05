@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>School Schedule</title>
+  <style>
+    body {
+      font-family: "Segoe UI", sans-serif;
+      background-color: #f0f4f8;
+      color: #333;
+      padding: 2rem;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+
+    h3 {
+      text-align: center;
+      color: #007aff;
+      margin-bottom: 2rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      border: 3px solid #007aff;
+      background-color: #fff;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    th, td {
+      padding: 12px;
+      text-align: center;
+      border: 1px solid #ddd;
+    }
+
+    th {
+      background-color: #007aff;
+      color: white;
+    }
+
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+
+    tr.highlight {
+      background-color: #b3e5fc !important;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>Today's Class Schedule</h1>
+  <h3 id="day-label">Loading...</h3>
+  <table id="schedule-table">
+    <thead>
+      <tr>
+        <th>Time</th>
+        <th>Class</th>
+        <th>Building</th>
+      </tr>
+    </thead>
+    <tbody id="schedule-body">
+      <tr><td colspan="3">Loading schedule...</td></tr>
+    </tbody>
+  </table>
+
+  <script>
+    async function loadSchedule() {
+      const res = await fetch("schedule.json");
+      return await res.json();
+    }
+
+    function isHoliday(dateStr, holidayList) {
+      return holidayList.includes(dateStr.toISOString().split('T')[0]);
+    }
+
+    function getSchoolDayNumber(startDateStr, holidays, currentDate = new Date()) {
+      const startDate = new Date(startDateStr);
+      let schoolDays = 0;
+
+      for (let d = new Date(startDate); d <= currentDate; d.setDate(d.getDate() + 1)) {
+        if (!isHoliday(new Date(d), holidays) && d.getDay() !== 0) {
+          schoolDays++;
+        }
+      }
+
+      return ((schoolDays - 1) % 6) + 1;
+    }
+
+    function getNextClass(schedule, currentTimeStr) {
+      for (const cls of schedule) {
+        if (cls.time > currentTimeStr) {
+          return cls;
+        }
+      }
+      return null;
+    }
+
+    async function renderSchedule() {
+      const scheduleData = await loadSchedule();
+      const today = new Date();
+      const currentTime = today.toTimeString().substring(0, 5);
+      const dayNumber = getSchoolDayNumber(scheduleData.startDate, scheduleData.holidayDates, today);
+      const dayKey = `day${dayNumber}`;
+      const todaySchedule = scheduleData.schedule[dayKey];
+
+      const label = document.getElementById("day-label");
+      label.textContent = `Today is Day ${dayNumber} of the 6-day cycle`;
+
+      const tableBody = document.getElementById("schedule-body");
+      tableBody.innerHTML = "";
+
+      const nextClass = getNextClass(todaySchedule, currentTime);
+
+      for (const cls of todaySchedule) {
+        const row = document.createElement("tr");
+
+        if (cls === nextClass) {
+          row.classList.add("highlight");
+        }
+
+        row.innerHTML = `
+          <td>${cls.time}</td>
+          <td>${cls.class}</td>
+          <td>${cls.building}</td>
+        `;
+        tableBody.appendChild(row);
+      }
+    }
+
+    window.onload = renderSchedule;
+  </script>
+</body>
+</html>
