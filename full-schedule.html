@@ -80,24 +80,17 @@
     }
   }
 
-  function isHoliday(date, holidayList) {
-    if (!Array.isArray(holidayList)) return false;
-    const dateStr = date.toISOString().split('T')[0];
-    return holidayList.includes(dateStr);
-  }
-
-  function getSchoolDayNumber(startDateStr, holidays = [], currentDate = new Date()) {
-    if (!startDateStr) return null;
-    const startDate = new Date(startDateStr);
-    let schoolDays = 0;
-
-    for (let d = new Date(startDate); d <= currentDate; d.setDate(d.getDate() + 1)) {
-      if (!isHoliday(new Date(d), holidays) && d.getDay() !== 0) {
-        schoolDays++;
-      }
+  async function loadCurrentDay() {
+    try {
+      const res = await fetch("current-day.json");
+      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+      const data = await res.json();
+      if (!("current-day" in data)) throw new Error("Missing 'current-day' in JSON.");
+      return data["current-day"];
+    } catch (err) {
+      console.error("Failed to load current-day.json:", err);
+      return null;
     }
-
-    return ((schoolDays - 1) % 6) + 1;
   }
 
   function getNextClass(schedule, currentTimeStr) {
@@ -111,30 +104,24 @@
   }
 
   async function renderSchedule() {
-    const scheduleData = await loadSchedule();
-    if (!scheduleData) {
-      document.getElementById("day-label").textContent = "Failed to load schedule.";
+    const [scheduleData, currentDay] = await Promise.all([loadSchedule(), loadCurrentDay()]);
+
+    if (!scheduleData || !currentDay) {
+      document.getElementById("day-label").textContent = "Error loading schedule or current day.";
       return;
     }
 
     const today = new Date();
     const currentTime = today.toTimeString().substring(0, 5);
-    const dayNumber = getSchoolDayNumber(scheduleData.startDate, scheduleData.holidayDates, today);
-
-    if (!dayNumber) {
-      document.getElementById("day-label").textContent = "Missing startDate in schedule.json.";
-      return;
-    }
-
-    const dayKey = `day${dayNumber}`;
+    const dayKey = `day${currentDay}`;
     const todaySchedule = scheduleData.schedule?.[dayKey];
 
     if (!Array.isArray(todaySchedule)) {
-      document.getElementById("day-label").textContent = `No schedule found for Day ${dayNumber}`;
+      document.getElementById("day-label").textContent = `No schedule found for Day ${currentDay}`;
       return;
     }
 
-    document.getElementById("day-label").textContent = `Today is Day ${dayNumber} of the 6-day cycle`;
+    document.getElementById("day-label").textContent = `Today is Day ${currentDay} of the 6-day cycle`;
 
     const tableBody = document.getElementById("schedule-body");
     tableBody.innerHTML = "";
