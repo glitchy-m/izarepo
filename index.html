@@ -1,67 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
-
-  <title>Schedule Assistant V2</title>
-  <link rel="stylesheet" href="style.css">
-  <link rel="icon" type="image/x-icon" href="https://raw.githubusercontent.com/glitchy-m/izarepo/main/icon.png">
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      background: transparent;
-      overflow: hidden;
-    }
-    #bgVideo {
-      position: fixed;
-      top: 0;
-      left: 0;
-      min-width: 100%;
-      min-height: 100%;
-      z-index: -1;
-      object-fit: cover;
-    }
-    #main, #container, footer {
-      background: transparent;
-    }
-    /* Hide background video if embedded in an iframe (like Discord embed) */
-    @media (prefers-reduced-motion: reduce) {
-      #bgVideo {
-        display: none;
-      }
-      footer {
-        color: white;
-      }
-    }
-    /* OR better: detect iframe */
-    body.embedded #bgVideo {
-      display: none;
-    }
-  </style>
+  <meta charset="UTF-8">
+  <meta http-equiv="refresh" content="0; url=https://sa.belizesky.com">
+  <title>Redirecting...</title>
+  <script>
+    // JavaScript fallback
+    window.location.href = "https://sa.belizesky.com";
+  </script>
 </head>
 <body>
-  <video autoplay muted loop playsinline id="bgVideo">
-    <source src="https://raw.githubusercontent.com/glitchy-m/izarepo/main/background.mp4" type="video/mp4" />
-  </video>
-
-  <div id="main">
-    <div id="container">
-      <!-- your dynamic content goes here -->
-    </div>
-  </div>
-
-  <footer>
-    Schedule Assistant <b>V3.</b> Made by <i>Alejandro Moralez.</i>
-  </footer>
-
-  <script>
-    // Detect if inside iframe (common for embeds like Discord)
-    if (window !== window.parent) {
-      document.body.classList.add('embedded');
-    }
-  </script>
-  <script src="main.js"></script>
+  <p>If you're not redirected automatically, <a href="https://sa.belizesky.com">click here</a>.</p>
 </body>
 </html>
