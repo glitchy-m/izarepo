@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>School Schedule</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
   <style>
     body {
       font-family: "Segoe UI", sans-serif;
@@ -50,9 +51,29 @@
       background-color: #b3e5fc !important;
       font-weight: bold;
     }
+
+    .date-picker-container {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .date-picker-container label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    .date-picker-container input {
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 1rem;
+    }
   </style>
 </head>
 <body>
+  <div class="date-picker-container">
+    <label for="scheduleDatePicker">Select a Date:</label>
+    <input type="text" id="scheduleDatePicker" placeholder="Pick a date..." />
+  </div>
   <h1 id="day-label" style="color: black;">Loading...</h1>
   <h3>Classes for today:</h3>
   <table id="schedule-table">
@@ -67,8 +88,46 @@
       <tr><td colspan="3">Loading schedule...</td></tr>
     </tbody>
   </table>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script>
-  async function loadSchedule() {
+  // Helper function to calculate the schedule day (day1-day6) for a given calendar date
+  // considering a start date and skipping weekends/holidays.
+  function calculateScheduleDay(selectedDateStr, startDateStr, holidayDates) {
+      const selectedDate = new Date(selectedDateStr + 'T00:00:00');
+      const startDate = new Date(startDateStr + 'T00:00:00');
+
+      // If selected date is before the start date, it's not part of this cycle.
+      if (selectedDate < startDate) {
+          return null;
+      }
+
+      let schoolDaysCount = 0;
+      let currentDate = new Date(startDate);
+
+      while (currentDate.getTime() <= selectedDate.getTime()) {
+          const dayOfWeek = currentDate.getDay(); // 0 = Sunday, 6 = Saturday
+          const isWeekend = (dayOfWeek === 0 || dayOfWeek === 6);
+          const currentDateISO = currentDate.toISOString().substring(0, 10);
+          const isHoliday = holidayDates.includes(currentDateISO);
+
+          if (!isWeekend && !isHoliday) {
+              schoolDaysCount++;
+          }
+          currentDate.setDate(currentDate.getDate() + 1); // Move to the next day
+      }
+
+      // If no school days were counted, it means the selected day (or days leading to it) were all non-school days.
+      if (schoolDaysCount === 0) {
+          return null; // Indicates no school day schedule for this date
+      }
+
+      // The day in the 6-day cycle (1 to 6)
+      const dayInCycle = (schoolDaysCount - 1) % 6 + 1;
+      return dayInCycle;
+  }
+
+
+  async function loadScheduleData() {
     try {
       const res = await fetch("schedule.json");
       if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
@@ -80,7 +139,7 @@
     }
   }
 
-  async function loadCurrentDay() {
+  async function loadCurrentDayData() {
     try {
       const res = await fetch("current-day.json");
       if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
@@ -103,34 +162,70 @@
     return null;
   }
 
-  async function renderSchedule() {
-    const [scheduleData, currentDay] = await Promise.all([loadSchedule(), loadCurrentDay()]);
+  async function renderSchedule(selectedDateStr = null) {
+    const [scheduleData] = await Promise.all([loadScheduleData()]); // currentDayNumberFromJSON is not used here
 
-    if (!scheduleData || !currentDay) {
-      document.getElementById("day-label").textContent = "Error loading schedule or current day.";
+    if (!scheduleData) {
+      document.getElementById("day-label").textContent = "Error loading schedule.";
       return;
     }
+
+    const startDate = scheduleData.startDate;
+    const holidayDates = scheduleData['holiday-dates'] || [];
+
+    let displayDate = new Date(); // Default to today
+    if (selectedDateStr) {
+        displayDate = new Date(selectedDateStr + 'T00:00:00');
+    } else {
+        displayDate = new Date();
+    }
+    displayDate.setHours(0,0,0,0); // Normalize date to start of day
 
     const today = new Date();
     const currentTime = today.toTimeString().substring(0, 5);
-    const dayKey = `day${currentDay}`;
-    const todaySchedule = scheduleData.schedule?.[dayKey];
 
-    if (!Array.isArray(todaySchedule)) {
-      document.getElementById("day-label").textContent = `No schedule found for Day ${currentDay}`;
+    const calculatedDayInCycle = calculateScheduleDay(displayDate.toISOString().substring(0, 10), startDate, holidayDates);
+
+    let dayKey = `day${calculatedDayInCycle}`;
+    const todaysSchedule = scheduleData.schedule?.[dayKey];
+
+    const dayLabelElement = document.getElementById("day-label");
+    const tableBody = document.getElementById("schedule-body");
+    tableBody.innerHTML = ""; // Clear existing content
+
+    // Check if the calculated day is a weekend or holiday
+    const selectedDayOfWeek = displayDate.getDay();
+    const isSelectedWeekend = (selectedDayOfWeek === 0 || selectedDayOfWeek === 6);
+    const isSelectedHoliday = holidayDates.includes(displayDate.toISOString().substring(0, 10));
+
+    if (!Array.isArray(todaysSchedule) || todaysSchedule.length === 0 || isSelectedWeekend || isSelectedHoliday) {
+      let message = `No schedule found for Day ${calculatedDayInCycle}.`;
+      if (isSelectedWeekend) {
+        message = `It's a weekend (${displayDate.toLocaleDateString(undefined, { weekday: 'long' })}). No school schedule.`;
+      } else if (isSelectedHoliday) {
+        message = `It's a holiday. No school schedule.`;
+      }
+
+      dayLabelElement.textContent = message;
+      const row = document.createElement("tr");
+      row.innerHTML = `<td colspan="3">${message}</td>`;
+      tableBody.appendChild(row);
       return;
     }
 
-    document.getElementById("day-label").textContent = `Today is Day ${currentDay}.`;
+    dayLabelElement.textContent = `Schedule for ${displayDate.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })} (Day ${calculatedDayInCycle}).`;
 
-    const tableBody = document.getElementById("schedule-body");
-    tableBody.innerHTML = "";
+    // Only highlight the current class if the displayed schedule is for today's actual date
+    let nextClass = null;
+    const isToday = displayDate.toDateString() === new Date().toDateString();
 
-    const nextClass = getNextClass(todaySchedule, currentTime);
+    if (isToday) {
+        nextClass = getNextClass(todaysSchedule, currentTime);
+    }
 
-    for (const cls of todaySchedule) {
+    for (const cls of todaysSchedule) {
       const row = document.createElement("tr");
-      if (cls === nextClass) {
+      if (isToday && cls === nextClass) { // Only highlight if it's today's schedule
         row.classList.add("highlight");
       }
 
@@ -143,7 +238,46 @@
     }
   }
 
-  window.onload = renderSchedule;
-</script>
+  // Initialize Flatpickr and render schedule on page load
+  window.onload = async () => {
+    const scheduleData = await loadScheduleData();
+    // currentDayNumberFromJSON is not strictly needed for defaultDate, but kept for clarity on initial state
+    const currentDayNumberFromJSON = await loadCurrentDayData();
+
+    if (!scheduleData) {
+        document.getElementById("day-label").textContent = "Error initializing schedule.";
+        return;
+    }
+
+    const today = new Date();
+    const todayStr = today.toISOString().substring(0, 10);
+    const startDate = scheduleData.startDate;
+    const holidayDates = scheduleData['holiday-dates'] || [];
+
+    // Set Flatpickr to start at today's date
+    const fp = flatpickr("#scheduleDatePicker", {
+      dateFormat: "Y-m-d",
+      defaultDate: todayStr,
+      disable: [
+        function(date) {
+          // disable weekends
+          return (date.getDay() === 0 || date.getDay() === 6);
+        },
+        function(date) {
+          // disable holidays
+          return holidayDates.includes(date.toISOString().substring(0, 10));
+        }
+      ],
+      onChange: function(selectedDates, dateStr, instance) {
+        if (selectedDates.length > 0) {
+          renderSchedule(dateStr);
+        }
+      }
+    });
+
+    // Initial render of the schedule for today's calculated day
+    renderSchedule(todayStr);
+  };
+  </script>
 </body>
 </html>
