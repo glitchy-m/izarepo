@@ -4,7 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>School Schedule</title>
-  <style>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"> <style>
     body {
       font-family: 'Segoe UI', Arial, sans-serif;
       background-color: #f0f4f8;
@@ -15,6 +16,7 @@
       flex-direction: column;
       align-items: center;
       min-height: 100vh;
+      position: relative; /* For absolute positioning of menu */
     }
 
     .container {
@@ -42,47 +44,123 @@
       font-size: 1.4rem;
     }
 
-    .day-picker-container {
-      text-align: center;
-      margin-bottom: 2rem;
-      padding: 1rem;
-      background-color: #e6f2ff;
-      border-radius: 8px;
+    /* Toolbar for settings button */
+    .toolbar {
+        position: absolute;
+        top: 2rem;
+        right: 2rem;
+        z-index: 100; /* Ensure it's on top */
     }
-    .day-picker-container label {
+    .toolbar-btn {
+        background: #007aff;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 1.2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background-color 0.2s ease;
+    }
+    .toolbar-btn:hover {
+        background: #0056b3;
+    }
+
+    /* Settings menu panel */
+    .settings-menu {
+        position: absolute;
+        top: calc(2rem + 50px); /* Below the button */
+        right: 2rem;
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        overflow: hidden;
+        z-index: 99;
+        width: 300px;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-20px);
+        transition: opacity 0.3s ease, transform 0.3s ease, visibility 0s 0.3s;
+        border: 1px solid #ddd;
+    }
+    .settings-menu.open {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+        transition: opacity 0.3s ease, transform 0.3s ease, visibility 0s 0s;
+    }
+
+    .menu-section {
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid #eee;
+    }
+    .menu-section:last-child {
+        border-bottom: none;
+    }
+    .menu-section-title {
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: #0056b3;
+        font-size: 1rem;
+        text-transform: uppercase;
+    }
+
+    /* Picker styles (re-used from previous, adjusted for menu) */
+    .picker-control {
+      margin-bottom: 1rem;
+    }
+    .picker-control label {
       display: block;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
       font-weight: 600;
-      font-size: 1.1rem;
-      color: #0056b3;
+      font-size: 0.95rem;
+      color: #555;
     }
-    .day-picker-container select {
+    .picker-control select,
+    .picker-control input[type="text"] {
       padding: 10px 15px;
-      border: 2px solid #007aff;
+      border: 1px solid #ccc;
       border-radius: 8px;
-      font-size: 1.1rem;
+      font-size: 1rem;
       background-color: #fff;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      -webkit-appearance: none;
-      -moz-appearance: none;
-      appearance: none;
-      background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23007aff%22%20d%3D%22M287%2C114.7L152.1%2C249.6c-3.2%2C3.2-8.3%2C3.2-11.6%2C0L5.4%2C114.7c-3.2-3.2-3.2-8.3%2C0-11.6l11.6-11.6c3.2-3.2%2C8.3-3.2%2C11.6%2C0l113.8%2C113.8c3.2%2C3.2%2C8.3%2C3.2%2C11.6%2C0l113.8-113.8c3.2-3.2%2C8.3-3.2%2C11.6%2C0l11.6%2C11.6C290.2%2C106.4%2C290.2%2C111.5%2C287%2C114.7z%22%2F%3E%3C%2Fsvg%3E');
-      background-repeat: no-repeat;
-      background-position: right 15px center;
-      background-size: 12px;
-      padding-right: 35px;
-      min-width: 150px;
+      width: 100%;
+      box-sizing: border-box; /* Include padding in width */
     }
-    .day-picker-container select:hover {
-      border-color: #0056b3;
+    .picker-control select {
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23555%22%20d%3D%22M287%2C114.7L152.1%2C249.6c-3.2%2C3.2-8.3%2C3.2-11.6%2C0L5.4%2C114.7c-3.2-3.2-3.2-8.3%2C0-11.6l11.6-11.6c3.2-3.2%2C8.3-3.2%2C11.6%2C0l113.8%2C113.8c3.2%2C3.2%2C8.3%2C3.2%2C11.6%2C0l113.8-113.8c3.2-3.2%2C8.3-3.2%2C11.6%2C0l11.6%2C11.6C290.2%2C106.4%2C290.2%2C111.5%2C287%2C114.7z%22%2F%3E%3C%2Fsvg%3E');
+        background-repeat: no-repeat;
+        background-position: right 15px center;
+        background-size: 12px;
+        padding-right: 35px;
     }
-    .day-picker-container select:focus {
+    .picker-control select:focus,
+    .picker-control input[type="text"]:focus {
         outline: none;
-        box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.3);
+        border-color: #007aff;
+        box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.2);
+    }
+    .picker-control button {
+        background: #28a745;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 1rem;
+        width: 100%;
+        margin-top: 0.5rem;
+        transition: background-color 0.2s ease;
+    }
+    .picker-control button:hover {
+        background: #218838;
     }
 
-
+    /* Schedule table styles */
     table {
       width: 100%;
       border-collapse: separate;
@@ -122,21 +200,37 @@
   </style>
 </head>
 <body>
+  <div class="toolbar">
+    <button id="settingsBtn" class="toolbar-btn"><i class="fas fa-cog"></i> Settings</button>
+    <div id="settingsMenu" class="settings-menu">
+      <div class="menu-section">
+        <div class="menu-section-title">View by Day</div>
+        <div class="picker-control">
+          <label for="scheduleDayPicker">Select Day:</label>
+          <select id="scheduleDayPicker">
+            <option value="1">Day 1</option>
+            <option value="2">Day 2</option>
+            <option value="3">Day 3</option>
+            <option value="4">Day 4</option>
+            <option value="5">Day 5</option>
+            <option value="6">Day 6</option>
+          </select>
+          <button id="applyDayBtn">Apply Day</button>
+        </div>
+      </div>
+      <div class="menu-section">
+        <div class="menu-section-title">View by Date</div>
+        <div class="picker-control">
+          <label for="scheduleDatePicker">Select Date:</label>
+          <input type="text" id="scheduleDatePicker" placeholder="Pick a date..." />
+          <button id="applyDateBtn">Apply Date</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="container">
     <h1>School Schedule</h1>
-
-    <div class="day-picker-container">
-      <label for="scheduleDayPicker">Select Day:</label>
-      <select id="scheduleDayPicker">
-        <option value="1">Day 1</option>
-        <option value="2">Day 2</option>
-        <option value="3">Day 3</option>
-        <option value="4">Day 4</option>
-        <option value="5">Day 5</option>
-        <option value="6">Day 6</option>
-      </select>
-    </div>
-
     <h3 id="day-label">Loading Schedule...</h3>
     <table id="schedule-table">
       <thead>
@@ -147,12 +241,46 @@
         </tr>
       </thead>
       <tbody id="schedule-body">
-        <tr><td colspan="3">Select a day to view its schedule.</td></tr>
+        <tr><td colspan="3">Select a day or date from the settings.</td></tr>
       </tbody>
     </table>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script>
+  // Helper function to calculate the schedule day (day1-day6) for a given calendar date
+  // considering a start date and skipping weekends/holidays.
+  function calculateScheduleDay(selectedDateStr, startDateStr, holidayDates) {
+      const selectedDate = new Date(selectedDateStr + 'T00:00:00');
+      const startDate = new Date(startDateStr + 'T00:00:00');
+
+      if (selectedDate < startDate) {
+          return null; // Or handle this case as an error/no schedule
+      }
+
+      let schoolDaysCount = 0;
+      let currentDate = new Date(startDate);
+
+      while (currentDate.getTime() <= selectedDate.getTime()) {
+          const dayOfWeek = currentDate.getDay(); // 0 = Sunday, 6 = Saturday
+          const isWeekend = (dayOfWeek === 0 || dayOfWeek === 6);
+          const currentDateISO = currentDate.toISOString().substring(0, 10);
+          const isHoliday = holidayDates.includes(currentDateISO);
+
+          if (!isWeekend && !isHoliday) {
+              schoolDaysCount++;
+          }
+          currentDate.setDate(currentDate.getDate() + 1); // Move to the next day
+      }
+
+      if (schoolDaysCount === 0) {
+          return null;
+      }
+
+      const dayInCycle = (schoolDaysCount - 1) % 6 + 1;
+      return dayInCycle;
+  }
+
   async function loadScheduleData() {
     try {
       const res = await fetch("schedule.json");
@@ -178,12 +306,14 @@
     }
   }
 
-  async function renderSchedule(selectedDayNum) {
-    const scheduleData = await loadScheduleData();
+  // Global state for settings menu
+  let isSettingsOpen = false;
+  let scheduleData = null; // Store schedule data globally once loaded
 
+  async function renderSchedule(type, value) {
     const dayLabelElement = document.getElementById("day-label");
     const tableBody = document.getElementById("schedule-body");
-    tableBody.innerHTML = "";
+    tableBody.innerHTML = ""; // Clear existing content
 
     if (!scheduleData) {
       dayLabelElement.textContent = "Error loading schedule data.";
@@ -193,18 +323,58 @@
       return;
     }
 
+    let selectedDayNum = null;
+    let displayInfo = "";
+
+    if (type === 'byDay') {
+      selectedDayNum = parseInt(value, 10);
+      displayInfo = `Schedule for Day ${selectedDayNum}`;
+    } else if (type === 'byDate') {
+      const selectedDateStr = value;
+      const selectedDate = new Date(selectedDateStr + 'T00:00:00');
+      const startDate = scheduleData.startDate;
+      const holidayDates = scheduleData['holiday-dates'] || [];
+
+      selectedDayNum = calculateScheduleDay(selectedDateStr, startDate, holidayDates);
+
+      const dayOfWeek = selectedDate.getDay();
+      const isWeekend = (dayOfWeek === 0 || dayOfWeek === 6);
+      const isHoliday = holidayDates.includes(selectedDateStr);
+
+      if (isWeekend) {
+        dayLabelElement.textContent = `It's a weekend (${selectedDate.toLocaleDateString(undefined, { weekday: 'long' })}). No school schedule.`;
+        const row = document.createElement("tr");
+        row.innerHTML = `<td colspan="3">No classes scheduled.</td>`;
+        tableBody.appendChild(row);
+        return;
+      } else if (isHoliday) {
+        dayLabelElement.textContent = `It's a holiday. No school schedule.`;
+        const row = document.createElement("tr");
+        row.innerHTML = `<td colspan="3">No classes scheduled.</td>`;
+        tableBody.appendChild(row);
+        return;
+      } else if (selectedDayNum === null) {
+        dayLabelElement.textContent = `No schedule found for selected date: ${selectedDate.toLocaleDateString()}.`;
+        const row = document.createElement("tr");
+        row.innerHTML = `<td colspan="3">No classes scheduled.</td>`;
+        tableBody.appendChild(row);
+        return;
+      }
+      displayInfo = `Schedule for ${selectedDate.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })} (Day ${selectedDayNum})`;
+    }
+
     const dayKey = `day${selectedDayNum}`;
     const todaysSchedule = scheduleData.schedule?.[dayKey];
 
     if (!Array.isArray(todaysSchedule) || todaysSchedule.length === 0) {
-      dayLabelElement.textContent = `No schedule found for Day ${selectedDayNum}.`;
+      dayLabelElement.textContent = `${displayInfo}. No classes found.`;
       const row = document.createElement("tr");
       row.innerHTML = `<td colspan="3">No classes scheduled for this day.</td>`;
       tableBody.appendChild(row);
       return;
     }
 
-    dayLabelElement.textContent = `Schedule for Day ${selectedDayNum}:`;
+    dayLabelElement.textContent = displayInfo + ":";
 
     for (const cls of todaysSchedule) {
       const row = document.createElement("tr");
@@ -219,20 +389,84 @@
 
   // Initialize on page load
   window.onload = async () => {
-    const dayPicker = document.getElementById("scheduleDayPicker");
+    scheduleData = await loadScheduleData(); // Load schedule data once
+
+    const settingsBtn = document.getElementById("settingsBtn");
+    const settingsMenu = document.getElementById("settingsMenu");
+    const scheduleDayPicker = document.getElementById("scheduleDayPicker");
+    const scheduleDatePickerInput = document.getElementById("scheduleDatePicker");
+    const applyDayBtn = document.getElementById("applyDayBtn");
+    const applyDateBtn = document.getElementById("applyDateBtn");
+
     const currentDayFromJSON = await loadCurrentDayData();
 
+    // Set initial default for Day Picker
     if (currentDayFromJSON) {
-        dayPicker.value = currentDayFromJSON;
+        scheduleDayPicker.value = currentDayFromJSON;
     } else {
-        dayPicker.value = "1";
+        scheduleDayPicker.value = "1";
     }
 
-    renderSchedule(dayPicker.value);
+    // Initialize Flatpickr
+    let fp = null;
+    if (scheduleData) {
+        const startDate = scheduleData.startDate;
+        const holidayDates = scheduleData['holiday-dates'] || [];
+        fp = flatpickr(scheduleDatePickerInput, {
+            dateFormat: "Y-m-d",
+            defaultDate: new Date().toISOString().substring(0, 10), // Default to today
+            disable: [
+                function(date) { // disable weekends
+                    return (date.getDay() === 0 || date.getDay() === 6);
+                },
+                function(date) { // disable holidays
+                    return holidayDates.includes(date.toISOString().substring(0, 10));
+                }
+            ],
+            // No onChange here, apply button will trigger render
+        });
+    } else {
+        scheduleDatePickerInput.value = "Schedule data not loaded";
+        scheduleDatePickerInput.disabled = true;
+        applyDateBtn.disabled = true;
+    }
 
-    dayPicker.addEventListener("change", (event) => {
-      renderSchedule(event.target.value);
+
+    // Event listener for settings button
+    settingsBtn.addEventListener("click", () => {
+      isSettingsOpen = !isSettingsOpen;
+      settingsMenu.classList.toggle("open", isSettingsOpen);
     });
+
+    // Close menu if clicked outside
+    document.addEventListener("click", (event) => {
+        if (isSettingsOpen && !settingsMenu.contains(event.target) && !settingsBtn.contains(event.target)) {
+            isSettingsOpen = false;
+            settingsMenu.classList.remove("open");
+        }
+    });
+
+
+    // Event listener for Apply Day button
+    applyDayBtn.addEventListener("click", () => {
+      renderSchedule('byDay', scheduleDayPicker.value);
+      isSettingsOpen = false; // Close menu after applying
+      settingsMenu.classList.remove("open");
+    });
+
+    // Event listener for Apply Date button
+    applyDateBtn.addEventListener("click", () => {
+      if (fp && fp.selectedDates.length > 0) {
+        renderSchedule('byDate', fp.selectedDates[0].toISOString().substring(0, 10));
+        isSettingsOpen = false; // Close menu after applying
+        settingsMenu.classList.remove("open");
+      } else {
+        alert("Please select a date first.");
+      }
+    });
+
+    // Initial render: Default to the 'byDay' picker's initial value
+    renderSchedule('byDay', scheduleDayPicker.value);
   };
   </script>
 </body>
