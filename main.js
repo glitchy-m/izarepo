@@ -1,7 +1,39 @@
-(function(){ 
-  // ------------------------
-  // Helper Functions
-  // ------------------------
+(function(){
+  // Helper function to calculate the schedule day (day1-day6) for a given calendar date
+  // considering a start date and skipping weekends/holidays.
+  function calculateScheduleDay(selectedDateStr, startDateStr, holidayDates) {
+      const selectedDate = new Date(selectedDateStr + 'T00:00:00');
+      const startDate = new Date(startDateStr + 'T00:00:00');
+
+      // If selected date is before the start date, it's not part of this cycle.
+      if (selectedDate < startDate) {
+          return null;
+      }
+
+      let schoolDaysCount = 0;
+      let currentDate = new Date(startDate);
+
+      while (currentDate.getTime() <= selectedDate.getTime()) {
+          const dayOfWeek = currentDate.getDay(); // 0 = Sunday, 6 = Saturday
+          const isWeekend = (dayOfWeek === 0 || dayOfWeek === 6);
+          const currentDateISO = currentDate.toISOString().substring(0, 10);
+          const isHoliday = holidayDates.includes(currentDateISO);
+
+          if (!isWeekend && !isHoliday) {
+              schoolDaysCount++;
+          }
+          currentDate.setDate(currentDate.getDate() + 1); // Move to the next day
+      }
+
+      // If no school days were counted, it means the selected day (or days leading to it) were all non-school days.
+      if (schoolDaysCount === 0) {
+          return null; // Indicates no school day schedule for this date
+      }
+
+      // The day in the 6-day cycle (1 to 6)
+      const dayInCycle = (schoolDaysCount - 1) % 6 + 1;
+      return dayInCycle;
+  }
 
   function timeToMinutes(t) {
     var parts = t.split(":");
@@ -23,24 +55,14 @@
 
   var now = new Date(),
       currentMinutes = now.getHours() * 60 + now.getMinutes(),
-      weekday = now.getDay(),
-      viewType = "";
-
-  if (weekday === 0 || weekday === 6) {
-    viewType = "weekend";
-  } else if (currentMinutes >= afterSchoolStart) {
-    viewType = "afterSchool";
-  } else {
-    viewType = "main";
-  }
+      weekday = now.getDay(); // 0 = Sunday, 6 = Saturday
 
   var container = document.getElementById("container");
 
   Promise.all([
     fetch("schedule.json").then(resp => resp.json()),
-    fetch("current-day.json").then(resp => resp.json())
   ])
-  .then(function([jsonData, dayData]){
+  .then(function([jsonData]){
     var html = "";
     var abbreviations = {
       "Chromebook Pick-up and Attendance": "Attendance",
@@ -63,12 +85,42 @@
       "Lunch": "Lunch"
     };
 
-    var currentDay = parseInt(dayData["current-day"], 10);
-    if (!currentDay || currentDay < 1 || currentDay > 6) throw new Error("Invalid current-day");
+    // Calculate currentDay based on actual date and schedule.json's startDate
+    const todayISO = now.toISOString().substring(0, 10);
+    const startDate = jsonData.startDate;
+    const holidayDates = jsonData['holiday-dates'] || [];
 
+    const currentDay = calculateScheduleDay(todayISO, startDate, holidayDates); // This will be null if it's a weekend/holiday
+
+    let viewType = "";
+    if (weekday === 0 || weekday === 6) { // Actual weekend
+      viewType = "weekend";
+    } else if (currentDay === null) { // Actual holiday that is not a weekend
+        viewType = "holiday"; // Custom viewType for holidays
+    } else if (currentMinutes >= afterSchoolStart) {
+      viewType = "afterSchool";
+    } else {
+      viewType = "main";
+    }
+
+    if (viewType === "weekend" || viewType === "holiday") {
+        let message = "It's the weekend! No school schedule today.";
+        if (viewType === "holiday") {
+            message = "It's a holiday! No school schedule today.";
+        }
+        container.innerHTML = '<div style="font-size:1.2rem; text-align:center; margin-bottom:20px;">' + message + '</div>';
+        return;
+    }
+
+    // Continue with schedule display only if it's a school day
     var dayKey = "day" + currentDay;
     var todaysSchedule = jsonData.schedule[dayKey];
-    if (!todaysSchedule || !Array.isArray(todaysSchedule)) throw new Error("Invalid or missing schedule for day " + currentDay);
+
+    if (!todaysSchedule || !Array.isArray(todaysSchedule)) {
+        // This case should ideally not happen if calculateScheduleDay returned a valid day
+        container.innerHTML = "Something went wrong loading the schedule for this day.";
+        return;
+    }
 
     var currentClass = null;
 
