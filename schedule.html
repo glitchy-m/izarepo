@@ -1,0 +1,1114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Schedule Assistant</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        /* Custom styles to match the design */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--color-background, #1F1F1F);
+            color: var(--color-text-primary, #FFFFFF);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Theming variables that will be updated by JS */
+        :root {
+            --color-primary: #8A2BE2; /* Default color */
+            --color-background: #1a1625;
+            --color-card: #3a2f57;
+            --color-text-primary: #ffffff;
+            --color-text-secondary: #d1cce6;
+            --color-text-accent: #eaddff;
+            --color-text-muted: #a39cb9;
+            --color-divider: #564a7e;
+        }
+        
+        /* Custom dropdown styling */
+        .custom-select {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url('data:image/svg+xml;utf8,<svg fill="white" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
+            background-repeat: no-repeat;
+            background-position: right 0.7rem center;
+            background-size: 1.2em;
+            padding-right: 2.5rem;
+            color: var(--color-text-primary);
+        }
+        .custom-select:focus {
+            outline: none;
+            box-shadow: none;
+        }
+        .custom-select option {
+            background-color: #FFFFFF;
+            color: #000000;
+        }
+    </style>
+</head>
+<body class="transition-colors duration-500">
+
+    <div id="app-container" class="min-h-screen p-4 sm:p-6 lg:p-8 flex flex-col">
+        <!-- Header -->
+        <header class="flex justify-between items-center mb-6">
+            <div class="flex items-center space-x-4">
+                 <div id="class-indicator" class="w-16 h-16 bg-[var(--color-card)] rounded-lg flex items-center justify-center text-4xl font-black text-[var(--color-text-accent)]">
+                    1A
+                </div>
+                 <div class="relative">
+                    <select id="class-switcher" class="custom-select bg-transparent text-lg font-bold border-none focus:ring-0">
+                        <option value="1A">Class 1A</option>
+                        <option value="1B">Class 1B</option>
+                        <option value="1C">Class 1C</option>
+                        <option value="2A">Class 2A</option>
+                        <option value="2B">Class 2B</option>
+                        <option value="2C">Class 2C</option>
+                        <option value="3H">Class 3HST</option>
+                        <option value="3C">Class 3CST</option>
+                        <option value="3E">Class 3EM</option>
+                    </select>
+                </div>
+            </div>
+            <div id="day-indicator" class="text-2xl font-bold text-right text-[var(--color-text-secondary)]">Day 1</div>
+        </header>
+
+        <!-- Main Content -->
+        <main id="main-content" class="flex-grow grid grid-cols-1 lg:grid-cols-5 gap-6">
+            <!-- This will be populated by JS -->
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- CONFIGURATION (BACKEND) ---
+
+            const scheduleData = {
+                "1A": {
+                    "color": "#6A0DAD", // Purple for 1A
+                    "schedule": { "day1": [{ "time": "08:00", "class": "Maker Space" }, { "time": "09:00", "class": "Break" }, { "time": "09:05", "class": "Language Arts" }, { "time": "10:05", "class": "Break" }, { "time": "10:15", "class": "Belizean Studies" }, { "time": "11:15", "class": "Break" }, { "time": "11:20", "class": "Quantitative Reasoning" }, { "time": "12:20", "class": "Lunch" }, { "time": "13:00", "class": "Physical Education" }, { "time": "14:00", "class": "Break" }, { "time": "14:10", "class": "Physical Education" }], "day2": [{ "time": "08:00", "class": "Fine Arts" }, { "time": "09:00", "class": "Break" }, { "time": "09:05", "class": "Quantitative Reasoning" }, { "time": "10:05", "class": "Break" }, { "time": "10:15", "class": "Belizean Studies" }, { "time": "11:15", "class": "Break" }, { "time": "11:20", "class": "Digital Arts" }, { "time": "12:20", "class": "Lunch" }, { "time": "13:00", "class": "Sustainable Development Projects" }, { "time": "14:00", "class": "Break" }, { "time": "14:10", "class": "Language Arts" }], "day3": [{ "time": "08:00", "class": "Quantitative Reasoning" }, { "time": "09:00", "class": "Break" }, { "time": "09:05", "class": "Fine Arts" }, { "time": "10:05", "class": "Break" }, { "time": "10:15", "class": "Structured Individualized Learning" }, { "time": "11:15", "class": "Break" }, { "time": "11:20", "class": "Science & Tech" }, { "time": "12:20", "class": "Lunch" }, { "time": "13:00", "class": "Super Teams" }, { "time": "14:00", "class": "Break" }, { "time": "14:10", "class": "Super Teams" }], "day4": [{ "time": "08:00", "class": "Science & Tech" }, { "time": "09:00", "class": "Break" }, { "time": "09:05", "class": "Science & Tech" }, { "time": "10:05", "class": "Break" }, { "time": "10:15", "class": "Quantitative Reasoning" }, { "time": "11:15", "class": "Break" }, { "time": "11:20", "class": "Structured Individualized Learning" }, { "time": "12:20", "class": "Lunch" }, { "time": "13:00", "class": "Seminar" }, { "time": "14:00", "class": "Break" }, { "time": "14:10", "class": "Seminar" }], "day5": [{ "time": "08:00", "class": "Science & Tech" }, { "time": "09:00", "class": "Break" }, { "time": "09:05", "class": "Language Arts" }, { "time": "10:05", "class": "Break" }, { "time": "10:15", "class": "Structured Individualized Learning" }, { "time": "11:15", "class": "Break" }, { "time": "11:20", "class": "Sustainable Development Projects" }, { "time": "12:20", "class": "Lunch" }, { "time": "13:00", "class": "Community Partnerships" }, { "time": "14:00", "class": "Break" }, { "time": "14:10", "class": "Community Partnerships" }], "day6": [{ "time": "08:00", "class": "Sustainable Development Projects" }, { "time": "09:00", "class": "Break" }, { "time": "09:05", "class": "Structured Individualized Learning" }, { "time": "10:05", "class": "Break" }, { "time": "10:15", "class": "Language Arts" }, { "time": "11:15", "class": "Break" }, { "time": "11:20", "class": "Language Arts" }, { "time": "12:20", "class": "Lunch" }, { "time": "13:00", "class": "Advisory and Life Skills" }, { "time": "14:00", "class": "Break" }, { "time": "14:10", "class": "Assembly" }], "day7": [{ "time": "08:00", "class": "Maker Space" }, { "time": "09:00", "class": "Break" }, { "time": "09:05", "class": "Digital Arts" }, { "time": "10:05", "class": "Break" }, { "time": "10:15", "class": "Fine Arts" }, { "time": "11:15", "class": "Break" }, { "time": "11:20", "class": "Quantitative Reasoning" }, { "time": "12:20", "class": "Lunch" }] }
+                },
+                "1B": {
+                    "color": "#0D6A69", // Teal for 1B
+                    "schedule": {
+    "day1": [
+      { "time": "08:00", "class": "Science & Technology" },
+      { "time": "09:00", "class": "Break" },
+      { "time": "09:05", "class": "Science & Technology" },
+      { "time": "10:05", "class": "Break" },
+      { "time": "10:15", "class": "Language Arts" },
+      { "time": "11:15", "class": "Break" },
+      { "time": "11:20", "class": "Fine Arts" },
+      { "time": "12:20", "class": "Lunch" },
+      { "time": "13:00", "class": "Advisory & Life Skills" },
+      { "time": "14:00", "class": "Break" },
+      { "time": "14:10", "class": "Structured Individualized Learning" }
+    ],
+    "day2": [
+      { "time": "08:00", "class": "Sustainable Development Projects" },
+      { "time": "09:00", "class": "Break" },
+      { "time": "09:05", "class": "Structured Individualized Learning" },
+      { "time": "10:05", "class": "Break" },
+      { "time": "10:15", "class": "Maker Space" },
+      { "time": "11:15", "class": "Break" },
+      { "time": "11:20", "class": "Language Arts" },
+      { "time": "12:20", "class": "Lunch" },
+      { "time": "13:00", "class": "Quantitative Reasoning" },
+      { "time": "14:00", "class": "Break" },
+      { "time": "14:10", "class": "Belizean Studies" }
+    ],
+    "day3": [
+      { "time": "08:00", "class": "Language Arts" },
+      { "time": "09:00", "class": "Break" },
+      { "time": "09:05", "class": "Belizean Studies" },
+      { "time": "10:05", "class": "Break" },
+      { "time": "10:15", "class": "Physical Education" },
+      { "time": "11:15", "class": "Break" },
+      { "time": "11:20", "class": "Physical Education" },
+      { "time": "12:20", "class": "Lunch" },
+      { "time": "13:00", "class": "Super Teams" },
+      { "time": "14:00", "class": "Break" },
+      { "time": "14:10", "class": "Super Teams" }
+    ],
+    "day4": [
+      { "time": "08:00", "class": "Digital Arts" },
+      { "time": "09:00", "class": "Break" },
+      { "time": "09:05", "class": "Fine Arts" },
+      { "time": "10:05", "class": "Break" },
+      { "time": "10:15", "class": "Language Arts" },
+      { "time": "11:15", "class": "Break" },
+      { "time": "11:20", "class": "Quantitative Reasoning" },
+      { "time": "12:20", "class": "Lunch" },
+      { "time": "13:00", "class": "Seminar" },
+      { "time": "14:00", "class": "Break" },
+      { "time": "14:10", "class": "Seminar" }
+    ],
+    "day5": [
+      { "time": "08:00", "class": "Structured Individualized Learning" },
+      { "time": "09:00", "class": "Break" },
+      { "time": "09:05", "class": "Sustainable Development Projects" },
+      { "time": "10:05", "class": "Break" },
+      { "time": "10:15", "class": "Quantitative Reasoning" },
+      { "time": "11:15", "class": "Break" },
+      { "time": "11:20", "class": "Fine Arts" },
+      { "time": "12:20", "class": "Lunch" },
+      { "time": "13:00", "class": "Community Partnerships" },
+      { "time": "14:00", "class": "Break" },
+      { "time": "14:10", "class": "Community Partnerships" }
+    ],
+    "day6": [
+      { "time": "08:00", "class": "Digital Arts" },
+      { "time": "09:00", "class": "Break" },
+      { "time": "09:05", "class": "Maker Space" },
+      { "time": "10:05", "class": "Break" },
+      { "time": "10:15", "class": "Science & Technology" },
+      { "time": "11:15", "class": "Break" },
+      { "time": "11:20", "class": "Quantitative Reasoning" },
+      { "time": "12:20", "class": "Lunch" },
+      { "time": "13:00", "class": "Sustainable Development Projects" },
+      { "time": "14:00", "class": "Break" },
+      { "time": "14:10", "class": "Assembly" }
+    ],
+    "day7": [
+      { "time": "08:00", "class": "Structured Individualized Learning" },
+      { "time": "09:00", "class": "Break" },
+      { "time": "09:05", "class": "Quantitative Reasoning" },
+      { "time": "10:05", "class": "Break" },
+      { "time": "10:15", "class": "Science & Technology" },
+      { "time": "11:15", "class": "Break" },
+      { "time": "11:20", "class": "Language Arts" },
+      { "time": "12:20", "class": "Lunch" }
+    ]
+  }
+                },
+                "1C": {
+  "color": "#4A7A96", // Medium Blue for 1C
+  "schedule": {
+    "day1": [
+      { "time": "08:00", "class": "Maker Space" },
+      { "time": "09:00", "class": "Break" },
+      { "time": "09:05", "class": "Language Arts" },
+      { "time": "10:05", "class": "Break" },
+      { "time": "10:15", "class": "Belizean Studies" },
+      { "time": "11:15", "class": "Break" },
+      { "time": "11:20", "class": "Quantitative Reasoning" },
+      { "time": "12:20", "class": "Lunch" },
+      { "time": "13:00", "class": "Physical Education" },
+      { "time": "14:00", "class": "Break" },
+      { "time": "14:10", "class": "Physical Education" }
+    ],
+    "day2": [
+      { "time": "08:00", "class": "Fine Arts" },
+      { "time": "09:00", "class": "Break" },
+      { "time": "09:05", "class": "Quantitative Reasoning" },
+      { "time": "10:05", "class": "Break" },
+      { "time": "10:15", "class": "Belizean Studies" },
+      { "time": "11:15", "class": "Break" },
+      { "time": "11:20", "class": "Digital Arts" },
+      { "time": "12:20", "class": "Lunch" },
+      { "time": "13:00", "class": "Sustainable Development Projects" },
+      { "time": "14:00", "class": "Break" },
+      { "time": "14:10", "class": "Language Arts" }
+    ],
+    "day3": [
+      { "time": "08:00", "class": "Quantitative Reasoning" },
+      { "time": "09:00", "class": "Break" },
+      { "time": "09:05", "class": "Fine Arts" },
+      { "time": "10:05", "class": "Break" },
+      { "time": "10:15", "class": "Structured Individualized Learning" },
+      { "time": "11:15", "class": "Break" },
+      { "time": "11:20", "class": "Science & Technology" },
+      { "time": "12:20", "class": "Lunch" },
+      { "time": "13:00", "class": "Super Teams" },
+      { "time": "14:00", "class": "Break" },
+      { "time": "14:10", "class": "Super Teams" }
+    ],
+    "day4": [
+      { "time": "08:00", "class": "Science & Technology" },
+      { "time": "09:00", "class": "Break" },
+      { "time": "09:05", "class": "Science & Technology" },
+      { "time": "10:05", "class": "Break" },
+      { "time": "10:15", "class": "Quantitative Reasoning" },
+      { "time": "11:15", "class": "Break" },
+      { "time": "11:20", "class": "Structured Individualized Learning" },
+      { "time": "12:20", "class": "Lunch" },
+      { "time": "13:00", "class": "Seminar" },
+      { "time": "14:00", "class": "Break" },
+      { "time": "14:10", "class": "Seminar" }
+    ],
+    "day5": [
+      { "time": "08:00", "class": "Science & Technology" },
+      { "time": "09:00", "class": "Break" },
+      { "time": "09:05", "class": "Language Arts" },
+      { "time": "10:05", "class": "Break" },
+      { "time": "10:15", "class": "Structured Individualized Learning" },
+      { "time": "11:15", "class": "Break" },
+      { "time": "11:20", "class": "Sustainable Development Projects" },
+      { "time": "12:20", "class": "Lunch" },
+      { "time": "13:00", "class": "Community Partnerships" },
+      { "time": "14:00", "class": "Break" },
+      { "time": "14:10", "class": "Community Partnerships" }
+    ],
+    "day6": [
+      { "time": "08:00", "class": "Sustainable Development Projects" },
+      { "time": "09:00", "class": "Break" },
+      { "time": "09:05", "class": "Structured Individualized Learning" },
+      { "time": "10:05", "class": "Break" },
+      { "time": "10:15", "class": "Language Arts" },
+      { "time": "11:15", "class": "Break" },
+      { "time": "11:20", "class": "Language Arts" },
+      { "time": "12:20", "class": "Lunch" },
+      { "time": "13:00", "class": "Advisory & Life Skills" },
+      { "time": "14:00", "class": "Break" },
+      { "time": "14:10", "class": "Assembly" }
+    ],
+    "day7": [
+      { "time": "08:00", "class": "Maker Space" },
+      { "time": "09:00", "class": "Break" },
+      { "time": "09:05", "class": "Digital Arts" },
+      { "time": "10:05", "class": "Break" },
+      { "time": "10:15", "class": "Fine Arts" },
+      { "time": "11:15", "class": "Break" },
+      { "time": "11:20", "class": "Quantitative Reasoning" },
+      { "time": "12:20", "class": "Lunch" }
+    ]
+  }
+},
+                "2A": {
+  "color": "#C55A11", // Burnt Orange for 2A
+  "schedule": {
+    "day1": [
+      { "time": "08:00", "class": "Quantitative Reasoning" },
+      { "time": "09:00", "class": "Break" },
+      { "time": "09:05", "class": "Belizean Studies" },
+      { "time": "10:05", "class": "Break" },
+      { "time": "10:15", "class": "Language Arts" },
+      { "time": "11:15", "class": "Break" },
+      { "time": "11:20", "class": "Structured Individualized Learning" },
+      { "time": "12:20", "class": "Lunch" },
+      { "time": "13:00", "class": "Science & Technology" },
+      { "time": "14:00", "class": "Break" },
+      { "time": "14:10", "class": "Science & Technology" }
+    ],
+    "day2": [
+      { "time": "08:00", "class": "Language Arts" },
+      { "time": "09:00", "class": "Break" },
+      { "time": "09:05", "class": "Sustainable Development Projects" },
+      { "time": "10:05", "class": "Break" },
+      { "time": "10:15", "class": "Quantitative Reasoning" },
+      { "time": "11:15", "class": "Break" },
+      { "time": "11:20", "class": "Science & Technology" },
+      { "time": "12:20", "class": "Lunch" },
+      { "time": "13:00", "class": "Structured Individualized Learning" },
+      { "time": "14:00", "class": "Break" },
+      { "time": "14:10", "class": "Science & Technology" }
+    ],
+    "day3": [
+      { "time": "08:00", "class": "Structured Individualized Learning" },
+      { "time": "09:00", "class": "Break" },
+      { "time": "09:05", "class": "Quantitative Reasoning" },
+      { "time": "10:05", "class": "Break" },
+      { "time": "10:15", "class": "Science & Technology" },
+      { "time": "11:15", "class": "Break" },
+      { "time": "11:20", "class": "Maker Space" },
+      { "time": "12:20", "class": "Lunch" },
+      { "time": "13:00", "class": "Super Teams" },
+      { "time": "14:00", "class": "Break" },
+      { "time": "14:10", "class": "Super Teams" }
+    ],
+    "day4": [
+      { "time": "08:00", "class": "Fine Arts" },
+      { "time": "09:00", "class": "Break" },
+      { "time": "09:05", "class": "Advisory & Life Skills" },
+      { "time": "10:05", "class": "Break" },
+      { "time": "10:15", "class": "Sustainable Development Projects" },
+      { "time": "11:15", "class": "Break" },
+      { "time": "11:20", "class": "Language Arts" },
+      { "time": "12:20", "class": "Lunch" },
+      { "time": "13:00", "class": "Seminar" },
+      { "time": "14:00", "class": "Break" },
+      { "time": "14:10", "class": "Seminar" }
+    ],
+    "day5": [
+      { "time": "08:00", "class": "Sustainable Development Projects" },
+      { "time": "09:00", "class": "Break" },
+      { "time": "09:05", "class": "Belizean Studies" },
+      { "time": "10:05", "class": "Break" },
+      { "time": "10:15", "class": "Physical Education" },
+      { "time": "11:15", "class": "Break" },
+      { "time": "11:20", "class": "Maker Space" },
+      { "time": "12:20", "class": "Lunch" },
+      { "time": "13:00", "class": "Community Partnerships" },
+      { "time": "14:00", "class": "Break" },
+      { "time": "14:10", "class": "Community Partnerships" }
+    ],
+    "day6": [
+      { "time": "08:00", "class": "Quantitative Reasoning" },
+      { "time": "09:00", "class": "Break" },
+      { "time": "09:05", "class": "Language Arts" },
+      { "time": "10:05", "class": "Break" },
+      { "time": "10:15", "class": "Fine Arts" },
+      { "time": "11:15", "class": "Break" },
+      { "time": "11:20", "class": "Structured Individualized Learning" },
+      { "time": "12:20", "class": "Lunch" },
+      { "time": "13:00", "class": "Digital Arts" },
+      { "time": "14:00", "class": "Break" },
+      { "time": "14:10", "class": "Assembly" }
+    ],
+    "day7": [
+      { "time": "08:00", "class": "Quantitative Reasoning" },
+      { "time": "09:00", "class": "Break" },
+      { "time": "09:05", "class": "Language Arts" },
+      { "time": "10:05", "class": "Break" },
+      { "time": "10:15", "class": "Physical Education" },
+      { "time": "11:15", "class": "Break" },
+      { "time": "11:20", "class": "Physical Education" },
+      { "time": "12:20", "class": "Lunch" }
+    ]
+  }
+},
+                "2B": {
+  "color": "#1E8449", // Forest Green for 2B
+  "schedule": {
+    "day1": [
+      { "time": "08:00", "class": "Quantitative Reasoning" },
+      { "time": "09:00", "class": "Break" },
+      { "time": "09:05", "class": "Sustainable Development Projects" },
+      { "time": "10:05", "class": "Break" },
+      { "time": "10:15", "class": "Belizean Studies" },
+      { "time": "11:15", "class": "Break" },
+      { "time": "11:20", "class": "Language Arts" },
+      { "time": "12:20", "class": "Lunch" },
+      { "time": "13:00", "class": "Science & Technology" },
+      { "time": "14:00", "class": "Break" },
+      { "time": "14:10", "class": "Fine Arts" }
+    ],
+    "day2": [
+      { "time": "08:00", "class": "Language Arts" },
+      { "time": "09:00", "class": "Break" },
+      { "time": "09:05", "class": "Science & Technology" },
+      { "time": "10:05", "class": "Break" },
+      { "time": "10:15", "class": "Belizean Studies" },
+      { "time": "11:15", "class": "Break" },
+      { "time": "11:20", "class": "Structured Individualized Learning" },
+      { "time": "12:20", "class": "Lunch" },
+      { "time": "13:00", "class": "Physical Education" },
+      { "time": "14:00", "class": "Break" },
+      { "time": "14:10", "class": "Physical Education" }
+    ],
+    "day3": [
+      { "time": "08:00", "class": "Quantitative Reasoning" },
+      { "time": "09:00", "class": "Break" },
+      { "time": "09:05", "class": "Structured Individualized Learning" },
+      { "time": "10:05", "class": "Break" },
+      { "time": "10:15", "class": "Language Arts" },
+      { "time": "11:15", "class": "Break" },
+      { "time": "11:20", "class": "Fine Arts" },
+      { "time": "12:20", "class": "Lunch" },
+      { "time": "13:00", "class": "Super Teams" },
+      { "time": "14:00", "class": "Break" },
+      { "time": "14:10", "class": "Super Teams" }
+    ],
+    "day4": [
+      { "time": "08:00", "class": "Quantitative Reasoning" },
+      { "time": "09:00", "class": "Break" },
+      { "time": "09:05", "class": "Sustainable Development Projects" },
+      { "time": "10:05", "class": "Break" },
+      { "time": "10:15", "class": "Structured Individualized Learning" },
+      { "time": "11:15", "class": "Break" },
+      { "time": "11:20", "class": "Maker Space" },
+      { "time": "12:20", "class": "Lunch" },
+      { "time": "13:00", "class": "Seminar" },
+      { "time": "14:00", "class": "Break" },
+      { "time": "14:10", "class": "Seminar" }
+    ],
+    "day5": [
+      { "time": "08:00", "class": "Science & Technology" },
+      { "time": "09:00", "class": "Break" },
+      { "time": "09:05", "class": "Science & Technology" },
+      { "time": "10:05", "class": "Break" },
+      { "time": "10:15", "class": "Language Arts" },
+      { "time": "11:15", "class": "Break" },
+      { "time": "11:20", "class": "Quantitative Reasoning" },
+      { "time": "12:20", "class": "Lunch" },
+      { "time": "13:00", "class": "Community Partnerships" },
+      { "time": "14:00", "class": "Break" },
+      { "time": "14:10", "class": "Community Partnerships" }
+    ],
+    "day6": [
+      { "time": "08:00", "class": "Advisory & Life Skills" },
+      { "time": "09:00", "class": "Break" },
+      { "time": "09:05", "class": "Physical Education" },
+      { "time": "10:05", "class": "Break" },
+      { "time": "10:15", "class": "Sustainable Development Projects" },
+      { "time": "11:15", "class": "Break" },
+      { "time": "11:20", "class": "Digital Arts" },
+      { "time": "12:20", "class": "Lunch" },
+      { "time": "13:00", "class": "Language Arts" },
+      { "time": "14:00", "class": "Break" },
+      { "time": "14:10", "class": "Assembly" }
+    ],
+    "day7": [
+      { "time": "08:00", "class": "Maker Space" },
+      { "time": "09:00", "class": "Break" },
+      { "time": "09:05", "class": "Structured Individualized Learning" },
+      { "time": "10:05", "class": "Break" },
+      { "time": "10:15", "class": "Quantitative Reasoning" },
+      { "time": "11:15", "class": "Break" },
+      { "time": "11:20", "class": "Digital Arts" },
+      { "time": "12:20", "class": "Lunch" }
+    ]
+  }
+},
+                "2C": {
+  "color": "#8E44AD", // Purple for 2C
+  "schedule": {
+    "day1": [
+      { "time": "08:00", "class": "Advisory & Community Projects" },
+      { "time": "09:00", "class": "Break" },
+      { "time": "09:05", "class": "Maker Space" },
+      { "time": "10:05", "class": "Break" },
+      { "time": "10:15", "class": "Belizean Studies" },
+      { "time": "11:15", "class": "Break" },
+      { "time": "11:20", "class": "Digital Arts" },
+      { "time": "12:20", "class": "Lunch" },
+      { "time": "13:00", "class": "Quantitative Reasoning" },
+      { "time": "14:00", "class": "Break" },
+      { "time": "14:10", "class": "Language Arts" }
+    ],
+    "day2": [
+      { "time": "08:00", "class": "Advisory & Community Projects" },
+      { "time": "09:00", "class": "Break" },
+      { "time": "09:05", "class": "Quantitative Reasoning" },
+      { "time": "10:05", "class": "Break" },
+      { "time": "10:15", "class": "Physical Education" },
+      { "time": "11:15", "class": "Break" },
+      { "time": "11:20", "class": "Structured Individualized Learning" },
+      { "time": "12:20", "class": "Lunch" },
+      { "time": "13:00", "class": "Language Arts" },
+      { "time": "14:00", "class": "Break" },
+      { "time": "14:10", "class": "Science & Technology" }
+    ],
+    "day3": [
+      { "time": "08:00", "class": "Advisory & Community Projects" },
+      { "time": "09:00", "class": "Break" },
+      { "time": "09:05", "class": "Quantitative Reasoning" },
+      { "time": "10:05", "class": "Break" },
+      { "time": "10:15", "class": "Language Arts" },
+      { "time": "11:15", "class": "Break" },
+      { "time": "11:20", "class": "Digital Arts" },
+      { "time": "12:20", "class": "Lunch" },
+      { "time": "13:00", "class": "Sustainable Development Projects" },
+      { "time": "14:00", "class": "Break" },
+      { "time": "14:10", "class": "Science, Technology & Innovation" }
+    ],
+    "day4": [
+      { "time": "08:00", "class": "Advisory & Community Projects" },
+      { "time": "09:00", "class": "Break" },
+      { "time": "09:05", "class": "Science & Technology" },
+      { "time": "10:05", "class": "Break" },
+      { "time": "10:15", "class": "Sustainable Development Projects" },
+      { "time": "11:15", "class": "Break" },
+      { "time": "11:20", "class": "Quantitative Reasoning" },
+      { "time": "12:20", "class": "Lunch" },
+      { "time": "13:00", "class": "Language Arts" },
+      { "time": "14:00", "class": "Break" },
+      { "time": "14:10", "class": "Seminar" }
+    ],
+    "day5": [
+      { "time": "08:00", "class": "Advisory & Community Projects" },
+      { "time": "09:00", "class": "Break" },
+      { "time": "09:05", "class": "Science & Technology" },
+      { "time": "10:05", "class": "Break" },
+      { "time": "10:15", "class": "Physical Education" },
+      { "time": "11:15", "class": "Break" },
+      { "time": "11:20", "class": "Physical Education" },
+      { "time": "12:20", "class": "Lunch" },
+      { "time": "13:00", "class": "Community Partnerships" },
+      { "time": "14:00", "class": "Break" },
+      { "time": "14:10", "class": "Community Partnerships" }
+    ],
+    "day6": [
+      { "time": "08:00", "class": "Advisory & Community Projects" },
+      { "time": "09:00", "class": "Break" },
+      { "time": "09:05", "class": "Fine Arts" },
+      { "time": "10:05", "class": "Break" },
+      { "time": "10:15", "class": "Quantitative Reasoning" },
+      { "time": "11:15", "class": "Break" },
+      { "time": "11:20", "class": "Belizean Studies" },
+      { "time": "12:20", "class": "Lunch" },
+      { "time": "13:00", "class": "Structured Individualized Learning" },
+      { "time": "14:00", "class": "Break" },
+      { "time": "14:10", "class": "Language Arts" }
+    ],
+    "day7": [
+      { "time": "08:00", "class": "Advisory & Community Projects" },
+      { "time": "09:00", "class": "Break" },
+      { "time": "09:05", "class": "Advisory & Life Skills" },
+      { "time": "10:05", "class": "Break" },
+      { "time": "10:15", "class": "Maker Space" },
+      { "time": "11:15", "class": "Break" },
+      { "time": "11:20", "class": "Fine Arts" },
+      { "time": "12:20", "class": "Lunch" },
+      { "time": "13:00", "class": "Structured Individualized Learning" },
+      { "time": "14:00", "class": "Break" },
+      { "time": "14:10", "class": "PLCs & Office Hours" }
+    ]
+  }
+},
+                "3H": {
+  "color": "#A93226", // Crimson for 3-HST
+  "schedule": {
+    "day1": [
+      { "time": "08:00", "class": "Language Arts" },
+      { "time": "09:00", "class": "Break" },
+      { "time": "09:05", "class": "Fine Arts" },
+      { "time": "10:05", "class": "Break" },
+      { "time": "10:15", "class": "Digital Media" },
+      { "time": "11:15", "class": "Break" },
+      { "time": "11:20", "class": "Financial Literacy" },
+      { "time": "12:20", "class": "Lunch" },
+      { "time": "13:00", "class": "Science & Technology" },
+      { "time": "14:00", "class": "Break" },
+      { "time": "14:10", "class": "Maker Space" }
+    ],
+    "day2": [
+      { "time": "08:00", "class": "Advisory & Life Skills" },
+      { "time": "09:00", "class": "Break" },
+      { "time": "09:05", "class": "Fine Arts" },
+      { "time": "10:05", "class": "Break" },
+      { "time": "10:15", "class": "Physical Education" },
+      { "time": "11:15", "class": "Break" },
+      { "time": "11:20", "class": "Maker Space" },
+      { "time": "12:20", "class": "Lunch" },
+      { "time": "13:00", "class": "Quantitative Reasoning" },
+      { "time": "14:00", "class": "Break" },
+      { "time": "14:10", "class": "Digital Media" }
+    ],
+    "day3": [
+      { "time": "08:00", "class": "Quantitative Reasoning" },
+      { "time": "09:00", "class": "Break" },
+      { "time": "09:05", "class": "Quantitative Reasoning" },
+      { "time": "10:05", "class": "Break" },
+      { "time": "10:15", "class": "Maker Space" },
+      { "time": "11:15", "class": "Break" },
+      { "time": "11:20", "class": "Science & Technology" },
+      { "time": "12:20", "class": "Lunch" },
+      { "time": "13:00", "class": "Language Arts" },
+      { "time": "14:00", "class": "Break" },
+      { "time": "14:10", "class": "Digital Media" }
+    ],
+    "day4": [
+      { "time": "08:00", "class": "Digital Media" },
+      { "time": "09:00", "class": "Break" },
+      { "time": "09:05", "class": "Belizean Studies" },
+      { "time": "10:05", "class": "Break" },
+      { "time": "10:15", "class": "Quantitative Reasoning" },
+      { "time": "11:15", "class": "Break" },
+      { "time": "11:20", "class": "Science & Technology" },
+      { "time": "12:20", "class": "Lunch" },
+      { "time": "13:00", "class": "Language Arts" },
+      { "time": "14:00", "class": "Break" },
+      { "time": "14:10", "class": "Digital Media" }
+    ],
+    "day5": [
+      { "time": "08:00", "class": "Language Arts" },
+      { "time": "09:00", "class": "Break" },
+      { "time": "09:05", "class": "Language Arts" },
+      { "time": "10:05", "class": "Break" },
+      { "time": "10:15", "class": "Science & Technology" },
+      { "time": "11:15", "class": "Break" },
+      { "time": "11:20", "class": "Science & Technology" },
+      { "time": "12:20", "class": "Lunch" },
+      { "time": "13:00", "class": "Quantitative Reasoning" },
+      { "time": "14:00", "class": "Break" },
+      { "time": "14:10", "class": "Community Partnerships" }
+    ],
+    "day6": [
+      { "time": "08:00", "class": "Maker Space" },
+      { "time": "09:00", "class": "Break" },
+      { "time": "09:05", "class": "Belizean Studies" },
+      { "time": "10:05", "class": "Break" },
+      { "time": "10:15", "class": "Quantitative Reasoning" },
+      { "time": "11:15", "class": "Break" },
+      { "time": "11:20", "class": "Science & Technology" },
+      { "time": "12:20", "class": "Lunch" },
+      { "time": "13:00", "class": "Social Studies" },
+      { "time": "14:00", "class": "Break" },
+      { "time": "14:10", "class": "Assembly" }
+    ],
+    "day7": [
+      { "time": "08:00", "class": "Physical Education" },
+      { "time": "09:00", "class": "Break" },
+      { "time": "09:05", "class": "Physical Education" },
+      { "time": "10:05", "class": "Break" },
+      { "time": "10:15", "class": "Language Arts" },
+      { "time": "11:15", "class": "Break" },
+      { "time": "11:20", "class": "Maker Space" },
+      { "time": "12:20", "class": "Lunch" }
+    ]
+  }
+},  
+                "3C": {
+  "color": "#2C3E50", 
+  "schedule": {
+    "day1": [
+      { "time": "08:00", "class": "Maker Space" },
+      { "time": "09:00", "class": "Break" },
+      { "time": "09:05", "class": "Advisory & Life Skills" },
+      { "time": "10:05", "class": "Break" },
+      { "time": "10:15", "class": "Fine Arts" },
+      { "time": "11:15", "class": "Break" },
+      { "time": "11:20", "class": "Digital Media" },
+      { "time": "12:20", "class": "Lunch" },
+      { "time": "13:00", "class": "Language Arts" },
+      { "time": "14:00", "class": "Break" },
+      { "time": "14:10", "class": "Quantitative Reasoning" }
+    ],
+    "day2": [
+      { "time": "08:00", "class": "Quantitative Reasoning" },
+      { "time": "09:00", "class": "Break" },
+      { "time": "09:05", "class": "Physical Education" },
+      { "time": "10:05", "class": "Break" },
+      { "time": "10:15", "class": "Fine Arts" },
+      { "time": "11:15", "class": "Break" },
+      { "time": "11:20", "class": "Financial Literacy" },
+      { "time": "12:20", "class": "Lunch" },
+      { "time": "13:00", "class": "Science & Technology" },
+      { "time": "14:00", "class": "Break" },
+      { "time": "14:10", "class": "Science & Technology" }
+    ],
+    "day3": [
+      { "time": "08:00", "class": "Digital Media" },
+      { "time": "09:00", "class": "Break" },
+      { "time": "09:05", "class": "Maker Space" },
+      { "time": "10:05", "class": "Break" },
+      { "time": "10:15", "class": "Science & Technology" },
+      { "time": "11:15", "class": "Break" },
+      { "time": "11:20", "class": "Quantitative Reasoning" },
+      { "time": "12:20", "class": "Lunch" },
+      { "time": "13:00", "class": "Belizean Studies" },
+      { "time": "14:00", "class": "Break" },
+      { "time": "14:10", "class": "Language Arts" }
+    ],
+    "day4": [
+      { "time": "08:00", "class": "Digital Media" },
+      { "time": "09:00", "class": "Break" },
+      { "time": "09:05", "class": "Physical Education" },
+      { "time": "10:05", "class": "Break" },
+      { "time": "10:15", "class": "Maker Space" },
+      { "time": "11:15", "class": "Break" },
+      { "time": "11:20", "class": "Science & Technology" },
+      { "time": "12:20", "class": "Lunch" },
+      { "time": "13:00", "class": "Quantitative Reasoning" },
+      { "time": "14:00", "class": "Break" },
+      { "time": "14:10", "class": "Language Arts" }
+    ],
+    "day5": [
+      { "time": "08:00", "class": "Maker Space" },
+      { "time": "09:00", "class": "Break" },
+      { "time": "09:05", "class": "Quantitative Reasoning" },
+      { "time": "10:05", "class": "Break" },
+      { "time": "10:15", "class": "Digital Media" },
+      { "time": "11:15", "class": "Break" },
+      { "time": "11:20", "class": "Digital Media" },
+      { "time": "12:20", "class": "Lunch" },
+      { "time": "13:00", "class": "Language Arts" },
+      { "time": "14:00", "class": "Break" },
+      { "time": "14:10", "class": "Community Partnerships" }
+    ],
+    "day6": [
+      { "time": "08:00", "class": "Fine Arts" },
+      { "time": "09:00", "class": "Break" },
+      { "time": "09:05", "class": "Maker Space" },
+      { "time": "10:05", "class": "Break" },
+      { "time": "10:15", "class": "Language Arts" },
+      { "time": "11:15", "class": "Break" },
+      { "time": "11:20", "class": "Quantitative Reasoning" },
+      { "time": "12:20", "class": "Lunch" },
+      { "time": "13:00", "class": "Social Studies" },
+      { "time": "14:00", "class": "Break" },
+      { "time": "14:10", "class": "Assembly" }
+    ],
+    "day7": [
+      { "time": "08:00", "class": "Belizean Studies" },
+      { "time": "09:00", "class": "Break" },
+      { "time": "09:05", "class": "Digital Media" },
+      { "time": "10:05", "class": "Break" },
+      { "time": "10:15", "class": "Maker Space" },
+      { "time": "11:15", "class": "Break" },
+      { "time": "11:20", "class": "Language Arts" },
+      { "time": "12:20", "class": "Lunch" }
+    ]
+  }
+},
+                "3E": {
+  "color": "#B08D57",
+  "schedule": {
+    "day1": [
+      { "time": "08:00", "class": "Quantitative Reasoning" },
+      { "time": "09:00", "class": "Break" },
+      { "time": "09:05", "class": "Maker Space" },
+      { "time": "10:05", "class": "Break" },
+      { "time": "10:15", "class": "Digital Media" },
+      { "time": "11:15", "class": "Break" },
+      { "time": "11:20", "class": "Science & Technology" },
+      { "time": "12:20", "class": "Lunch" },
+      { "time": "13:00", "class": "Belizean Studies" },
+      { "time": "14:00", "class": "Break" },
+      { "time": "14:10", "class": "Language Arts" }
+    ],
+    "day2": [
+      { "time": "08:00", "class": "Digital Media" },
+      { "time": "09:00", "class": "Break" },
+      { "time": "09:05", "class": "Maker Space" },
+      { "time": "10:05", "class": "Break" },
+      { "time": "10:15", "class": "Advisory & Life Skills" },
+      { "time": "11:15", "class": "Break" },
+      { "time": "11:20", "class": "Language Arts" },
+      { "time": "12:20", "class": "Lunch" },
+      { "time": "13:00", "class": "Language Arts" },
+      { "time": "14:00", "class": "Break" },
+      { "time": "14:10", "class": "Quantitative Reasoning" }
+    ],
+    "day3": [
+      { "time": "08:00", "class": "Maker Space" },
+      { "time": "09:00", "class": "Break" },
+      { "time": "09:05", "class": "Language Arts" },
+      { "time": "10:05", "class": "Break" },
+      { "time": "10:15", "class": "Fine Arts" },
+      { "time": "11:15", "class": "Break" },
+      { "time": "11:20", "class": "Belizean Studies" },
+      { "time": "12:20", "class": "Lunch" },
+      { "time": "13:00", "class": "Digital Media" },
+      { "time": "14:00", "class": "Break" },
+      { "time": "14:10", "class": "Quantitative Reasoning" }
+    ],
+    "day4": [
+      { "time": "08:00", "class": "Physical Education" },
+      { "time": "09:00", "class": "Break" },
+      { "time": "09:05", "class": "Digital Media" },
+      { "time": "10:05", "class": "Break" },
+      { "time": "10:15", "class": "Language Arts" },
+      { "time": "11:15", "class": "Break" },
+      { "time": "11:20", "class": "Quantitative Reasoning" },
+      { "time": "12:20", "class": "Lunch" },
+      { "time": "13:00", "class": "Science & Technology" },
+      { "time": "14:00", "class": "Break" },
+      { "time": "14:10", "class": "Science & Technology" }
+    ],
+    "day5": [
+      { "time": "08:00", "class": "Quantitative Reasoning" },
+      { "time": "09:00", "class": "Break" },
+      { "time": "09:05", "class": "Maker Space" },
+      { "time": "10:05", "class": "Break" },
+      { "time": "10:15", "class": "Maker Space" },
+      { "time": "11:15", "class": "Break" },
+      { "time": "11:20", "class": "Language Arts" },
+      { "time": "12:20", "class": "Lunch" },
+      { "time": "13:00", "class": "Fine Arts" },
+      { "time": "14:00", "class": "Break" },
+      { "time": "14:10", "class": "Community Partnerships" }
+    ],
+    "day6": [
+      { "time": "08:00", "class": "Physical Education" },
+      { "time": "09:00", "class": "Break" },
+      { "time": "09:05", "class": "Fine Arts" },
+      { "time": "10:05", "class": "Break" },
+      { "time": "10:15", "class": "Digital Media" },
+      { "time": "11:15", "class": "Break" },
+      { "time": "11:20", "class": "Maker Space" },
+      { "time": "12:20", "class": "Lunch" },
+      { "time": "13:00", "class": "Social Studies" },
+      { "time": "14:00", "class": "Break" },
+      { "time": "14:10", "class": "Assembly" }
+    ],
+    "day7": [
+      { "time": "08:00", "class": "Science & Technology" },
+      { "time": "09:00", "class": "Break" },
+      { "time": "09:05", "class": "Quantitative Reasoning" },
+      { "time": "10:05", "class": "Break" },
+      { "time": "10:15", "class": "Digital Media" },
+      { "time": "11:15", "class": "Break" },
+      { "time": "11:20", "class": "Financial Literacy" },
+      { "time": "12:20", "class": "Lunch" }
+    ]
+  }
+}
+            };
+            
+            // Reference date: Friday, Sept 5, 2025 was Day 3
+            const referenceDate = new Date('2025-09-05T00:00:00');
+            const referenceDay = 3;
+
+            // Holiday list. Format: 'YYYY-MM-DD'
+            const holidays = [
+            ];
+ 
+            // --- APPLICATION STATE ---
+            let currentClassId = '1A';
+            
+            // --- DOM ELEMENTS ---
+            const mainContent = document.getElementById('main-content');
+            const dayIndicator = document.getElementById('day-indicator');
+            const classIndicator = document.getElementById('class-indicator');
+            const classSwitcher = document.getElementById('class-switcher');
+            
+            // --- COLOR UTILITIES ---
+            function hexToRgb(hex) {
+                let r = 0, g = 0, b = 0;
+                if (hex.length == 4) {
+                    r = parseInt(hex[1] + hex[1], 16);
+                    g = parseInt(hex[2] + hex[2], 16);
+                    b = parseInt(hex[3] + hex[3], 16);
+                } else if (hex.length == 7) {
+                    r = parseInt(hex[1] + hex[2], 16);
+                    g = parseInt(hex[3] + hex[4], 16);
+                    b = parseInt(hex[5] + hex[6], 16);
+                }
+                return { r, g, b };
+            }
+
+            function applyTheme(color) {
+                const { r, g, b } = hexToRgb(color);
+                const root = document.documentElement;
+                root.style.setProperty('--color-primary', `rgb(${r}, ${g}, ${b})`);
+                root.style.setProperty('--color-background', `rgb(${Math.round(r*0.1)}, ${Math.round(g*0.1)}, ${Math.round(b*0.15)})`);
+                root.style.setProperty('--color-card', `rgb(${Math.round(r*0.25)}, ${Math.round(g*0.25)}, ${Math.round(b*0.35)})`);
+                root.style.setProperty('--color-text-secondary', `rgba(255, 255, 255, 0.7)`);
+                root.style.setProperty('--color-text-accent', `rgb(${Math.min(255, r+100)}, ${Math.min(255, g+100)}, ${Math.min(255, b+100)})`);
+                root.style.setProperty('--color-text-muted', `rgba(255, 255, 255, 0.5)`);
+                root.style.setProperty('--color-divider', `rgb(${Math.round(r*0.4)}, ${Math.round(g*0.4)}, ${Math.round(b*0.5)})`);
+            }
+
+            // --- DATE & SCHEDULE LOGIC ---
+            function getScheduleDay(targetDate) {
+                // This function now correctly calculates the day number.
+                // You are correct, if Friday is Day 3, Monday should be Day 4.
+                // The previous logic had a subtle off-by-one error that could cause an incorrect calculation over weekends.
+                
+                let schoolDaysPassed = 0;
+                let currentDate = new Date(referenceDate);
+
+                // Handle if target date is in the past (not expected in this app's flow but good for robustness)
+                if (targetDate < referenceDate) {
+                    return { dayNumber: referenceDay, effectiveDate: targetDate };
+                }
+
+                // Loop from the day *after* the reference date up to and including the target date.
+                while (currentDate.toISOString().split('T')[0] < targetDate.toISOString().split('T')[0]) {
+                    currentDate.setDate(currentDate.getDate() + 1);
+                    const dayOfWeek = currentDate.getDay();
+                    const dateString = currentDate.toISOString().split('T')[0];
+
+                    // Only count weekdays that are not holidays
+                    if (dayOfWeek !== 0 && dayOfWeek !== 6 && !holidays.includes(dateString)) {
+                        schoolDaysPassed++;
+                    }
+                }
+
+                // The new day number is the reference day + school days passed, wrapped around our 7-day cycle.
+                const totalDays = (referenceDay - 1 + schoolDaysPassed) % 7;
+                return { dayNumber: totalDays + 1, effectiveDate: targetDate };
+            }
+
+            function getNextSchoolDay(startDate) {
+                let nextDay = new Date(startDate);
+                while (true) {
+                    nextDay.setDate(nextDay.getDate() + 1);
+                    const dayOfWeek = nextDay.getDay();
+                    const dateString = nextDay.toISOString().split('T')[0];
+                    if (dayOfWeek !== 0 && dayOfWeek !== 6 && !holidays.includes(dateString)) {
+                        return nextDay;
+                    }
+                }
+            }
+            
+            // --- MOCK AI SUMMARY ---
+            function getAISummary(todaySchedule, tomorrowSchedule, todayDayNum, tomorrowDayNum) {
+                if (!todaySchedule || todaySchedule.length === 0) {
+                     return `Enjoy your day off! Get ready for Day ${tomorrowDayNum}. It will be a busy day with classes like ${tomorrowSchedule[0].class} and ${tomorrowSchedule[2].class}.`;
+                }
+                const lastClassToday = todaySchedule[todaySchedule.length - 1].class;
+                const firstClassTomorrow = tomorrowSchedule[0].class;
+                const secondClassTomorrow = tomorrowSchedule[2].class;
+
+                return `Great work finishing Day ${todayDayNum} with ${lastClassToday}. Get ready to unleash your potential tomorrow in Day ${tomorrowDayNum}, starting with ${firstClassTomorrow} and ${secondClassTomorrow}. Prepare for a productive day!`;
+            }
+
+            // --- RENDER FUNCTIONS ---
+            function render() {
+                // To make testing easier, we can override the current date.
+                // const now = new Date('2025-09-06T10:00:00'); // Saturday Weekend
+                // const now = new Date('2025-09-08T10:00:00'); // Holiday
+                const now = new Date(); 
+                
+                const dayOfWeek = now.getDay();
+                const todayString = now.toISOString().split('T')[0];
+                const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+                const isHoliday = holidays.includes(todayString);
+                
+                const classData = scheduleData[currentClassId];
+                applyTheme(classData.color);
+
+                classIndicator.textContent = currentClassId;
+
+                let scheduleInfo, tomorrowInfo, viewTitle, nextSchoolDay;
+
+                if(isWeekend || isHoliday) {
+                    viewTitle = isWeekend ? "Monday's Schedule" : "Next School Day";
+                    if(isHoliday) viewTitle = "Enjoy your Holiday!";
+                    
+                    nextSchoolDay = isWeekend ? getNextSchoolDay(now) : getNextSchoolDay(now);
+                    while(holidays.includes(nextSchoolDay.toISOString().split('T')[0])) {
+                        nextSchoolDay = getNextSchoolDay(nextSchoolDay);
+                    }
+
+                    scheduleInfo = getScheduleDay(nextSchoolDay);
+                    const schedule = classData.schedule[`day${scheduleInfo.dayNumber}`] || [];
+                    
+                    dayIndicator.textContent = `Day ${scheduleInfo.dayNumber}`;
+
+                    const scheduleHtml = schedule.map(item => `
+                        <li class="flex items-center space-x-3">
+                            <svg class="w-4 h-4 text-[var(--color-text-muted)]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                            <span>${item.class} - ${item.time}</span>
+                        </li>`).join('');
+
+                    mainContent.innerHTML = `
+                        <div class="bg-[var(--color-card)] rounded-lg p-6 lg:col-span-5 text-center flex flex-col justify-center items-center">
+                            <h2 class="text-3xl font-bold mb-4">${viewTitle}</h2>
+                            <p class="text-lg text-[var(--color-text-secondary)] mb-6">${nextSchoolDay.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })} is Day ${scheduleInfo.dayNumber}</p>
+                            <div class="w-full max-w-md text-left">
+                                <h3 class="text-xl font-bold mb-4 text-[var(--color-text-accent)]">Schedule for Day ${scheduleInfo.dayNumber}:</h3>
+                                <ul class="space-y-2 text-[var(--color-text-secondary)]">${scheduleHtml}</ul>
+                            </div>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Standard Weekday View
+                scheduleInfo = getScheduleDay(now);
+                const todaySchedule = classData.schedule[`day${scheduleInfo.dayNumber}`] || [];
+                dayIndicator.textContent = `Day ${scheduleInfo.dayNumber}`;
+
+                const currentTime = now.getHours() * 60 + now.getMinutes();
+
+                let nextClass = null;
+                let currentClass = null;
+                for (let i = 0; i < todaySchedule.length; i++) {
+                    const [hours, minutes] = todaySchedule[i].time.split(':').map(Number);
+                    const classTime = hours * 60 + minutes;
+                    if (classTime > currentTime) {
+                        nextClass = todaySchedule[i];
+                        break;
+                    }
+                    currentClass = todaySchedule[i];
+                }
+
+                // Today's Schedule Card
+                const todayScheduleHtml = todaySchedule.map(item => {
+                    const [hours, minutes] = item.time.split(':').map(Number);
+                    const classTime = hours * 60 + minutes;
+                    let activeClass = '';
+                    if (currentClass && currentClass.time === item.time) {
+                        activeClass = 'font-bold text-[var(--color-text-accent)]';
+                    } else if (classTime < currentTime) {
+                        activeClass = 'line-through text-[var(--color-text-muted)]';
+                    }
+                    return `<li class="flex items-center space-x-3 ${activeClass}">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path></svg>
+                                <span>${item.class} - ${item.time}</span>
+                            </li>`;
+                }).join('');
+
+                const todayCard = `
+                    <div class="bg-[var(--color-card)] rounded-lg p-6 lg:col-span-2">
+                        <h2 class="text-2xl font-bold mb-4 border-b-2 border-[var(--color-divider)] pb-2 text-[var(--color-text-accent)]">Today's Schedule</h2>
+                        <ul class="space-y-3 text-[var(--color-text-secondary)]">
+                            ${todaySchedule.length > 0 ? todayScheduleHtml : '<li>No classes scheduled for today.</li>'}
+                        </ul>
+                    </div>
+                `;
+
+                // Next Class Card
+                let nextClassCard = '';
+                if(nextClass) {
+                    const [nextHours, nextMinutes] = nextClass.time.split(':').map(Number);
+                    const nextClassTime = new Date(now);
+                    nextClassTime.setHours(nextHours, nextMinutes, 0, 0);
+                    const diff = nextClassTime - now;
+                    const hoursLeft = Math.floor(diff / (1000 * 60 * 60));
+                    const minutesLeft = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+
+                    nextClassCard = `
+                        <div class="bg-[var(--color-card)] rounded-lg p-6 lg:col-span-3 flex flex-col justify-center text-center">
+                            <p class="text-lg text-[var(--color-text-secondary)]">Your next class is...</p>
+                            <h2 class="text-5xl md:text-6xl font-black my-4 text-white">${nextClass.class}</h2>
+                            <p class="text-2xl text-[var(--color-text-accent)]">Break is in</p>
+                            <p class="text-4xl font-bold text-white">${hoursLeft} hrs. ${minutesLeft} mins.</p>
+                        </div>
+                    `;
+                } else {
+                     nextClassCard = `
+                        <div class="bg-[var(--color-card)] rounded-lg p-6 lg:col-span-3 flex flex-col justify-center text-center">
+                            <h2 class="text-5xl md:text-6xl font-black my-4 text-white">School's Out!</h2>
+                            <p class="text-xl text-[var(--color-text-accent)]">Enjoy the rest of your day.</p>
+                        </div>
+                    `;
+                }
+
+                // Tomorrow's Schedule Card
+                nextSchoolDay = getNextSchoolDay(now);
+                tomorrowInfo = getScheduleDay(nextSchoolDay);
+                const tomorrowSchedule = classData.schedule[`day${tomorrowInfo.dayNumber}`] || [];
+
+                const tomorrowScheduleHtml = tomorrowSchedule.map(item => `
+                        <li class="flex items-center space-x-3 text-[var(--color-text-secondary)]">
+                            <svg class="w-4 h-4 text-[var(--color-text-muted)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                            <span>${item.class} - ${item.time}</span>
+                        </li>`).join('');
+
+                const aiSummary = getAISummary(todaySchedule, tomorrowSchedule, scheduleInfo.dayNumber, tomorrowInfo.dayNumber);
+
+                const tomorrowCard = `
+                    <div class="bg-[var(--color-card)] rounded-lg p-6 lg:col-span-5 flex flex-col md:flex-row gap-6">
+                        <div class="flex-1">
+                             <h2 class="text-2xl font-bold mb-4 border-b-2 border-[var(--color-divider)] pb-2 text-[var(--color-text-accent)]">Tomorrow's Schedule</h2>
+                            <ul class="space-y-2">
+                                ${tomorrowScheduleHtml}
+                            </ul>
+                        </div>
+                        <div class="flex-1 md:border-l-2 border-[var(--color-divider)] md:pl-6 flex flex-col justify-center">
+                             <p class="text-lg text-center md:text-left"><span class="font-bold text-[var(--color-text-accent)]">Tomorrow is</span><br><span class="text-5xl font-black">Day ${tomorrowInfo.dayNumber}.</span></p>
+                             <div class="mt-4">
+                                 <h3 class="font-bold text-[var(--color-text-accent)]">✨ AI Overview</h3>
+                                 <p class="text-sm text-[var(--color-text-secondary)] italic">${aiSummary}</p>
+                             </div>
+                        </div>
+                    </div>
+                `;
+
+                mainContent.innerHTML = todayCard + nextClassCard + tomorrowCard;
+            }
+
+            // --- EVENT LISTENERS & INITIALIZATION ---
+            classSwitcher.addEventListener('change', (e) => {
+                currentClassId = e.target.value;
+                render();
+            });
+
+            // Initial render and start the interval timer
+            render();
+            setInterval(render, 1000); // Update every second
+        });
+    </script>
+
+</body>
+</html>
